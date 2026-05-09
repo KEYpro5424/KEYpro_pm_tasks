@@ -28,59 +28,99 @@
             background-size: 300% 300%; animation: softSky 20s ease-in-out infinite;
             display: flex; flex-direction: column; height: 100vh;
             -webkit-font-smoothing: antialiased; overflow: hidden;
+            overscroll-behavior-y: none;
         }
 
         /* =========================================
            Header
         ========================================= */
-        header { padding: 40px 24px 10px; z-index: 10; display: flex; justify-content: space-between; align-items: flex-start; }
-        .header-titles h1 { margin: 0; font-size: 2rem; font-weight: 800; color: var(--primary-hover); letter-spacing: 0.5px; }
-        .header-titles p { margin: 4px 0 0; font-size: 0.9rem; color: var(--text-muted); font-weight: 500; letter-spacing: 1px; }
+        header { padding: 30px 24px 10px; z-index: 10; display: flex; justify-content: space-between; align-items: flex-start; flex-shrink: 0; }
+        .header-titles h1 { margin: 0; font-size: 1.8rem; font-weight: 800; color: var(--primary-hover); letter-spacing: 0.5px; }
+        .header-titles p { margin: 2px 0 0; font-size: 0.85rem; color: var(--text-muted); font-weight: 500; letter-spacing: 1px; }
         
         .weather-settings-btn {
             background: rgba(255, 255, 255, 0.5); border: 1px solid var(--border-soft); color: var(--text-muted);
-            width: 40px; height: 40px; border-radius: 50%; font-size: 1.2rem;
+            width: 36px; height: 36px; border-radius: 50%; font-size: 1.1rem;
             display: flex; align-items: center; justify-content: center; cursor: pointer;
             box-shadow: 0 4px 10px rgba(0,0,0,0.05); transition: all 0.3s ease; flex-shrink: 0;
         }
         .weather-settings-btn:hover { background: var(--surface-solid); color: var(--primary-blue); transform: rotate(30deg); }
 
         /* =========================================
-           Weather Banner (Auto-resizing Flexbox)
+           Weather Banner (Compact Matrix)
         ========================================= */
-        .weather-banner-container { margin: 10px 24px 0; display: none; flex-wrap: wrap; gap: 15px; animation: fadeIn 0.5s ease; max-height: 30vh; overflow-y: auto; }
+        .weather-banner-container {
+            margin: 5px 24px 10px; display: none; animation: fadeIn 0.5s ease; flex-shrink: 0;
+            max-height: 25vh; /* 天気エリアが大きくなりすぎないように制限 */
+            overflow-y: auto; /* 万が一ロケ地が多すぎる場合はここだけスクロール */
+            border-radius: var(--radius-md); /* スクロール時の角丸 */
+        }
+        .weather-banner-container::-webkit-scrollbar { display: none; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 
-        .w-location-card {
-            flex: 1 1 250px; background: var(--surface-white); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-            border: 2px solid var(--border-soft); border-radius: var(--radius-lg); padding: 16px; box-shadow: var(--shadow-soft);
+        .w-matrix {
+            width: 100%; background: var(--surface-white); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            border: 2px solid var(--border-soft); border-radius: var(--radius-lg); box-shadow: var(--shadow-soft);
+            display: flex; flex-direction: column; overflow: hidden;
         }
-        .w-location-title { font-weight: 800; color: var(--primary-hover); font-size: 1.1rem; margin-bottom: 12px; border-bottom: 1px dashed #bae6fd; padding-bottom: 8px; }
-        .w-date-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; padding: 4px 0; }
-        .w-date-row:last-child { margin-bottom: 0; }
-        .w-date-label { font-size: 0.85rem; color: var(--text-body); font-weight: 600; width: 60px; }
-        .w-weather-info { display: flex; align-items: center; gap: 10px; }
-        .w-icon { font-size: 1.3rem; }
-        .w-temp-max { color: #f43f5e; font-size: 0.9rem; font-weight: 700; width: 35px; text-align: right; }
-        .w-temp-min { color: #38bdf8; font-size: 0.9rem; font-weight: 700; width: 35px; text-align: right; }
-        .w-error-text { font-size: 0.8rem; color: var(--text-muted); }
+        .w-matrix-row { display: flex; border-bottom: 1px solid rgba(186, 230, 253, 0.6); }
+        .w-matrix-row:last-child { border-bottom: none; }
+        .w-matrix-header { background: rgba(240, 249, 255, 0.7); }
+        
+        .w-matrix-cell {
+            flex: 1; padding: 6px 4px; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            border-right: 1px solid rgba(186, 230, 253, 0.6); min-width: 0; text-align: center;
+        }
+        .w-matrix-cell:last-child { border-right: none; }
+        
+        .w-matrix-loc-name { flex: 1.2; font-weight: 800; color: var(--primary-hover); font-size: clamp(0.6rem, 2.2vw, 0.85rem); word-break: auto-phrase; }
+        .w-matrix-date { font-size: clamp(0.65rem, 2.2vw, 0.8rem); font-weight: 800; color: var(--text-body); }
+        .w-icon { font-size: clamp(1rem, 3.5vw, 1.3rem); line-height: 1.1; }
+        .w-temps { display: flex; gap: 4px; font-size: clamp(0.55rem, 1.8vw, 0.75rem); font-weight: 700; margin-top: 1px; }
+        .w-temp-max { color: #f43f5e; } .w-temp-min { color: #38bdf8; }
+        .w-error-text { font-size: 0.7rem; color: var(--text-muted); }
 
         /* =========================================
-           Dashboard & Circle Cards
+           Dashboard & Circle Cards (Auto-Fit Layout)
         ========================================= */
-        .dashboard { display: flex; flex-wrap: wrap; gap: 25px; padding: 24px; justify-content: center; align-items: center; align-content: flex-start; overflow-y: auto; padding-bottom: 120px; flex-grow: 1; }
-        .circle-block { position: relative; border-radius: 50%; background: var(--surface-white); border: 2px solid var(--border-soft); display: flex; align-items: center; justify-content: center; text-align: center; cursor: pointer; box-shadow: var(--shadow-soft); transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); flex-shrink: 0; }
-        .circle-block:hover { transform: translateY(-4px) scale(1.03); background: var(--surface-solid); }
+        .dashboard { 
+            display: flex; flex-wrap: wrap; 
+            padding: 5px 24px 24px; 
+            justify-content: center; align-items: center; align-content: center; /* 全体を中央に寄せる */
+            gap: 15px; /* マージンを小さくして敷き詰めやすく */
+            flex-grow: 1; overflow: hidden; /* スクロールを禁止し、1画面に収める */
+        }
+
+        .circle-block { 
+            position: relative; border-radius: 50%; 
+            background: var(--surface-white); border: 2px solid var(--border-soft); 
+            display: flex; align-items: center; justify-content: center; text-align: center; cursor: pointer; 
+            box-shadow: var(--shadow-soft); transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); 
+            /* JSでサイズを制御するためflexの基準値は持たせない */
+        }
+        .circle-block:active { transform: scale(0.96); }
         .circle-block.add-new { background: transparent; border: 2px dashed rgba(14, 165, 233, 0.3); box-shadow: none; }
-        .circle-title { font-size: 0.95rem; font-weight: 700; color: var(--text-heading); padding: 16px; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; word-break: break-all; }
-        .badge { position: absolute; top: 5%; right: 5%; background: var(--badge-bg); color: #ffffff; font-size: 0.85rem; font-weight: 700; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(125, 211, 252, 0.5); border: 3px solid var(--surface-solid); z-index: 2; }
+        
+        .circle-title { 
+            font-weight: 700; color: var(--text-heading); 
+            padding: 8px; line-height: 1.3; display: -webkit-box; 
+            -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; word-break: break-all; 
+            /* 丸のサイズに応じて文字も小さくする（JSで制御） */
+        }
+        
+        .badge { 
+            position: absolute; top: 0; right: 0; 
+            background: var(--badge-bg); color: #ffffff; font-weight: 700; 
+            border-radius: 50%; display: flex; align-items: center; justify-content: center; 
+            box-shadow: 0 4px 10px rgba(125, 211, 252, 0.5); border: 2px solid var(--surface-solid); z-index: 2; 
+        }
 
         /* =========================================
            Modals
         ========================================= */
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(224, 242, 254, 0.4); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); display: flex; align-items: flex-end; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.4s ease; z-index: 1000; }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(224, 242, 254, 0.4); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); display: flex; align-items: flex-end; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.4s ease, background-color 0.4s ease; z-index: 1000; }
         .modal-overlay.active { opacity: 1; pointer-events: auto; }
-        .modal-content { background: var(--surface-solid); box-shadow: 0 -10px 40px rgba(14, 165, 233, 0.1); width: 100%; height: 85vh; border-radius: var(--radius-xl) var(--radius-xl) 0 0; display: flex; flex-direction: column; transform: translateY(100%); transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
+        .modal-content { background: var(--surface-solid); box-shadow: 0 -10px 40px rgba(14, 165, 233, 0.1); width: 100%; height: 85vh; border-radius: var(--radius-xl) var(--radius-xl) 0 0; display: flex; flex-direction: column; transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.2, 0.9, 0.3, 1); will-change: transform; }
         .modal-overlay.active .modal-content { transform: translateY(0); }
         
         @media (min-width: 600px) {
@@ -89,31 +129,25 @@
             .modal-overlay.active .modal-content { transform: translateY(0) scale(1); }
         }
 
-        .modal-handle { width: 40px; height: 5px; background-color: #cbd5e1; border-radius: 5px; margin: 16px auto; flex-shrink: 0; }
+        .modal-drag-area { padding: 15px 0; cursor: grab; display: flex; justify-content: center; flex-shrink: 0; touch-action: none; }
+        .modal-drag-area:active { cursor: grabbing; }
+        .modal-handle { width: 50px; height: 5px; background-color: #cbd5e1; border-radius: 5px; pointer-events: none; }
         .modal-header { padding: 0 24px 20px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
         .modal-title-input { background: none; border: none; color: var(--text-heading); font-size: 1.5rem; font-weight: 800; width: 100%; outline: none; }
         .close-btn { background: #f1f5f9; border: none; color: var(--text-muted); width: 36px; height: 36px; border-radius: 50%; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; }
 
         /* =========================================
-           Weather Settings Form (Search based)
+           Weather Settings Form & Task List
         ========================================= */
-        .weather-form { padding: 0 24px 24px; overflow-y: auto; }
+        .weather-form { padding: 0 24px 24px; overflow-y: auto; overscroll-behavior-y: contain; }
         .w-setting-section { margin-bottom: 24px; }
         .w-setting-title { font-weight: 700; color: var(--text-heading); font-size: 1rem; margin-bottom: 12px; }
         
-        /* 検索UI */
         .search-area { display: flex; gap: 10px; margin-bottom: 12px; }
         .search-area input { flex-grow: 1; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; background: #f8fafc; font-size: 1rem; outline: none; }
-        .search-area input:focus { border-color: var(--primary-blue); }
-        .search-area button { background: var(--primary-blue); color: white; border: none; border-radius: 8px; padding: 0 16px; font-weight: bold; cursor: pointer; transition: 0.2s; }
-        .search-area button:hover { background: var(--primary-hover); }
-
+        .search-area button { background: var(--primary-blue); color: white; border: none; border-radius: 8px; padding: 0 16px; font-weight: bold; cursor: pointer; }
         .search-results { display: flex; flex-direction: column; gap: 5px; margin-bottom: 15px; max-height: 150px; overflow-y: auto; }
-        .search-result-item { padding: 10px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; cursor: pointer; font-size: 0.9rem; transition: 0.2s; display: flex; justify-content: space-between; align-items: center; }
-        .search-result-item:hover { background: #e0f2fe; border-color: var(--primary-blue); color: var(--primary-hover); font-weight: bold; }
-        .search-result-item span { color: var(--text-muted); font-size: 0.8rem; }
-
-        /* タグ共通（場所・日付） */
+        .search-result-item { padding: 10px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; cursor: pointer; font-size: 0.9rem; display: flex; justify-content: space-between; align-items: center; }
         .selected-tags-list { display: flex; flex-wrap: wrap; gap: 8px; }
         .tag-item { background: #e0f2fe; color: var(--primary-hover); padding: 6px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; display: flex; align-items: center; gap: 6px; border: 1px solid #bae6fd; }
         .tag-item button { background: none; border: none; color: #f43f5e; cursor: pointer; font-size: 1.1rem; padding: 0; line-height: 1; }
@@ -122,14 +156,11 @@
         .date-input-area input { flex-grow: 1; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; background: #f8fafc; font-family: inherit; font-size: 1rem; }
         .date-input-area button { background: var(--primary-blue); color: white; border: none; border-radius: 8px; padding: 0 16px; font-weight: bold; cursor: pointer; }
 
-        .save-weather-btn { width: 100%; background: var(--primary-blue); color: #ffffff; border: none; border-radius: var(--radius-md); padding: 16px; font-weight: 700; font-size: 1.1rem; cursor: pointer; box-shadow: 0 4px 12px rgba(56, 189, 248, 0.3); transition: all 0.2s; }
-        .save-weather-btn:active { transform: scale(0.98); }
-        .disable-weather-btn { width: 100%; background: transparent; color: var(--text-muted); border: none; padding: 16px; margin-top: 5px; font-weight: 600; cursor: pointer; }
+        .save-weather-btn { width: 100%; background: var(--primary-blue); color: #ffffff; border: none; border-radius: var(--radius-md); padding: 16px; font-weight: 700; font-size: 1.1rem; cursor: pointer; margin-bottom: 10px; }
+        .disable-weather-btn { width: 100%; background: transparent; color: var(--text-muted); border: none; padding: 16px; font-weight: 600; cursor: pointer; }
 
-        /* タスクリスト */
-        .task-list-container { padding: 0 24px 24px; overflow-y: auto; flex-grow: 1; }
+        .task-list-container { padding: 0 24px 24px; overflow-y: auto; flex-grow: 1; overscroll-behavior-y: contain; }
         .task-item { display: flex; align-items: flex-start; padding: 16px; margin-bottom: 12px; background: #f8fafc; border: 1px solid #f1f5f9; border-radius: var(--radius-lg); transition: all 0.3s ease; }
-        .task-item:hover { background: #ffffff; box-shadow: var(--shadow-soft); }
         .task-checkbox { appearance: none; width: 24px; height: 24px; border: 2px solid #bae6fd; border-radius: 50%; margin-right: 16px; cursor: pointer; position: relative; flex-shrink: 0; background-color: #ffffff; }
         .task-checkbox:checked { background: var(--primary-blue); border-color: var(--primary-blue); box-shadow: 0 4px 10px rgba(56, 189, 248, 0.4); }
         .task-checkbox:checked::after { content: ''; position: absolute; top: 5px; left: 8px; width: 4px; height: 10px; border: solid #fff; border-width: 0 2.5px 2.5px 0; transform: rotate(45deg); }
@@ -154,12 +185,13 @@
     </header>
 
     <div class="weather-banner-container" id="weather-banner"></div>
+    
     <div class="dashboard" id="dashboard"></div>
 
     <!-- タスク詳細モーダル -->
     <div class="modal-overlay" id="modal">
-        <div class="modal-content">
-            <div class="modal-handle"></div>
+        <div class="modal-content" id="modal-content">
+            <div class="modal-drag-area" id="modal-drag"><div class="modal-handle"></div></div>
             <div class="modal-header">
                 <input type="text" class="modal-title-input" id="modal-title" placeholder="タイトルを入力...">
                 <button class="close-btn" onclick="closeModal('modal')">✕</button>
@@ -179,35 +211,30 @@
 
     <!-- 天気設定モーダル -->
     <div class="modal-overlay" id="weather-modal">
-        <div class="modal-content">
-            <div class="modal-handle"></div>
+        <div class="modal-content" id="weather-modal-content">
+            <div class="modal-drag-area" id="weather-modal-drag"><div class="modal-handle"></div></div>
             <div class="modal-header">
-                <h2 style="margin:0; font-size: 1.4rem; color: var(--text-heading);">天気エリア・日程設定</h2>
+                <h2 style="margin:0; font-size: 1.4rem; color: var(--text-heading);">天気設定</h2>
                 <button class="close-btn" onclick="closeModal('weather-modal')">✕</button>
             </div>
             <div class="weather-form">
-                
                 <div class="w-setting-section">
                     <div class="w-setting-title">📍 ロケ地（市区町村で検索）</div>
                     <div class="search-area">
                         <input type="text" id="location-search-input" placeholder="例: 渋谷区, 館山市" onkeypress="if(event.key === 'Enter') searchLocation()">
                         <button onclick="searchLocation()">検索</button>
                     </div>
-                    <!-- 検索結果表示エリア -->
                     <div class="search-results" id="search-results-container"></div>
-                    <!-- 選択済みエリア -->
                     <div class="selected-tags-list" id="selected-locations-container"></div>
                 </div>
-
                 <div class="w-setting-section">
-                    <div class="w-setting-title">📅 撮影予定日（最大15日先まで）</div>
+                    <div class="w-setting-title">📅 撮影予定日（最大15日先）</div>
                     <div class="date-input-area">
                         <input type="date" id="new-date-input">
                         <button onclick="addWeatherDate()">追加</button>
                     </div>
                     <div class="selected-tags-list" id="selected-dates-container"></div>
                 </div>
-
                 <button class="save-weather-btn" onclick="saveWeatherSettings()">設定を保存して更新</button>
                 <button class="disable-weather-btn" onclick="disableWeather()">天気を非表示にする</button>
             </div>
@@ -216,39 +243,145 @@
 
     <script>
         // ==========================================
-        // タスク管理ロジック (変更なし)
+        // UI & スワイプ制御
+        // ==========================================
+        function setupSwipeToClose(modalId, contentId, dragAreaId) {
+            const modal = document.getElementById(modalId);
+            const content = document.getElementById(contentId);
+            const dragArea = document.getElementById(dragAreaId);
+            
+            let startY = 0; let currentY = 0; let isDragging = false;
+
+            const startDrag = (e) => {
+                isDragging = true; startY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+                content.style.transition = 'none'; 
+            };
+
+            const drag = (e) => {
+                if (!isDragging) return;
+                const clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+                currentY = clientY - startY;
+                if (currentY > 0) {
+                    content.style.transform = `translateY(${currentY}px)`;
+                    modal.style.backgroundColor = `rgba(224, 242, 254, ${Math.max(0, 0.4 - (currentY / 1000))})`;
+                }
+            };
+
+            const endDrag = () => {
+                if (!isDragging) return;
+                isDragging = false; content.style.transition = 'transform 0.4s cubic-bezier(0.2, 0.9, 0.3, 1)';
+                if (currentY > 100) { closeModal(modalId); } else { content.style.transform = ''; modal.style.backgroundColor = ''; }
+                currentY = 0;
+            };
+
+            dragArea.addEventListener('touchstart', startDrag, { passive: true });
+            document.addEventListener('touchmove', drag, { passive: true });
+            document.addEventListener('touchend', endDrag);
+            dragArea.addEventListener('mousedown', startDrag);
+            document.addEventListener('mousemove', drag);
+            document.addEventListener('mouseup', endDrag);
+        }
+
+        // ==========================================
+        // タスク管理ロジック (Auto-Fit 制御追加)
         // ==========================================
         const STORAGE_KEY = 'pm_task_board_v7_dynamic'; 
         let blocks = []; let currentBlockId = null; let showCompleted = false;
 
         document.addEventListener('DOMContentLoaded', () => {
             loadData(); renderDashboard(); initWeather();
+            setupSwipeToClose('modal', 'modal-content', 'modal-drag');
+            setupSwipeToClose('weather-modal', 'weather-modal-content', 'weather-modal-drag');
+
             document.getElementById('modal-title').addEventListener('input', (e) => {
                 if(currentBlockId) { const block = blocks.find(b => b.id === currentBlockId); if(block) { block.title = e.target.value; saveData(); renderDashboard(); } }
             });
+            
+            // 画面サイズが変わった時にも再計算
+            window.addEventListener('resize', renderDashboard);
         });
 
         function loadData() { const saved = localStorage.getItem(STORAGE_KEY); if(saved) blocks = JSON.parse(saved); else { blocks = [{ id: '1', title: 'STUDIO', items: [{ id: 't1', text: '都内Aスタジオ 仮キープ', completed: false }] }]; saveData(); } }
         function saveData() { localStorage.setItem(STORAGE_KEY, JSON.stringify(blocks)); }
 
+        // 丸のサイズを自動計算して一画面に収める
         function renderDashboard() {
-            const dashboardEl = document.getElementById('dashboard'); dashboardEl.innerHTML = '';
+            const dashboardEl = document.getElementById('dashboard'); 
+            dashboardEl.innerHTML = '';
+            
+            // ダッシュボードの有効な描画領域を取得
+            const dashboardWidth = dashboardEl.clientWidth - 48; // padding左右分引く
+            const dashboardHeight = dashboardEl.clientHeight - 48;
+            const totalItems = blocks.length + 1; // 既存ブロック ＋ 追加ボタン
+            
+            // 💡 数に応じて基本サイズを動的計算（最大140px、最小40px）
+            // 面積から1個あたりの許容サイズを逆算する（簡易的な平方根計算）
+            let baseSize = Math.floor(Math.sqrt((dashboardWidth * dashboardHeight) / totalItems) * 0.7); 
+            
+            // 制限をかける
+            if (baseSize > 140) baseSize = 140;
+            if (baseSize < 50) baseSize = 50;
+
             blocks.forEach(block => {
-                const itemCount = block.items.length; const uncompletedCount = block.items.filter(item => !item.completed).length;
-                const circleEl = document.createElement('div'); circleEl.className = 'circle-block';
-                const calculatedSize = Math.min(110 + (itemCount * 12), 240);
-                circleEl.style.width = `${calculatedSize}px`; circleEl.style.height = `${calculatedSize}px`;
+                const uncompletedCount = block.items.filter(item => !item.completed).length;
+                const circleEl = document.createElement('div'); 
+                circleEl.className = 'circle-block';
+                
+                circleEl.style.width = `${baseSize}px`; 
+                circleEl.style.height = `${baseSize}px`;
                 circleEl.onclick = () => openTaskModal(block.id);
-                const titleEl = document.createElement('div'); titleEl.className = 'circle-title'; titleEl.innerText = block.title || '無題'; circleEl.appendChild(titleEl);
-                if (uncompletedCount > 0) { const badgeEl = document.createElement('div'); badgeEl.className = 'badge'; badgeEl.innerText = uncompletedCount; circleEl.appendChild(badgeEl); }
+                
+                const titleEl = document.createElement('div'); 
+                titleEl.className = 'circle-title'; 
+                titleEl.innerText = block.title || '無題'; 
+                // 文字サイズも丸の大きさに比例して小さくする
+                titleEl.style.fontSize = `${Math.max(0.6, baseSize / 130)}rem`;
+                
+                circleEl.appendChild(titleEl);
+                
+                if (uncompletedCount > 0) { 
+                    const badgeEl = document.createElement('div'); 
+                    badgeEl.className = 'badge'; 
+                    badgeEl.innerText = uncompletedCount; 
+                    // バッジのサイズも調整
+                    const badgeSize = Math.max(16, baseSize * 0.25);
+                    badgeEl.style.width = `${badgeSize}px`;
+                    badgeEl.style.height = `${badgeSize}px`;
+                    badgeEl.style.fontSize = `${badgeSize * 0.5}px`;
+                    
+                    circleEl.appendChild(badgeEl); 
+                }
                 dashboardEl.appendChild(circleEl);
             });
-            const addCircle = document.createElement('div'); addCircle.className = 'circle-block add-new'; addCircle.style.width = '110px'; addCircle.style.height = '110px'; addCircle.innerHTML = '<div class="circle-title" style="font-size: 2.2rem; font-weight: 300; color: #38bdf8;">＋</div>'; addCircle.onclick = addNewBlock; dashboardEl.appendChild(addCircle);
+            
+            // 追加ボタンの生成
+            const addCircle = document.createElement('div'); 
+            addCircle.className = 'circle-block add-new'; 
+            addCircle.style.width = `${baseSize}px`; 
+            addCircle.style.height = `${baseSize}px`; 
+            addCircle.innerHTML = `<div class="circle-title" style="font-size: ${Math.max(1, baseSize/60)}rem; font-weight: 300; color: #38bdf8;">＋</div>`; 
+            addCircle.onclick = addNewBlock; 
+            dashboardEl.appendChild(addCircle);
         }
 
         function addNewBlock() { const newBlock = { id: Date.now().toString(), title: 'New Category', items: [] }; blocks.push(newBlock); saveData(); renderDashboard(); openTaskModal(newBlock.id); }
-        function openTaskModal(blockId) { currentBlockId = blockId; const block = blocks.find(b => b.id === blockId); if(!block) return; document.getElementById('modal-title').value = block.title; showCompleted = false; updateToggleBtnText(); document.getElementById('completed-tasks').style.display = 'none'; renderTasks(); document.getElementById('modal').classList.add('active'); document.body.style.overflow = 'hidden'; }
-        function closeModal(modalId) { document.getElementById(modalId).classList.remove('active'); if(modalId === 'modal') { currentBlockId = null; renderDashboard(); } document.body.style.overflow = 'auto'; }
+        
+        function openTaskModal(blockId) { 
+            currentBlockId = blockId; const block = blocks.find(b => b.id === blockId); if(!block) return; 
+            document.getElementById('modal-title').value = block.title; showCompleted = false; updateToggleBtnText(); 
+            document.getElementById('completed-tasks').style.display = 'none'; renderTasks(); 
+            const modal = document.getElementById('modal'); const content = document.getElementById('modal-content');
+            content.style.transform = ''; modal.style.backgroundColor = ''; modal.classList.add('active'); 
+            document.body.style.overflow = 'hidden'; 
+        }
+
+        function closeModal(modalId) { 
+            const modal = document.getElementById(modalId); const content = document.getElementById(modalId === 'modal' ? 'modal-content' : 'weather-modal-content');
+            content.style.transform = 'translateY(100%)'; modal.classList.remove('active'); 
+            if(modalId === 'modal') { currentBlockId = null; renderDashboard(); } 
+            setTimeout(() => { document.body.style.overflow = 'auto'; }, 300);
+        }
+
         document.getElementById('modal').addEventListener('click', (e) => { if(e.target === document.getElementById('modal')) closeModal('modal'); });
         document.getElementById('weather-modal').addEventListener('click', (e) => { if(e.target === document.getElementById('weather-modal')) closeModal('weather-modal'); });
 
@@ -276,218 +409,140 @@
 
 
         // ==========================================
-        // 天気予報ロジック (市町村検索 + 複数エリア・複数日程)
+        // 天気予報ロジック (一覧表・高精度判定)
         // ==========================================
-        const WEATHER_KEY = 'pm_weather_city_v1';
-        let tempSelectedLocations = []; // [{ id, name, lat, lon }]
-        let tempSelectedDates = []; // ["YYYY-MM-DD"]
+        const WEATHER_KEY = 'pm_weather_matrix_v1';
+        let tempSelectedLocations = []; let tempSelectedDates = [];
 
         function getWeatherEmoji(code) {
-            if (code <= 3) return '☀️'; if (code <= 48) return '🌫'; if (code <= 67) return '☔️';
-            if (code <= 77) return '⛄️'; if (code <= 82) return '🌧'; if (code <= 86) return '❄️';
-            if (code >= 95) return '⚡️'; return '☁️';
+            if (code === 0) return '☀️'; 
+            if (code === 1 || code === 2) return '⛅'; 
+            if (code === 3) return '☁️'; 
+            if (code === 45 || code === 48) return '🌫'; 
+            if (code >= 51 && code <= 55) return '🌧'; 
+            if (code >= 56 && code <= 57) return '🌧❄️'; 
+            if (code >= 61 && code <= 65) return '☔️'; 
+            if (code >= 66 && code <= 67) return '☔️❄️'; 
+            if (code >= 71 && code <= 75) return '⛄️'; 
+            if (code === 77) return '⛄️'; 
+            if (code >= 80 && code <= 82) return '🌧'; 
+            if (code >= 85 && code <= 86) return '❄️'; 
+            if (code >= 95) return '⚡️'; 
+            return '☁️'; 
         }
 
-        function formatDateForDisplay(dateString) {
-            const d = new Date(dateString); return `${d.getMonth() + 1}/${d.getDate()}`;
-        }
+        function formatDateForDisplay(dateString) { const d = new Date(dateString); return `${d.getMonth() + 1}/${d.getDate()}`; }
 
-        // --- モーダルと検索・追加処理 ---
         function openWeatherSettings() {
             const data = JSON.parse(localStorage.getItem(WEATHER_KEY) || '{ "locations": [], "dates": [] }');
+            tempSelectedLocations = data.locations || []; tempSelectedDates = data.dates || [];
+            if(tempSelectedDates.length === 0) { const todayStr = new Date().toLocaleDateString('ja-JP').split('/').map(n => n.padStart(2, '0')).join('-'); tempSelectedDates.push(todayStr); }
             
-            tempSelectedLocations = data.locations || [];
-            tempSelectedDates = data.dates || [];
+            renderSelectedLocations(); renderSelectedDates();
+            document.getElementById('search-results-container').innerHTML = ''; document.getElementById('location-search-input').value = '';
             
-            if(tempSelectedDates.length === 0) {
-                const todayStr = new Date().toLocaleDateString('ja-JP').split('/').map(n => n.padStart(2, '0')).join('-');
-                tempSelectedDates.push(todayStr);
-            }
-            
-            renderSelectedLocations();
-            renderSelectedDates();
-            document.getElementById('search-results-container').innerHTML = ''; // 検索結果クリア
-            document.getElementById('location-search-input').value = '';
-            document.getElementById('weather-modal').classList.add('active');
+            const modal = document.getElementById('weather-modal'); const content = document.getElementById('weather-modal-content');
+            content.style.transform = ''; modal.style.backgroundColor = ''; modal.classList.add('active');
         }
 
-        // 市区町村の検索 (Open-Meteo Geocoding API)
         async function searchLocation() {
-            const input = document.getElementById('location-search-input');
-            const query = input.value.trim();
-            if(!query) return;
-
+            const input = document.getElementById('location-search-input'); const query = input.value.trim(); if(!query) return;
             const resultsContainer = document.getElementById('search-results-container');
             resultsContainer.innerHTML = '<div style="color:var(--text-muted); font-size:0.9rem; padding:10px;">検索中...</div>';
-
             try {
                 const res = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(query)}&count=5&language=ja&format=json`);
                 const data = await res.json();
-
                 resultsContainer.innerHTML = '';
-                if (!data.results || data.results.length === 0) {
-                    resultsContainer.innerHTML = '<div style="color:#f43f5e; font-size:0.9rem; padding:10px;">見つかりませんでした。別のキーワードでお試しください。</div>';
-                    return;
-                }
-
+                if (!data.results || data.results.length === 0) { resultsContainer.innerHTML = '<div style="color:#f43f5e; font-size:0.9rem; padding:10px;">見つかりませんでした。</div>'; return; }
                 data.results.forEach(loc => {
-                    const item = document.createElement('div');
-                    item.className = 'search-result-item';
-                    
-                    // 表示名（例：新宿区, 東京都）
-                    const displayName = loc.name;
+                    const item = document.createElement('div'); item.className = 'search-result-item';
                     const prefName = loc.admin1 ? ` (${loc.admin1})` : '';
-
-                    item.innerHTML = `<div>${displayName} <span>${prefName}</span></div> <div>＋ 追加</div>`;
-                    item.onclick = () => addLocation(loc.id, displayName, loc.latitude, loc.longitude);
+                    item.innerHTML = `<div>${loc.name} <span>${prefName}</span></div> <div>＋ 追加</div>`;
+                    item.onclick = () => addLocation(loc.id, loc.name, loc.latitude, loc.longitude);
                     resultsContainer.appendChild(item);
                 });
-
-            } catch (error) {
-                resultsContainer.innerHTML = '<div style="color:#f43f5e; font-size:0.9rem; padding:10px;">検索エラーが発生しました</div>';
-            }
+            } catch (error) { resultsContainer.innerHTML = '<div style="color:#f43f5e; font-size:0.9rem; padding:10px;">検索エラーが発生しました</div>'; }
         }
 
-        function addLocation(id, name, lat, lon) {
-            // 重複チェック
-            if (!tempSelectedLocations.some(loc => loc.id === id)) {
-                tempSelectedLocations.push({ id, name, lat, lon });
-                renderSelectedLocations();
-            }
-            document.getElementById('search-results-container').innerHTML = '';
-            document.getElementById('location-search-input').value = '';
-        }
+        function addLocation(id, name, lat, lon) { if (!tempSelectedLocations.some(loc => loc.id === id)) { tempSelectedLocations.push({ id, name, lat, lon }); renderSelectedLocations(); } document.getElementById('search-results-container').innerHTML = ''; document.getElementById('location-search-input').value = ''; }
+        function removeLocation(id) { tempSelectedLocations = tempSelectedLocations.filter(loc => loc.id !== id); renderSelectedLocations(); }
+        function renderSelectedLocations() { const container = document.getElementById('selected-locations-container'); container.innerHTML = ''; tempSelectedLocations.forEach(loc => { const tag = document.createElement('div'); tag.className = 'tag-item'; tag.innerHTML = `<span>📍 ${loc.name}</span><button onclick="removeLocation(${loc.id})">×</button>`; container.appendChild(tag); }); }
 
-        function removeLocation(id) {
-            tempSelectedLocations = tempSelectedLocations.filter(loc => loc.id !== id);
-            renderSelectedLocations();
-        }
-
-        function renderSelectedLocations() {
-            const container = document.getElementById('selected-locations-container');
-            container.innerHTML = '';
-            tempSelectedLocations.forEach(loc => {
-                const tag = document.createElement('div'); tag.className = 'tag-item';
-                tag.innerHTML = `<span>📍 ${loc.name}</span><button onclick="removeLocation(${loc.id})">×</button>`;
-                container.appendChild(tag);
-            });
-        }
-
-        // 日程処理
-        function addWeatherDate() {
-            const input = document.getElementById('new-date-input'); const dateVal = input.value;
-            if(!dateVal) return;
-            if(!tempSelectedDates.includes(dateVal)) { tempSelectedDates.push(dateVal); tempSelectedDates.sort(); renderSelectedDates(); }
-            input.value = '';
-        }
+        function addWeatherDate() { const input = document.getElementById('new-date-input'); const dateVal = input.value; if(!dateVal) return; if(!tempSelectedDates.includes(dateVal)) { tempSelectedDates.push(dateVal); tempSelectedDates.sort(); renderSelectedDates(); } input.value = ''; }
         function removeWeatherDate(dateVal) { tempSelectedDates = tempSelectedDates.filter(d => d !== dateVal); renderSelectedDates(); }
-        function renderSelectedDates() {
-            const container = document.getElementById('selected-dates-container'); container.innerHTML = '';
-            tempSelectedDates.forEach(dateVal => {
-                const tag = document.createElement('div'); tag.className = 'tag-item';
-                tag.innerHTML = `<span>📅 ${formatDateForDisplay(dateVal)}</span><button onclick="removeWeatherDate('${dateVal}')">×</button>`;
-                container.appendChild(tag);
-            });
-        }
+        function renderSelectedDates() { const container = document.getElementById('selected-dates-container'); container.innerHTML = ''; tempSelectedDates.forEach(dateVal => { const tag = document.createElement('div'); tag.className = 'tag-item'; tag.innerHTML = `<span>📅 ${formatDateForDisplay(dateVal)}</span><button onclick="removeWeatherDate('${dateVal}')">×</button>`; container.appendChild(tag); }); }
 
-        function disableWeather() {
-            localStorage.removeItem(WEATHER_KEY);
-            document.getElementById('weather-banner').style.display = 'none';
-            closeModal('weather-modal');
-        }
+        function disableWeather() { localStorage.removeItem(WEATHER_KEY); document.getElementById('weather-banner').style.display = 'none'; closeModal('weather-modal'); setTimeout(renderDashboard, 300); } // 天気が消えたら丸サイズ再計算
 
         async function saveWeatherSettings() {
             if (tempSelectedLocations.length === 0 || tempSelectedDates.length === 0) { alert('ロケ地と日程を最低1つ以上設定してください。'); return; }
             const data = { locations: tempSelectedLocations, dates: tempSelectedDates, lastFetch: null };
-            localStorage.setItem(WEATHER_KEY, JSON.stringify(data));
-            closeModal('weather-modal');
-            await fetchAndDisplayWeather();
+            localStorage.setItem(WEATHER_KEY, JSON.stringify(data)); closeModal('weather-modal'); await fetchAndDisplayWeather();
         }
 
-        // --- データ取得・表示処理 ---
         function initWeather() {
-            const data = JSON.parse(localStorage.getItem(WEATHER_KEY) || '{}');
-            if(!data.locations || data.locations.length === 0) return;
-
+            const data = JSON.parse(localStorage.getItem(WEATHER_KEY) || '{}'); if(!data.locations || data.locations.length === 0) return;
             const now = new Date(); const lastFetch = data.lastFetch ? new Date(data.lastFetch) : null;
             let needsUpdate = false;
             if (!lastFetch || now.toDateString() !== lastFetch.toDateString()) { needsUpdate = true; } 
             else { const nowIsPM = now.getHours() >= 12; const lastIsPM = lastFetch.getHours() >= 12; if (nowIsPM !== lastIsPM) needsUpdate = true; }
-
             if (needsUpdate) fetchAndDisplayWeather(); else renderWeatherBanner(data.weatherResults);
         }
 
         async function fetchAndDisplayWeather() {
-            const data = JSON.parse(localStorage.getItem(WEATHER_KEY) || '{}');
-            if(!data.locations || data.locations.length === 0) return;
-
-            const banner = document.getElementById('weather-banner');
-            banner.style.display = 'flex';
-            banner.innerHTML = '<div style="color:var(--primary-blue); font-weight:bold; padding: 10px;">天気予報を取得中...</div>';
+            const data = JSON.parse(localStorage.getItem(WEATHER_KEY) || '{}'); if(!data.locations || data.locations.length === 0) return;
+            const banner = document.getElementById('weather-banner'); banner.style.display = 'block'; banner.innerHTML = '<div style="color:var(--primary-blue); font-weight:bold; padding: 10px; text-align:center;">天気情報を取得中...</div>';
+            
+            // 天気バナーが表示された分、ダッシュボードの領域が変わるので再計算
+            setTimeout(renderDashboard, 10); 
 
             try {
-                // 複数エリアを並列で取得（最大16日先まで）
                 const promises = data.locations.map(loc => {
                     const url = `https://api.open-meteo.com/v1/forecast?latitude=${loc.lat}&longitude=${loc.lon}&daily=weathercode,temperature_2m_max,temperature_2m_min&timezone=Asia%2FTokyo&forecast_days=16`;
                     return fetch(url).then(res => res.json()).then(resData => ({ locationName: loc.name, apiData: resData }));
                 });
-
                 const apiResults = await Promise.all(promises);
                 const processedResults = [];
-
                 apiResults.forEach(result => {
                     const daily = result.apiData.daily;
                     const extractedDates = data.dates.map(targetDate => {
                         const index = daily.time.indexOf(targetDate);
-                        if (index !== -1) {
-                            return { date: targetDate, code: daily.weathercode[index], max: Math.round(daily.temperature_2m_max[index]), min: Math.round(daily.temperature_2m_min[index]) };
-                        } else {
-                            return { date: targetDate, error: true }; // 範囲外
-                        }
+                        if (index !== -1) { return { date: targetDate, code: daily.weathercode[index], max: Math.round(daily.temperature_2m_max[index]), min: Math.round(daily.temperature_2m_min[index]) }; } 
+                        else { return { date: targetDate, error: true }; }
                     });
                     processedResults.push({ locationName: result.locationName, forecasts: extractedDates });
                 });
-
-                data.weatherResults = processedResults; data.lastFetch = new Date().toISOString();
-                localStorage.setItem(WEATHER_KEY, JSON.stringify(data));
+                data.weatherResults = processedResults; data.lastFetch = new Date().toISOString(); localStorage.setItem(WEATHER_KEY, JSON.stringify(data));
                 renderWeatherBanner(processedResults);
-
-            } catch (error) {
-                console.error('天気の取得に失敗しました', error);
-                banner.innerHTML = '<div style="color:#f43f5e; font-weight:bold; padding: 10px;">天気の取得に失敗しました</div>';
-            }
+            } catch (error) { banner.innerHTML = '<div style="color:#f43f5e; font-weight:bold; padding: 10px; text-align:center;">天気の取得に失敗しました</div>'; }
         }
 
         function renderWeatherBanner(results) {
             const banner = document.getElementById('weather-banner');
-            if(!results || results.length === 0) { banner.style.display = 'none'; return; }
+            if(!results || results.length === 0 || results[0].forecasts.length === 0) { banner.style.display = 'none'; return; }
             
-            banner.innerHTML = ''; banner.style.display = 'flex';
+            let html = '<div class="w-matrix">';
+            html += '<div class="w-matrix-row w-matrix-header">';
+            html += '<div class="w-matrix-cell w-matrix-loc-name" style="color:var(--text-body);">エリア</div>';
+            results[0].forecasts.forEach(f => { html += `<div class="w-matrix-cell w-matrix-date">${formatDateForDisplay(f.date)}</div>`; });
+            html += '</div>';
 
             results.forEach(locData => {
-                const card = document.createElement('div'); card.className = 'w-location-card';
-                
-                const title = document.createElement('div'); title.className = 'w-location-title';
-                title.innerText = locData.locationName; card.appendChild(title);
-
+                html += '<div class="w-matrix-row">';
+                html += `<div class="w-matrix-cell w-matrix-loc-name">${locData.locationName}</div>`;
                 locData.forecasts.forEach(f => {
-                    const row = document.createElement('div'); row.className = 'w-date-row';
-                    if (f.error) {
-                        row.innerHTML = `<div class="w-date-label">${formatDateForDisplay(f.date)}</div><div class="w-error-text">取得範囲外</div>`;
-                    } else {
-                        row.innerHTML = `
-                            <div class="w-date-label">${formatDateForDisplay(f.date)}</div>
-                            <div class="w-weather-info">
-                                <span class="w-icon">${getWeatherEmoji(f.code)}</span>
-                                <span class="w-temp-max">${f.max}°</span>
-                                <span class="w-temp-min">${f.min}°</span>
-                            </div>
-                        `;
-                    }
-                    card.appendChild(row);
+                    if(f.error) { html += `<div class="w-matrix-cell"><span class="w-error-text">-</span></div>`; } 
+                    else { html += `<div class="w-matrix-cell"><div class="w-icon">${getWeatherEmoji(f.code)}</div><div class="w-temps"><span class="w-temp-max">${f.max}</span><span class="w-temp-min">${f.min}</span></div></div>`; }
                 });
-                banner.appendChild(card);
+                html += '</div>';
             });
+            html += '</div>';
+            
+            banner.innerHTML = html;
+            banner.style.display = 'block';
+            
+            // 天気の描画完了後に丸のサイズを再調整
+            setTimeout(renderDashboard, 10);
         }
     </script>
 </body>
