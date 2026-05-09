@@ -3,154 +3,169 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Smart PM Dashboard</title>
+    <title>PM CORE - Soft Sky Edition</title>
     <style>
-        /* --- 全体のスタイル（Smart × Stylish テーマー） --- */
+        /* =========================================
+           CSS Variables & Base Styles (Soft Theme)
+        ========================================= */
         :root {
-            --text-main: #ffffff;
-            --text-sub: #a0aec0;
-            --accent-glow: #00f2fe;
-            --glass-bg: rgba(255, 255, 255, 0.05);
-            --glass-border: rgba(255, 255, 255, 0.1);
-            --danger: #ff4757;
+            --bg-gradient-1: #f0f9ff;
+            --bg-gradient-2: #e0f2fe;
+            --bg-gradient-3: #bae6fd;
+            --surface-white: rgba(255, 255, 255, 0.85);
+            --surface-solid: #ffffff;
+            --text-heading: #1e293b; /* 柔らかいが視認性の高いスレートグレー */
+            --text-body: #475569;
+            --text-muted: #94a3b8;
+            --primary-blue: #38bdf8;
+            --primary-hover: #0ea5e9;
+            --badge-bg: #7dd3fc;
+            --border-soft: rgba(255, 255, 255, 1);
+            --shadow-soft: 0 10px 30px -5px rgba(14, 165, 233, 0.15);
+            --shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.02);
+            --radius-xl: 32px;
+            --radius-lg: 20px;
+            --radius-md: 12px;
         }
 
-        /* 動きのある美しい背景グラデーション */
-        @keyframes gradientBG {
+        /* 非常にゆっくりとした空の揺らぎアニメーション */
+        @keyframes softSky {
             0% { background-position: 0% 50%; }
             50% { background-position: 100% 50%; }
             100% { background-position: 0% 50%; }
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Segoe UI", "Hiragino Kaku Gothic ProN", "Hiragino Sans", sans-serif;
+            font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
             margin: 0;
             padding: 0;
-            color: var(--text-main);
+            color: var(--text-body);
+            background: linear-gradient(-45deg, var(--bg-gradient-1), var(--bg-gradient-2), var(--bg-gradient-3), var(--bg-gradient-1));
+            background-size: 300% 300%;
+            animation: softSky 20s ease-in-out infinite;
             display: flex;
             flex-direction: column;
             height: 100vh;
-            background: linear-gradient(-45deg, #0f172a, #1e1b4b, #111827, #312e81);
-            background-size: 400% 400%;
-            animation: gradientBG 15s ease infinite;
             -webkit-font-smoothing: antialiased;
             overflow: hidden;
         }
 
-        /* --- ヘッダー --- */
+        /* =========================================
+           Header
+        ========================================= */
         header {
-            padding: 30px 20px 10px;
+            padding: 40px 24px 10px;
             z-index: 10;
         }
         header h1 {
             margin: 0;
             font-size: 2rem;
             font-weight: 800;
-            letter-spacing: 1px;
-            background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-shadow: 0 0 30px rgba(142, 197, 252, 0.3);
+            color: var(--primary-hover);
+            letter-spacing: 0.5px;
         }
         header p {
-            margin: 5px 0 0;
-            font-size: 0.85rem;
-            color: var(--text-sub);
-            letter-spacing: 2px;
-            text-transform: uppercase;
+            margin: 4px 0 0;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            font-weight: 500;
+            letter-spacing: 1px;
         }
 
-        /* --- ダッシュボード（丸いガラスアイコン） --- */
+        /* =========================================
+           Dashboard & Circle Cards
+        ========================================= */
         .dashboard {
             display: flex;
             flex-wrap: wrap;
             gap: 20px;
-            padding: 20px 20px 100px;
+            padding: 24px;
             justify-content: flex-start;
             overflow-y: auto;
+            padding-bottom: 120px;
         }
 
-        /* グラスモーフィズムな丸ブロック */
         .circle-block {
             position: relative;
             width: calc(33.333% - 14px);
             aspect-ratio: 1 / 1;
-            max-width: 130px;
-            max-height: 130px;
-            background: var(--glass-bg);
+            max-width: 140px;
+            max-height: 140px;
+            background: var(--surface-white);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
-            border: 1px solid var(--glass-border);
+            border: 2px solid var(--border-soft);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             text-align: center;
             cursor: pointer;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
-            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            box-shadow: var(--shadow-soft);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
         }
         
         @media (min-width: 600px) {
-            .circle-block { width: 130px; }
+            .circle-block { width: 140px; }
         }
 
         .circle-block:hover {
-            transform: translateY(-5px) scale(1.02);
-            background: rgba(255, 255, 255, 0.1);
-            border-color: rgba(255, 255, 255, 0.3);
-            box-shadow: 0 15px 40px 0 rgba(0, 242, 254, 0.2);
+            transform: translateY(-4px) scale(1.03);
+            background: var(--surface-solid);
+            box-shadow: 0 15px 35px -5px rgba(14, 165, 233, 0.25);
         }
-        .circle-block:active { transform: scale(0.95); }
+        .circle-block:active { transform: scale(0.96); }
 
         .circle-block.add-new {
             background: transparent;
-            border: 1px dashed rgba(255, 255, 255, 0.3);
+            border: 2px dashed rgba(14, 165, 233, 0.3);
             box-shadow: none;
+            color: var(--primary-blue);
         }
         .circle-block.add-new:hover {
-            border-color: #fff;
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(255, 255, 255, 0.5);
+            border-color: var(--primary-hover);
         }
 
         .circle-title {
-            font-size: 0.9rem;
-            font-weight: 600;
-            padding: 10px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--text-heading);
+            padding: 12px;
             line-height: 1.4;
             display: -webkit-box;
             -webkit-line-clamp: 3;
             -webkit-box-orient: vertical;
             overflow: hidden;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
         }
 
-        /* スタイリッシュな光るバッジ */
         .badge {
             position: absolute;
-            top: 5px;
-            right: 5px;
-            background: linear-gradient(135deg, #ff0844 0%, #ffb199 100%);
-            color: white;
-            font-size: 0.8rem;
-            font-weight: 800;
-            width: 26px;
-            height: 26px;
+            top: 4px;
+            right: 4px;
+            background: var(--badge-bg);
+            color: #ffffff;
+            font-size: 0.85rem;
+            font-weight: 700;
+            width: 28px;
+            height: 28px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 0 15px rgba(255, 8, 68, 0.6);
-            border: 2px solid #1a1a2e; /* 背景と馴染ませる */
+            box-shadow: 0 4px 10px rgba(125, 211, 252, 0.5);
+            border: 3px solid var(--surface-solid);
         }
 
-        /* --- モーダル（ガラスのレイヤー） --- */
+        /* =========================================
+           Modal (Bottom Sheet)
+        ========================================= */
         .modal-overlay {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background-color: rgba(0,0,0,0.4);
-            backdrop-filter: blur(5px);
-            -webkit-backdrop-filter: blur(5px);
+            background-color: rgba(224, 242, 254, 0.4);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
             display: flex;
             align-items: flex-end;
             justify-content: center;
@@ -165,20 +180,15 @@
         }
         
         .modal-content {
-            background: rgba(20, 20, 30, 0.7);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-top: 1px solid var(--glass-border);
-            border-left: 1px solid var(--glass-border);
-            border-right: 1px solid var(--glass-border);
-            box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.5);
+            background: var(--surface-solid);
+            box-shadow: 0 -10px 40px rgba(14, 165, 233, 0.1);
             width: 100%;
             height: 85vh;
-            border-radius: 30px 30px 0 0;
+            border-radius: var(--radius-xl) var(--radius-xl) 0 0;
             display: flex;
             flex-direction: column;
             transform: translateY(100%);
-            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
         }
         .modal-overlay.active .modal-content {
             transform: translateY(0);
@@ -187,145 +197,153 @@
         @media (min-width: 600px) {
             .modal-overlay { align-items: center; }
             .modal-content {
-                width: 90%; max-width: 550px; height: auto; max-height: 85vh;
-                border-radius: 24px; border: 1px solid var(--glass-border);
+                width: 90%; max-width: 600px; height: auto; max-height: 85vh;
+                border-radius: var(--radius-xl);
                 transform: translateY(30px) scale(0.95);
             }
             .modal-overlay.active .modal-content { transform: translateY(0) scale(1); }
         }
 
-        /* モーダル上部のバー */
         .modal-handle {
-            width: 50px; height: 4px;
-            background-color: rgba(255,255,255,0.2);
-            border-radius: 4px; margin: 15px auto;
+            width: 40px; height: 5px;
+            background-color: #cbd5e1;
+            border-radius: 5px; margin: 16px auto;
         }
 
-        /* モーダルヘッダー */
         .modal-header {
-            padding: 0 25px 20px;
+            padding: 0 24px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
         .modal-title-input {
-            background: none; border: none; color: #fff;
-            font-size: 1.6rem; font-weight: 700; width: 100%;
-            outline: none; text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+            background: none; border: none; color: var(--text-heading);
+            font-size: 1.5rem; font-weight: 800; width: 100%;
+            outline: none;
         }
         .close-btn {
-            background: rgba(255,255,255,0.1); border: none; color: #fff;
+            background: #f1f5f9; border: none; color: var(--text-muted);
             width: 36px; height: 36px; border-radius: 50%;
             font-size: 1.2rem; display: flex; align-items: center; justify-content: center;
-            cursor: pointer; transition: background 0.2s;
+            cursor: pointer; transition: all 0.2s;
         }
-        .close-btn:hover { background: rgba(255,255,255,0.2); }
+        .close-btn:hover { background: #e2e8f0; color: var(--text-heading); }
 
-        /* タスクリスト部分 */
+        /* =========================================
+           Task List
+        ========================================= */
         .task-list-container {
-            padding: 0 25px 25px; overflow-y: auto; flex-grow: 1;
+            padding: 0 24px 24px; overflow-y: auto; flex-grow: 1;
         }
         
         .task-item {
             display: flex; align-items: flex-start;
-            padding: 16px; margin-bottom: 10px;
-            background: rgba(255,255,255,0.03);
-            border: 1px solid rgba(255,255,255,0.05);
-            border-radius: 16px; transition: all 0.3s ease;
+            padding: 16px; margin-bottom: 12px;
+            background: #f8fafc;
+            border: 1px solid #f1f5f9;
+            border-radius: var(--radius-lg);
+            transition: all 0.3s ease;
         }
-        .task-item:hover { background: rgba(255,255,255,0.06); }
+        .task-item:hover { background: #ffffff; box-shadow: var(--shadow-soft); }
         
-        /* サイバー感のあるチェックボックス */
+        /* 丸くて優しいチェックボックス */
         .task-checkbox {
-            appearance: none; width: 22px; height: 22px;
-            border: 2px solid rgba(255,255,255,0.3);
-            border-radius: 6px; margin-right: 15px;
+            appearance: none; width: 24px; height: 24px;
+            border: 2px solid #bae6fd;
+            border-radius: 50%; margin-right: 16px;
             cursor: pointer; position: relative; flex-shrink: 0;
-            transition: all 0.3s; background-color: transparent;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            background-color: #ffffff;
         }
         .task-checkbox:checked {
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-            border-color: transparent;
-            box-shadow: 0 0 10px rgba(0, 242, 254, 0.4);
+            background: var(--primary-blue);
+            border-color: var(--primary-blue);
+            box-shadow: 0 4px 10px rgba(56, 189, 248, 0.4);
         }
         .task-checkbox:checked::after {
             content: ''; position: absolute;
-            top: 3px; left: 7px; width: 4px; height: 10px;
-            border: solid #000; border-width: 0 2px 2px 0;
+            top: 5px; left: 8px; width: 4px; height: 10px;
+            border: solid #fff; border-width: 0 2.5px 2.5px 0;
             transform: rotate(45deg);
         }
 
         .task-text {
             flex-grow: 1; outline: none; line-height: 1.5;
-            min-height: 22px; font-size: 1rem; color: #e2e8f0;
+            min-height: 24px; font-size: 1rem; color: var(--text-heading);
+            font-weight: 500;
         }
         .task-item.completed .task-text {
-            text-decoration: line-through; color: #64748b;
+            text-decoration: line-through; color: var(--text-muted); font-weight: 400;
         }
 
         .delete-task-btn {
-            background: none; border: none; color: #64748b;
-            cursor: pointer; font-size: 1.2rem; padding: 0 5px;
+            background: none; border: none; color: #cbd5e1;
+            cursor: pointer; font-size: 1.2rem; padding: 0 8px;
             transition: color 0.2s;
         }
-        .delete-task-btn:hover { color: var(--danger); }
+        .delete-task-btn:hover { color: #f43f5e; }
 
-        /* タスク追加入力エリア */
+        /* =========================================
+           Inputs & Buttons
+        ========================================= */
         .add-task-area {
-            display: flex; margin-top: 20px; gap: 10px;
+            display: flex; margin-top: 24px; gap: 12px;
         }
         .add-task-input {
             flex-grow: 1;
-            background: rgba(0,0,0,0.3);
-            border: 1px solid rgba(255,255,255,0.1);
-            color: white; padding: 16px; border-radius: 16px;
-            font-size: 1rem; outline: none; transition: border 0.3s;
+            background: #f8fafc;
+            border: 2px solid transparent;
+            color: var(--text-heading); padding: 16px; border-radius: var(--radius-md);
+            font-size: 1rem; outline: none; transition: all 0.3s;
+            box-shadow: var(--shadow-inner);
         }
-        .add-task-input:focus { border-color: rgba(0, 242, 254, 0.5); }
+        .add-task-input:focus { 
+            background: #ffffff;
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.15);
+        }
         
         .add-task-btn {
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-            color: #000; border: none; border-radius: 16px;
-            padding: 0 25px; font-weight: 700; cursor: pointer;
-            box-shadow: 0 4px 15px rgba(0, 242, 254, 0.3);
+            background: var(--primary-blue);
+            color: #ffffff; border: none; border-radius: var(--radius-md);
+            padding: 0 28px; font-weight: 700; cursor: pointer;
+            box-shadow: 0 4px 12px rgba(56, 189, 248, 0.3);
+            transition: all 0.2s;
         }
+        .add-task-btn:hover { background: var(--primary-hover); transform: translateY(-2px); }
+        .add-task-btn:active { transform: scale(0.96); }
 
-        /* 完了済み表示トグルボタン */
         .toggle-completed-btn {
             width: 100%; background: none; border: none;
-            color: #a0aec0; padding: 20px 0 10px;
+            color: var(--text-muted); padding: 24px 0 12px;
             font-size: 0.9rem; font-weight: 600; cursor: pointer;
             text-align: left; transition: color 0.2s;
         }
-        .toggle-completed-btn:hover { color: #fff; }
+        .toggle-completed-btn:hover { color: var(--primary-hover); }
 
-        /* 削除ボタン */
         .delete-block-btn {
-            background: rgba(255, 71, 87, 0.1);
-            color: var(--danger);
-            border: 1px solid rgba(255, 71, 87, 0.3);
-            padding: 15px; margin: 0 25px 25px; border-radius: 16px;
+            background: #fff1f2;
+            color: #f43f5e;
+            border: none;
+            padding: 16px; margin: 0 24px 24px; border-radius: var(--radius-md);
             font-size: 0.95rem; cursor: pointer; font-weight: 700;
             text-align: center; transition: all 0.2s;
         }
-        .delete-block-btn:hover {
-            background: rgba(255, 71, 87, 0.2);
-            box-shadow: 0 0 15px rgba(255, 71, 87, 0.2);
-        }
+        .delete-block-btn:hover { background: #ffe4e6; }
     </style>
 </head>
 <body>
 
     <header>
-        <h1>PM CORE</h1>
-        <p>Production Management</p>
+        <h1>PM Tasks</h1>
+        <p>Soft Sky Environment</p>
     </header>
 
     <div class="dashboard" id="dashboard">
-        <!-- 丸いアイコンがここに生成されます -->
+        <!-- Dashboard items generated by JS -->
     </div>
 
-    <!-- モーダル（詳細画面） -->
+    <!-- Modal Base -->
     <div class="modal-overlay" id="modal">
         <div class="modal-content">
             <div class="modal-handle"></div>
@@ -351,7 +369,10 @@
     </div>
 
     <script>
-        const STORAGE_KEY = 'pm_task_board_v4'; // 新しいキー
+        /**
+         * 状態管理とローカルストレージの制御
+         */
+        const STORAGE_KEY = 'pm_task_board_v6_soft'; 
         let blocks = [];
         let currentBlockId = null;
         let showCompleted = false;
@@ -360,6 +381,7 @@
             loadData();
             renderDashboard();
 
+            // モーダルのタイトル編集イベント
             document.getElementById('modal-title').addEventListener('input', (e) => {
                 if(currentBlockId) {
                     const block = blocks.find(b => b.id === currentBlockId);
@@ -372,11 +394,13 @@
             });
         });
 
+        // データの読み込み処理
         function loadData() {
             const savedData = localStorage.getItem(STORAGE_KEY);
             if (savedData) {
                 blocks = JSON.parse(savedData);
             } else {
+                // 初期データ
                 blocks = [
                     { id: '1', title: 'STUDIO', items: [{ id: 't1', text: '都内Aスタジオ 仮キープ', completed: false }] },
                     { id: '2', title: 'CATERING', items: [{ id: 't2', text: '朝食の手配', completed: false }] },
@@ -386,10 +410,12 @@
             }
         }
 
+        // データの保存処理
         function saveData() {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(blocks));
         }
 
+        // ダッシュボード（丸いカード）の描画
         function renderDashboard() {
             const dashboardEl = document.getElementById('dashboard');
             dashboardEl.innerHTML = '';
@@ -406,6 +432,7 @@
                 titleEl.innerText = block.title || '無題';
                 circleEl.appendChild(titleEl);
 
+                // 未完了タスクのバッジ表示
                 if (uncompletedCount > 0) {
                     const badgeEl = document.createElement('div');
                     badgeEl.className = 'badge';
@@ -416,21 +443,24 @@
                 dashboardEl.appendChild(circleEl);
             });
 
+            // 新規追加ボタン
             const addCircle = document.createElement('div');
             addCircle.className = 'circle-block add-new';
-            addCircle.innerHTML = '<div class="circle-title" style="font-size: 2rem; font-weight: 200;">＋</div>';
+            addCircle.innerHTML = '<div class="circle-title" style="font-size: 2.2rem; font-weight: 300;">＋</div>';
             addCircle.onclick = addNewBlock;
             dashboardEl.appendChild(addCircle);
         }
 
+        // 新規ブロックの作成
         function addNewBlock() {
-            const newBlock = { id: Date.now().toString(), title: 'NEW BLOCK', items: [] };
+            const newBlock = { id: Date.now().toString(), title: 'New Category', items: [] };
             blocks.push(newBlock);
             saveData();
             renderDashboard();
             openModal(newBlock.id);
         }
 
+        // モーダルの開閉処理
         function openModal(blockId) {
             currentBlockId = blockId;
             const block = blocks.find(b => b.id === blockId);
@@ -443,7 +473,7 @@
 
             renderTasks();
             document.getElementById('modal').classList.add('active');
-            document.body.style.overflow = 'hidden';
+            document.body.style.overflow = 'hidden'; // 背景スクロールの防止
         }
 
         function closeModal() {
@@ -457,6 +487,7 @@
             if(e.target === document.getElementById('modal')) closeModal();
         });
 
+        // タスクリストの描画
         function renderTasks() {
             const block = blocks.find(b => b.id === currentBlockId);
             if(!block) return;
@@ -499,6 +530,7 @@
             });
         }
 
+        // タスクの追加と更新
         function addTask() {
             const input = document.getElementById('new-task-input');
             const text = input.value.trim();
