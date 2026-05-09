@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Smart PM Dashboard</title>
+    <style>
+        /* --- 全体のスタイル（Smart × Stylish テーマー） --- */
+        :root {
+            --text-main: #ffffff;
+            --text-sub: #a0aec0;
+            --accent-glow: #00f2fe;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --danger: #ff4757;
+        }
+
+        /* 動きのある美しい背景グラデーション */
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Segoe UI", "Hiragino Kaku Gothic ProN", "Hiragino Sans", sans-serif;
+            margin: 0;
+            padding: 0;
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            background: linear-gradient(-45deg, #0f172a, #1e1b4b, #111827, #312e81);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            -webkit-font-smoothing: antialiased;
+            overflow: hidden;
+        }
+
+        /* --- ヘッダー --- */
+        header {
+            padding: 30px 20px 10px;
+            z-index: 10;
+        }
+        header h1 {
+            margin: 0;
+            font-size: 2rem;
+            font-weight: 800;
+            letter-spacing: 1px;
+            background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(142, 197, 252, 0.3);
+        }
+        header p {
+            margin: 5px 0 0;
+            font-size: 0.85rem;
+            color: var(--text-sub);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        /* --- ダッシュボード（丸いガラスアイコン） --- */
+        .dashboard {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            padding: 20px 20px 100px;
+            justify-content: flex-start;
+            overflow-y: auto;
+        }
+
+        /* グラスモーフィズムな丸ブロック */
+        .circle-block {
+            position: relative;
+            width: calc(33.333% - 14px);
+            aspect-ratio: 1 / 1;
+            max-width: 130px;
+            max-height: 130px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            cursor: pointer;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        
+        @media (min-width: 600px) {
+            .circle-block { width: 130px; }
+        }
+
+        .circle-block:hover {
+            transform: translateY(-5px) scale(1.02);
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 15px 40px 0 rgba(0, 242, 254, 0.2);
+        }
+        .circle-block:active { transform: scale(0.95); }
+
+        .circle-block.add-new {
+            background: transparent;
+            border: 1px dashed rgba(255, 255, 255, 0.3);
+            box-shadow: none;
+        }
+        .circle-block.add-new:hover {
+            border-color: #fff;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .circle-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            padding: 10px;
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+
+        /* スタイリッシュな光るバッジ */
+        .badge {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: linear-gradient(135deg, #ff0844 0%, #ffb199 100%);
+            color: white;
+            font-size: 0.8rem;
+            font-weight: 800;
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 15px rgba(255, 8, 68, 0.6);
+            border: 2px solid #1a1a2e; /* 背景と馴染ませる */
+        }
+
+        /* --- モーダル（ガラスのレイヤー） --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.4);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+            z-index: 1000;
+        }
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        
+        .modal-content {
+            background: rgba(20, 20, 30, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-top: 1px solid var(--glass-border);
+            border-left: 1px solid var(--glass-border);
+            border-right: 1px solid var(--glass-border);
+            box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.5);
+            width: 100%;
+            height: 85vh;
+            border-radius: 30px 30px 0 0;
+            display: flex;
+            flex-direction: column;
+            transform: translateY(100%);
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .modal-overlay.active .modal-content {
+            transform: translateY(0);
+        }
+
+        @media (min-width: 600px) {
+            .modal-overlay { align-items: center; }
+            .modal-content {
+                width: 90%; max-width: 550px; height: auto; max-height: 85vh;
+                border-radius: 24px; border: 1px solid var(--glass-border);
+                transform: translateY(30px) scale(0.95);
+            }
+            .modal-overlay.active .modal-content { transform: translateY(0) scale(1); }
+        }
+
+        /* モーダル上部のバー */
+        .modal-handle {
+            width: 50px; height: 4px;
+            background-color: rgba(255,255,255,0.2);
+            border-radius: 4px; margin: 15px auto;
+        }
+
+        /* モーダルヘッダー */
+        .modal-header {
+            padding: 0 25px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .modal-title-input {
+            background: none; border: none; color: #fff;
+            font-size: 1.6rem; font-weight: 700; width: 100%;
+            outline: none; text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+        }
+        .close-btn {
+            background: rgba(255,255,255,0.1); border: none; color: #fff;
+            width: 36px; height: 36px; border-radius: 50%;
+            font-size: 1.2rem; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: background 0.2s;
+        }
+        .close-btn:hover { background: rgba(255,255,255,0.2); }
+
+        /* タスクリスト部分 */
+        .task-list-container {
+            padding: 0 25px 25px; overflow-y: auto; flex-grow: 1;
+        }
+        
+        .task-item {
+            display: flex; align-items: flex-start;
+            padding: 16px; margin-bottom: 10px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 16px; transition: all 0.3s ease;
+        }
+        .task-item:hover { background: rgba(255,255,255,0.06); }
+        
+        /* サイバー感のあるチェックボックス */
+        .task-checkbox {
+            appearance: none; width: 22px; height: 22px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 6px; margin-right: 15px;
+            cursor: pointer; position: relative; flex-shrink: 0;
+            transition: all 0.3s; background-color: transparent;
+        }
+        .task-checkbox:checked {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            border-color: transparent;
+            box-shadow: 0 0 10px rgba(0, 242, 254, 0.4);
+        }
+        .task-checkbox:checked::after {
+            content: ''; position: absolute;
+            top: 3px; left: 7px; width: 4px; height: 10px;
+            border: solid #000; border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+        }
+
+        .task-text {
+            flex-grow: 1; outline: none; line-height: 1.5;
+            min-height: 22px; font-size: 1rem; color: #e2e8f0;
+        }
+        .task-item.completed .task-text {
+            text-decoration: line-through; color: #64748b;
+        }
+
+        .delete-task-btn {
+            background: none; border: none; color: #64748b;
+            cursor: pointer; font-size: 1.2rem; padding: 0 5px;
+            transition: color 0.2s;
+        }
+        .delete-task-btn:hover { color: var(--danger); }
+
+        /* タスク追加入力エリア */
+        .add-task-area {
+            display: flex; margin-top: 20px; gap: 10px;
+        }
+        .add-task-input {
+            flex-grow: 1;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: white; padding: 16px; border-radius: 16px;
+            font-size: 1rem; outline: none; transition: border 0.3s;
+        }
+        .add-task-input:focus { border-color: rgba(0, 242, 254, 0.5); }
+        
+        .add-task-btn {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: #000; border: none; border-radius: 16px;
+            padding: 0 25px; font-weight: 700; cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 242, 254, 0.3);
+        }
+
+        /* 完了済み表示トグルボタン */
+        .toggle-completed-btn {
+            width: 100%; background: none; border: none;
+            color: #a0aec0; padding: 20px 0 10px;
+            font-size: 0.9rem; font-weight: 600; cursor: pointer;
+            text-align: left; transition: color 0.2s;
+        }
+        .toggle-completed-btn:hover { color: #fff; }
+
+        /* 削除ボタン */
+        .delete-block-btn {
+            background: rgba(255, 71, 87, 0.1);
+            color: var(--danger);
+            border: 1px solid rgba(255, 71, 87, 0.3);
+            padding: 15px; margin: 0 25px 25px; border-radius: 16px;
+            font-size: 0.95rem; cursor: pointer; font-weight: 700;
+            text-align: center; transition: all 0.2s;
+        }
+        .delete-block-btn:hover {
+            background: rgba(255, 71, 87, 0.2);
+            box-shadow: 0 0 15px rgba(255, 71, 87, 0.2);
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>PM CORE</h1>
+        <p>Production Management</p>
+    </header>
+
+    <div class="dashboard" id="dashboard">
+        <!-- 丸いアイコンがここに生成されます -->
+    </div>
+
+    <!-- モーダル（詳細画面） -->
+    <div class="modal-overlay" id="modal">
+        <div class="modal-content">
+            <div class="modal-handle"></div>
+            <div class="modal-header">
+                <input type="text" class="modal-title-input" id="modal-title" placeholder="タイトルを入力...">
+                <button class="close-btn" onclick="closeModal()">✕</button>
+            </div>
+            
+            <div class="task-list-container">
+                <div id="active-tasks"></div>
+
+                <div class="add-task-area">
+                    <input type="text" class="add-task-input" id="new-task-input" placeholder="新しいタスクを入力" onkeypress="handleEnter(event)">
+                    <button class="add-task-btn" onclick="addTask()">追加</button>
+                </div>
+
+                <button class="toggle-completed-btn" id="toggle-completed-btn" onclick="toggleCompleted()">完了済みを表示</button>
+                <div id="completed-tasks" style="display: none;"></div>
+            </div>
+
+            <button class="delete-block-btn" onclick="deleteCurrentBlock()">このブロックを削除</button>
+        </div>
+    </div>
+
+    <script>
+        const STORAGE_KEY = 'pm_task_board_v4'; // 新しいキー
+        let blocks = [];
+        let currentBlockId = null;
+        let showCompleted = false;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadData();
+            renderDashboard();
+
+            document.getElementById('modal-title').addEventListener('input', (e) => {
+                if(currentBlockId) {
+                    const block = blocks.find(b => b.id === currentBlockId);
+                    if(block) {
+                        block.title = e.target.value;
+                        saveData();
+                        renderDashboard();
+                    }
+                }
+            });
+        });
+
+        function loadData() {
+            const savedData = localStorage.getItem(STORAGE_KEY);
+            if (savedData) {
+                blocks = JSON.parse(savedData);
+            } else {
+                blocks = [
+                    { id: '1', title: 'STUDIO', items: [{ id: 't1', text: '都内Aスタジオ 仮キープ', completed: false }] },
+                    { id: '2', title: 'CATERING', items: [{ id: 't2', text: '朝食の手配', completed: false }] },
+                    { id: '3', title: 'CASTING', items: [{ id: 't3', text: 'オーディション資料作成', completed: false }] }
+                ];
+                saveData();
+            }
+        }
+
+        function saveData() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(blocks));
+        }
+
+        function renderDashboard() {
+            const dashboardEl = document.getElementById('dashboard');
+            dashboardEl.innerHTML = '';
+
+            blocks.forEach(block => {
+                const uncompletedCount = block.items.filter(item => !item.completed).length;
+
+                const circleEl = document.createElement('div');
+                circleEl.className = 'circle-block';
+                circleEl.onclick = () => openModal(block.id);
+
+                const titleEl = document.createElement('div');
+                titleEl.className = 'circle-title';
+                titleEl.innerText = block.title || '無題';
+                circleEl.appendChild(titleEl);
+
+                if (uncompletedCount > 0) {
+                    const badgeEl = document.createElement('div');
+                    badgeEl.className = 'badge';
+                    badgeEl.innerText = uncompletedCount;
+                    circleEl.appendChild(badgeEl);
+                }
+
+                dashboardEl.appendChild(circleEl);
+            });
+
+            const addCircle = document.createElement('div');
+            addCircle.className = 'circle-block add-new';
+            addCircle.innerHTML = '<div class="circle-title" style="font-size: 2rem; font-weight: 200;">＋</div>';
+            addCircle.onclick = addNewBlock;
+            dashboardEl.appendChild(addCircle);
+        }
+
+        function addNewBlock() {
+            const newBlock = { id: Date.now().toString(), title: 'NEW BLOCK', items: [] };
+            blocks.push(newBlock);
+            saveData();
+            renderDashboard();
+            openModal(newBlock.id);
+        }
+
+        function openModal(blockId) {
+            currentBlockId = blockId;
+            const block = blocks.find(b => b.id === blockId);
+            if(!block) return;
+
+            document.getElementById('modal-title').value = block.title;
+            showCompleted = false;
+            updateToggleBtnText();
+            document.getElementById('completed-tasks').style.display = 'none';
+
+            renderTasks();
+            document.getElementById('modal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            document.getElementById('modal').classList.remove('active');
+            currentBlockId = null;
+            document.body.style.overflow = 'auto';
+            renderDashboard();
+        }
+
+        document.getElementById('modal').addEventListener('click', (e) => {
+            if(e.target === document.getElementById('modal')) closeModal();
+        });
+
+        function renderTasks() {
+            const block = blocks.find(b => b.id === currentBlockId);
+            if(!block) return;
+
+            const activeContainer = document.getElementById('active-tasks');
+            const completedContainer = document.getElementById('completed-tasks');
+            activeContainer.innerHTML = '';
+            completedContainer.innerHTML = '';
+
+            block.items.forEach(item => {
+                const taskEl = document.createElement('div');
+                taskEl.className = `task-item ${item.completed ? 'completed' : ''}`;
+
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.className = 'task-checkbox';
+                checkbox.checked = item.completed;
+                checkbox.onchange = () => toggleTaskStatus(item.id, checkbox.checked);
+
+                const textEl = document.createElement('div');
+                textEl.className = 'task-text';
+                textEl.contentEditable = true;
+                textEl.innerText = item.text;
+                textEl.addEventListener('blur', (e) => updateTaskText(item.id, e.target.innerText));
+
+                const delBtn = document.createElement('button');
+                delBtn.className = 'delete-task-btn';
+                delBtn.innerHTML = '✕';
+                delBtn.onclick = () => deleteTask(item.id);
+
+                taskEl.appendChild(checkbox);
+                taskEl.appendChild(textEl);
+                taskEl.appendChild(delBtn);
+
+                if(item.completed) {
+                    completedContainer.appendChild(taskEl);
+                } else {
+                    activeContainer.appendChild(taskEl);
+                }
+            });
+        }
+
+        function addTask() {
+            const input = document.getElementById('new-task-input');
+            const text = input.value.trim();
+            if(!text || !currentBlockId) return;
+
+            const block = blocks.find(b => b.id === currentBlockId);
+            block.items.push({ id: Date.now().toString(), text: text, completed: false });
+
+            saveData();
+            input.value = '';
+            renderTasks();
+            renderDashboard();
+        }
+
+        function handleEnter(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                addTask();
+            }
+        }
+
+        function toggleTaskStatus(taskId, isCompleted) {
+            const block = blocks.find(b => b.id === currentBlockId);
+            const task = block.items.find(t => t.id === taskId);
+            if(task) {
+                task.completed = isCompleted;
+                saveData();
+                renderTasks();
+                renderDashboard();
+            }
+        }
+
+        function updateTaskText(taskId, newText) {
+            const block = blocks.find(b => b.id === currentBlockId);
+            const task = block.items.find(t => t.id === taskId);
+            if(task && task.text !== newText) {
+                task.text = newText;
+                saveData();
+            }
+        }
+
+        function deleteTask(taskId) {
+            const block = blocks.find(b => b.id === currentBlockId);
+            block.items = block.items.filter(t => t.id !== taskId);
+            saveData();
+            renderTasks();
+            renderDashboard();
+        }
+
+        function toggleCompleted() {
+            showCompleted = !showCompleted;
+            document.getElementById('completed-tasks').style.display = showCompleted ? 'block' : 'none';
+            updateToggleBtnText();
+        }
+
+        function updateToggleBtnText() {
+            const btn = document.getElementById('toggle-completed-btn');
+            btn.innerText = showCompleted ? '完了済みを隠す' : '完了済みを表示';
+        }
+
+        function deleteCurrentBlock() {
+            if(confirm('このブロックを削除しますか？')) {
+                blocks = blocks.filter(b => b.id !== currentBlockId);
+                saveData();
+                closeModal();
+            }
+        }
+    </script>
+</body>
+</html>
