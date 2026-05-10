@@ -30,19 +30,15 @@
             position: relative;
         }
 
-        /* ✨ リアルなCaustics（光の網目模様）と池の底の表現 */
         body::before {
             content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none; mix-blend-mode: overlay; opacity: 0.4;
             background: url('data:image/svg+xml;utf8,<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><filter id="noiseFilter"><feTurbulence type="fractalNoise" baseFrequency="0.015" numOctaves="3" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23noiseFilter)"/></svg>');
         }
 
-        /* ✨ 究極のリアル波紋シミュレーション（光の屈折・山と谷の表現） */
         .ripple {
             position: fixed; border-radius: 50%;
             border: 1px solid rgba(255, 255, 255, 0.3);
-            /* 波の頂点(明るい)と谷(暗い)をシャドウで立体的に表現 */
             box-shadow: 0 0 10px rgba(255, 255, 255, 0.6), inset 0 0 20px rgba(135, 206, 235, 0.4);
-            /* 光学的な屈折（水レンズ効果）。背景を少し歪ませ、明るさを変える */
             backdrop-filter: blur(1.5px) brightness(1.05);
             -webkit-backdrop-filter: blur(1.5px) brightness(1.05);
             pointer-events: none; z-index: 9999;
@@ -54,7 +50,6 @@
             100% { transform: translate(-50%, -50%) scale(1); opacity: 0; border-width: 0px; }
         }
 
-        /* ✨ タスク完了担当者に応じた色の小さな餌（円） */
         .fish-food {
             position: fixed; width: 12px; height: 12px; border-radius: 50%;
             transform: translate(-50%, -50%); box-shadow: 0 0 8px rgba(255,255,255,0.9);
@@ -65,10 +60,7 @@
             50% { transform: translate(-50%, -50%) scale(1.3); opacity: 0.5; }
         }
 
-        #loading-screen {
-            position: fixed; inset: 0; background: #fff; z-index: 10000;
-            display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.5s ease;
-        }
+        #loading-screen { position: fixed; inset: 0; background: #fff; z-index: 10000; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.5s ease; }
         .loader { width: 60px; height: 60px; border: 8px solid var(--bg-2); border-top: 8px solid var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
@@ -77,39 +69,21 @@
         
         header { padding: 15px 20px 5px; display: flex; justify-content: space-between; align-items: flex-start; z-index: 20;}
         .header-titles h1 { margin: 0; font-size: 1.6rem; font-weight: 900; color:#0f172a;}
-        .header-titles p { margin: 0; font-size: 0.85rem; font-weight: 800; color: #0284c7; max-width: 75vw; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
+        /* ✨ メンバーリストを横スクロール可能なアイコン付きリストに */
+        .header-titles .mem-list { margin: 6px 0 0 0; font-size: 0.8rem; font-weight: 800; color: #0f172a; display: flex; overflow-x: auto; scrollbar-width: none; width: 75vw; }
+        .header-titles .mem-list::-webkit-scrollbar { display: none; }
         
         .icon-btn { background: var(--surface); border: 2px solid #fff; color: var(--primary); width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.1); transition: 0.2s; flex-shrink: 0;}
         .icon-btn:hover { transform: scale(1.05); }
         .icon-btn img { width: 100%; height: 100%; object-fit: cover; }
 
-        .dashboard { 
-            display: flex; flex-wrap: wrap; padding: 30px 24px; 
-            justify-content: center; align-content: flex-start;
-            flex-grow: 1; overflow-y: auto; gap: 20px; z-index: 20;
-        }
-
-        .circle-block { 
-            position: relative; border-radius: 50%; background: linear-gradient(135deg, rgba(255,255,255,0.85), rgba(255,255,255,0.4)); 
-            border: 4px solid rgba(255,255,255,0.8); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; 
-            cursor: pointer; box-shadow: 0 10px 25px rgba(2, 132, 199, 0.15); backdrop-filter: blur(5px);
-            user-select: none; -webkit-user-select: none; flex-shrink: 0;
-        }
-
-        @keyframes jelly {
-            0% { transform: scale(1, 1); }
-            30% { transform: scale(1.15, 0.85); }
-            40% { transform: scale(0.85, 1.15); }
-            50% { transform: scale(1.05, 0.95); }
-            65% { transform: scale(0.98, 1.02); }
-            75% { transform: scale(1.02, 0.98); }
-            100% { transform: scale(1, 1); }
-        }
-        .jelly-anim { animation: jelly 0.6s ease; }
-
+        .dashboard { display: flex; flex-wrap: wrap; padding: 30px 24px; justify-content: center; align-content: flex-start; flex-grow: 1; overflow-y: auto; gap: 20px; z-index: 20; }
+        .circle-block { position: relative; border-radius: 50%; background: linear-gradient(135deg, rgba(255,255,255,0.85), rgba(255,255,255,0.4)); border: 4px solid rgba(255,255,255,0.8); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; cursor: pointer; box-shadow: 0 10px 25px rgba(2, 132, 199, 0.15); backdrop-filter: blur(5px); user-select: none; -webkit-user-select: none; flex-shrink: 0; }
         .circle-title { font-weight: 900; line-height: 1.2; padding: 0 10%; pointer-events: none; overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; color:#0f172a;}
-        .circle-creator { font-size: 0.6rem; font-weight: 800; margin-top: 4px; opacity: 0.8; pointer-events: none;}
-        .badge { position: absolute; top: 0; right: 0; transform: translate(15%, -15%); color: #fff; font-weight: 900; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 3px solid #fff; z-index: 2; pointer-events: none;}
+
+        .badge { position: absolute; color: #fff; font-weight: 900; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 3px solid #fff; z-index: 2; pointer-events: none; }
+        .badge-self { top: 0; right: 0; transform: translate(15%, -15%); }
+        .badge-others { top: 0; left: 0; transform: translate(-15%, -15%); background: #94a3b8; }
 
         .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.15); backdrop-filter: blur(5px); display: none; align-items: flex-end; justify-content: center; z-index: 1000; }
         .modal-overlay.active { display: flex; }
@@ -131,13 +105,14 @@
         .task-content { flex-grow: 1; display: flex; flex-direction: column; }
         .task-text { font-family: inherit; font-weight: 700; outline: none; color:#0f172a;}
         .task-item.completed .task-text { text-decoration: line-through; opacity: 0.5; }
-        .task-tag { font-size: 0.7rem; font-weight: 900; padding: 2px 8px; border-radius: 10px; color: #fff; margin-top: 4px; display: inline-block; }
+        /* ✨ アイコンが横に並ぶようにFlexbox化 */
+        .task-tag { font-size: 0.7rem; font-weight: 900; padding: 3px 8px 3px 4px; border-radius: 12px; color: #fff; margin-top: 4px; display: inline-flex; align-items: center; gap: 4px; width: fit-content; }
 
         .toggle-completed-btn { background: transparent; border: 2px dashed #cbd5e1; color: #64748b; font-weight: 800; padding: 10px 20px; border-radius: 50px; font-size: 0.85rem; cursor: pointer; margin-bottom: 15px; width: 100%; font-family: inherit; transition: 0.2s; }
         .toggle-completed-btn:hover { border-color: var(--primary); color: var(--primary); background: #f0f9ff;}
 
         .add-area { padding: 20px 24px; display: flex; gap: 8px; border-top: 2px dashed #f1f5f9; }
-        .assign-sel { padding: 10px; border-radius: 10px; border: 2px solid #f1f5f9; font-weight: 800; font-family: inherit; color:#0f172a; outline: none;}
+        .assign-sel { padding: 10px; border-radius: 10px; border: 2px solid #f1f5f9; font-weight: 800; font-family: inherit; color:#0f172a; outline: none; max-width: 140px;}
         .add-input { flex-grow: 1; padding: 10px 15px; border-radius: 10px; border: 2px solid #f1f5f9; font-family: inherit; font-weight: 800; outline: none; }
         .add-btn { background: var(--primary); color: #fff; border: none; padding: 0 15px; border-radius: 10px; font-weight: 900; cursor: pointer; }
 
@@ -156,99 +131,44 @@
 <body>
 
     <svg id="koi-fish" viewBox="0 0 200 400" style="position:fixed; width:80px; height:160px; pointer-events:none; z-index: 5; transform-origin: center center; opacity: 0.95; filter: drop-shadow(0px 15px 20px rgba(0,0,0,0.25));">
-        <defs>
-            <radialGradient id="bodyGrad" cx="50%" cy="40%" r="60%">
-                <stop offset="0%" stop-color="#ffffff"/>
-                <stop offset="80%" stop-color="#f1f5f9"/>
-                <stop offset="100%" stop-color="#cbd5e1"/>
-            </radialGradient>
-        </defs>
-        
-        <path id="koi-fin-tail" d="M100,280 C130,330 140,380 100,390 C60,380 70,330 100,280 Z" fill="rgba(255,255,255,0.5)" stroke="#cbd5e1" stroke-width="1"/>
-        <path id="koi-fin-tail-2" d="M100,280 C115,320 120,360 100,380 C80,360 85,320 100,280 Z" fill="rgba(255,255,255,0.8)"/>
-        
-        <path id="koi-fin-chest-l" d="M70,120 C20,130 10,180 50,200 C60,180 65,150 70,120 Z" fill="rgba(255,255,255,0.6)" stroke="#cbd5e1" stroke-width="1"/>
-        <path id="koi-fin-chest-r" d="M130,120 C180,130 190,180 150,200 C140,180 135,150 130,120 Z" fill="rgba(255,255,255,0.6)" stroke="#cbd5e1" stroke-width="1"/>
-
-        <path id="koi-fin-belly-l" d="M80,220 C50,240 50,270 75,260 Z" fill="rgba(255,255,255,0.6)"/>
-        <path id="koi-fin-belly-r" d="M120,220 C150,240 150,270 125,260 Z" fill="rgba(255,255,255,0.6)"/>
-
+        <defs><radialGradient id="bodyGrad" cx="50%" cy="40%" r="60%"><stop offset="0%" stop-color="#ffffff"/><stop offset="80%" stop-color="#f1f5f9"/><stop offset="100%" stop-color="#cbd5e1"/></radialGradient></defs>
+        <path id="koi-fin-tail" d="M100,280 C130,330 140,380 100,390 C60,380 70,330 100,280 Z" fill="rgba(255,255,255,0.5)" stroke="#cbd5e1" stroke-width="1"/><path id="koi-fin-tail-2" d="M100,280 C115,320 120,360 100,380 C80,360 85,320 100,280 Z" fill="rgba(255,255,255,0.8)"/>
+        <path id="koi-fin-chest-l" d="M70,120 C20,130 10,180 50,200 C60,180 65,150 70,120 Z" fill="rgba(255,255,255,0.6)" stroke="#cbd5e1" stroke-width="1"/><path id="koi-fin-chest-r" d="M130,120 C180,130 190,180 150,200 C140,180 135,150 130,120 Z" fill="rgba(255,255,255,0.6)" stroke="#cbd5e1" stroke-width="1"/>
+        <path id="koi-fin-belly-l" d="M80,220 C50,240 50,270 75,260 Z" fill="rgba(255,255,255,0.6)"/><path id="koi-fin-belly-r" d="M120,220 C150,240 150,270 125,260 Z" fill="rgba(255,255,255,0.6)"/>
         <path id="koi-body" d="M100,20 C140,40 150,140 125,240 C110,290 100,300 100,300 C100,300 90,290 75,240 C50,140 60,40 100,20 Z" fill="url(#bodyGrad)"/>
-
-        <path id="koi-mark-red-1" d="M100,20 C120,30 130,60 110,80 C90,100 70,80 80,40 C85,25 90,20 100,20 Z" fill="#ea580c"/>
-        <path id="koi-mark-red-2" d="M130,110 C145,130 140,170 115,190 C90,180 110,140 130,110 Z" fill="#ea580c"/>
-        <path id="koi-mark-red-3" d="M70,150 C90,140 100,170 85,210 C65,190 55,170 70,150 Z" fill="#ea580c"/>
-        <path id="koi-mark-red-4" d="M100,230 C120,240 115,270 100,280 C85,270 80,240 100,230 Z" fill="#ea580c"/>
-
-        <path id="koi-mark-black-1" d="M80,90 C95,95 90,120 75,115 C65,105 70,90 80,90 Z" fill="#1e293b"/>
-        <path id="koi-mark-black-2" d="M120,190 C135,200 125,230 110,225 C100,210 110,195 120,190 Z" fill="#1e293b"/>
-        <path id="koi-mark-black-3" d="M85,215 C95,220 90,240 80,235 C75,225 80,215 85,215 Z" fill="#1e293b"/>
-
-        <circle id="koi-eye-l" cx="75" cy="55" r="4" fill="#0f172a"/>
-        <circle id="koi-eye-l-iris" cx="74" cy="54" r="1.5" fill="#ffffff"/>
-        <circle id="koi-eye-r" cx="125" cy="55" r="4" fill="#0f172a"/>
-        <circle id="koi-eye-r-iris" cx="124" cy="54" r="1.5" fill="#ffffff"/>
-
-        <path id="koi-whisker-l" d="M85,25 Q70,10 65,15" fill="none" stroke="#e2e8f0" stroke-width="2" stroke-linecap="round"/>
-        <path id="koi-whisker-r" d="M115,25 Q130,10 135,15" fill="none" stroke="#e2e8f0" stroke-width="2" stroke-linecap="round"/>
+        <path id="koi-mark-red-1" d="M100,20 C120,30 130,60 110,80 C90,100 70,80 80,40 C85,25 90,20 100,20 Z" fill="#ea580c"/><path id="koi-mark-red-2" d="M130,110 C145,130 140,170 115,190 C90,180 110,140 130,110 Z" fill="#ea580c"/><path id="koi-mark-red-3" d="M70,150 C90,140 100,170 85,210 C65,190 55,170 70,150 Z" fill="#ea580c"/><path id="koi-mark-red-4" d="M100,230 C120,240 115,270 100,280 C85,270 80,240 100,230 Z" fill="#ea580c"/>
+        <path id="koi-mark-black-1" d="M80,90 C95,95 90,120 75,115 C65,105 70,90 80,90 Z" fill="#1e293b"/><path id="koi-mark-black-2" d="M120,190 C135,200 125,230 110,225 C100,210 110,195 120,190 Z" fill="#1e293b"/><path id="koi-mark-black-3" d="M85,215 C95,220 90,240 80,235 C75,225 80,215 85,215 Z" fill="#1e293b"/>
+        <circle id="koi-eye-l" cx="75" cy="55" r="4" fill="#0f172a"/><circle id="koi-eye-l-iris" cx="74" cy="54" r="1.5" fill="#ffffff"/><circle id="koi-eye-r" cx="125" cy="55" r="4" fill="#0f172a"/><circle id="koi-eye-r-iris" cx="124" cy="54" r="1.5" fill="#ffffff"/>
+        <path id="koi-whisker-l" d="M85,25 Q70,10 65,15" fill="none" stroke="#e2e8f0" stroke-width="2" stroke-linecap="round"/><path id="koi-whisker-r" d="M115,25 Q130,10 135,15" fill="none" stroke="#e2e8f0" stroke-width="2" stroke-linecap="round"/>
     </svg>
 
     <div id="loading-screen"><div class="loader"></div><p style="margin-top:20px; font-weight:900; color:var(--primary)">Loading PM Tasks...</p></div>
 
     <div id="auth-screen" class="auth-overlay" style="display:none;">
-        <div class="auth-card" id="login-v">
-            <h2 style="font-weight:900; font-size:2rem; color:#0f172a;">PM Tasks</h2>
-            <button class="google-login" onclick="window.login()"><svg width="20" height="20" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>Googleでログイン</button>
-        </div>
-        <div class="auth-card" id="setup-v" style="display:none;">
-            <h2 style="font-weight:900; color:#0f172a;">Profile Setup</h2>
-            <label class="profile-img-btn"><img id="setup-img" src="" alt="icon"><input type="file" accept="image/*" onchange="window.handleImageUpload(event, 'setup-img')"></label>
-            <input type="text" id="setup-n" style="width:100%; padding:12px; border-radius:10px; border:2px solid #f1f5f9; margin-bottom:20px; text-align:center; font-family:inherit; font-weight:800;" placeholder="なまえ">
-            <div id="setup-colors" style="display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:30px;"></div>
-            <button class="google-login" style="background:var(--primary); color:#fff;" onclick="window.finishSetup()">スタート！</button>
-        </div>
+        <div class="auth-card" id="login-v"><h2 style="font-weight:900; font-size:2rem; color:#0f172a;">PM Tasks</h2><button class="google-login" onclick="window.login()"><svg width="20" height="20" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>Googleでログイン</button></div>
+        <div class="auth-card" id="setup-v" style="display:none;"><h2 style="font-weight:900; color:#0f172a;">Profile Setup</h2><label class="profile-img-btn"><img id="setup-img" src="" alt="icon"><input type="file" accept="image/*" onchange="window.handleImageUpload(event, 'setup-img')"></label><input type="text" id="setup-n" style="width:100%; padding:12px; border-radius:10px; border:2px solid #f1f5f9; margin-bottom:20px; text-align:center; font-family:inherit; font-weight:800;" placeholder="なまえ"><div id="setup-colors" style="display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:30px;"></div><button class="google-login" style="background:var(--primary); color:#fff;" onclick="window.finishSetup()">スタート！</button></div>
     </div>
 
-    <div id="profile-m" class="modal-overlay" onclick="if(event.target==this)window.closeM('profile-m')">
-        <div class="modal-content" style="padding:30px; height:auto; text-align:center;">
-            <h2 style="margin:0 0 20px; font-weight:900;">プロフィール編集</h2>
-            <label class="profile-img-btn"><img id="edit-img" src="" alt="icon"><input type="file" accept="image/*" onchange="window.handleImageUpload(event, 'edit-img')"></label>
-            <input type="text" id="edit-n" class="add-input" style="width:100%; box-sizing:border-box; margin-bottom:20px; text-align:center;" placeholder="表示名">
-            <div id="edit-colors" style="display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:30px;"></div>
-            <button class="add-btn" style="width:100%; padding:15px;" onclick="window.saveProfile()">保存する</button>
-        </div>
-    </div>
+    <div id="profile-m" class="modal-overlay" onclick="if(event.target==this)window.closeM('profile-m')"><div class="modal-content" style="padding:30px; height:auto; text-align:center;"><h2 style="margin:0 0 20px; font-weight:900;">プロフィール編集</h2><label class="profile-img-btn"><img id="edit-img" src="" alt="icon"><input type="file" accept="image/*" onchange="window.handleImageUpload(event, 'edit-img')"></label><input type="text" id="edit-n" class="add-input" style="width:100%; box-sizing:border-box; margin-bottom:20px; text-align:center;" placeholder="表示名"><div id="edit-colors" style="display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:30px;"></div><button class="add-btn" style="width:100%; padding:15px;" onclick="window.saveProfile()">保存する</button></div></div>
 
     <div class="top-bar">
         <select id="proj-sel" class="project-select" onchange="window.switchProj()"></select>
-        <div style="display:flex; gap:8px;">
-            <button class="add-btn" style="padding:8px 12px; font-size:0.75rem; background:#8b5cf6;" onclick="window.openM('invite-m')">招待</button>
-            <button class="add-btn" style="padding:8px 12px; font-size:0.75rem; background:#34d399;" onclick="window.openM('new-p-m')">＋ 新規PJ</button>
-        </div>
+        <div style="display:flex; gap:8px;"><button class="add-btn" style="padding:8px 12px; font-size:0.75rem; background:#8b5cf6;" onclick="window.openM('invite-m')">招待</button><button class="add-btn" style="padding:8px 12px; font-size:0.75rem; background:#34d399;" onclick="window.openM('new-p-m')">＋ 新規PJ</button></div>
     </div>
 
     <header>
-        <div class="header-titles"><h1 id="header-pj-name">Workspace</h1><p id="mem-count">👤 -</p></div>
+        <div class="header-titles">
+            <h1 id="header-pj-name">Workspace</h1>
+            <div id="mem-count" class="mem-list"></div>
+        </div>
         <div style="display:flex; gap:10px;">
             <button class="icon-btn" onclick="window.openProfile()"><img id="header-user-icon" src="" alt="👤"></button>
-            <button class="icon-btn" onclick="window.logout()">🚪</button>
         </div>
     </header>
 
     <div id="dashboard" class="dashboard"></div>
 
-    <div id="modal" class="modal-overlay" onclick="if(event.target==this)window.closeM('modal')">
-        <div class="modal-content">
-            <div class="modal-header"><input type="text" id="m-title" class="modal-title-input" onblur="window.saveName()"><button class="close-btn" onclick="window.closeM('modal')">✕</button></div>
-            
-            <div id="active-task-list" class="task-list" style="margin-bottom: 0;"></div>
-            <div id="completed-task-section" style="padding: 0 24px 10px; flex-shrink: 0;"></div>
-            
-            <div class="add-area"><select id="ass-sel" class="assign-sel"></select><input type="text" id="t-input" class="add-input" placeholder="タスクを追加..." onkeypress="if(event.key=='Enter')window.addTask()"><button class="add-btn" onclick="window.addTask()">追加</button></div>
-            <button style="color:#f43f5e; border:none; background:none; padding:15px; font-weight:900; cursor:pointer;" onclick="window.delBlock()">🗑 このカテゴリを削除</button>
-        </div>
-    </div>
-
+    <div id="modal" class="modal-overlay" onclick="if(event.target==this)window.closeM('modal')"><div class="modal-content"><div class="modal-header"><input type="text" id="m-title" class="modal-title-input" onblur="window.saveName()"><button class="close-btn" onclick="window.closeM('modal')">✕</button></div><div id="active-task-list" class="task-list" style="margin-bottom: 0;"></div><div id="completed-task-section" style="padding: 0 24px 10px; flex-shrink: 0;"></div><div class="add-area"><select id="ass-sel" class="assign-sel"></select><input type="text" id="t-input" class="add-input" placeholder="タスクを追加..." onkeypress="if(event.key=='Enter')window.addTask()"><button class="add-btn" onclick="window.addTask()">追加</button></div><button style="color:#f43f5e; border:none; background:none; padding:15px; font-weight:900; cursor:pointer;" onclick="window.delBlock()">🗑 このカテゴリを削除</button></div></div>
     <div id="new-p-m" class="modal-overlay" onclick="if(event.target==this)window.closeM('new-p-m')"><div class="modal-content" style="padding:30px; height:auto;"><h2>新規PJ作成</h2><input type="text" id="new-p-t" class="add-input" style="width:100%; box-sizing:border-box; margin-bottom:20px;" placeholder="PJ名"><button class="add-btn" style="width:100%; padding:15px; background:#34d399;" onclick="window.createPJ()">作成</button></div></div>
     <div id="invite-m" class="modal-overlay" onclick="if(event.target==this)window.closeM('invite-m')"><div class="modal-content" style="padding:30px; height:auto;"><h2>招待</h2><input type="email" id="inv-e" class="add-input" style="width:100%; box-sizing:border-box; margin-bottom:20px;" placeholder="email@gmail.com"><button class="add-btn" style="width:100%; padding:15px; background:#8b5cf6;" onclick="window.sendInv()">招待を送る</button></div></div>
 
@@ -257,157 +177,51 @@
         import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
         import { getFirestore, collection, doc, setDoc, getDoc, getDocs, onSnapshot, query, where, addDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyAKBwm7j4-A__682dRZKXULXeLMX-zLPKE",
-            authDomain: "pm-tasks-f9303.firebaseapp.com",
-            projectId: "pm-tasks-f9303",
-            storageBucket: "pm-tasks-f9303.firebasestorage.app",
-            messagingSenderId: "87002903557",
-            appId: "1:87002903557:web:e48d9ff3e807d7631a586c",
-            measurementId: "G-S61N34YF93"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        const provider = new GoogleAuthProvider();
+        const firebaseConfig = { apiKey: "AIzaSyAKBwm7j4-A__682dRZKXULXeLMX-zLPKE", authDomain: "pm-tasks-f9303.firebaseapp.com", projectId: "pm-tasks-f9303", storageBucket: "pm-tasks-f9303.firebasestorage.app", messagingSenderId: "87002903557", appId: "1:87002903557:web:e48d9ff3e807d7631a586c", measurementId: "G-S61N34YF93" };
+        const app = initializeApp(firebaseConfig); const auth = getAuth(app); const db = getFirestore(app); const provider = new GoogleAuthProvider();
 
         let user = null, myP = null, pjs = [], curPId = null, curPD = null, curBId = null, tempPhoto = "";
-        let isDraggingCircle = false;
-        let showCompletedTasks = false; 
-        let memberProfiles = {};
-        
-        let lastClickX = window.innerWidth / 2;
-        let lastClickY = window.innerHeight / 2;
-
+        let isDraggingCircle = false; let showCompletedTasks = false; let memberProfiles = {};
+        let lastClickX = window.innerWidth / 2; let lastClickY = window.innerHeight / 2;
         const colors = ["#38bdf8", "#fb7185", "#34d399", "#fbbf24", "#a78bfa", "#f472b6", "#fb923c", "#0f172a"];
         let selC = colors[0];
 
-        // ✨ 物理学的な流体波紋（分散と減衰）のシミュレーション関数
         function spawnRipple(x, y) {
-            // 水滴の不規則さを表現：波紋の輪の数を3〜5個でランダムに発生
             const numRings = Math.floor(Math.random() * 3) + 3; 
-            
-            // ベースとなる波の強さ（最大到達サイズとスピード）
             const baseSize = 150 + Math.random() * 150; 
             const baseDuration = 1.5 + Math.random() * 1.0;
 
             for (let i = 0; i < numRings; i++) {
-                // 波の分散（Dispersion）: 後から来る波ほど間隔が広がり、小さく、遅くなる
                 const delay = i * (150 + i * 50); 
                 const scaleModifier = 1 - (i * 0.15); 
                 const durationModifier = 1 + (i * 0.2); 
 
                 setTimeout(() => {
-                    const ripple = document.createElement('div');
-                    ripple.className = 'ripple';
-                    ripple.style.left = x + 'px';
-                    ripple.style.top = y + 'px';
-                    
-                    const finalSize = baseSize * scaleModifier;
-                    const finalDuration = baseDuration * durationModifier;
-                    
-                    ripple.style.width = finalSize + 'px';
-                    ripple.style.height = finalSize + 'px';
-                    // 中央から広がるようにネガティブマージンを設定
-                    ripple.style.margin = `-${finalSize / 2}px 0 0 -${finalSize / 2}px`;
-                    ripple.style.animationDuration = finalDuration + 's';
-                    
-                    document.body.appendChild(ripple);
-                    
-                    // アニメーション完了後にDOMから削除
-                    setTimeout(() => ripple.remove(), finalDuration * 1000); 
+                    const ripple = document.createElement('div'); ripple.className = 'ripple'; ripple.style.left = x + 'px'; ripple.style.top = y + 'px';
+                    const finalSize = baseSize * scaleModifier; const finalDuration = baseDuration * durationModifier;
+                    ripple.style.width = finalSize + 'px'; ripple.style.height = finalSize + 'px'; ripple.style.margin = `-${finalSize / 2}px 0 0 -${finalSize / 2}px`; ripple.style.animationDuration = finalDuration + 's';
+                    document.body.appendChild(ripple); setTimeout(() => ripple.remove(), finalDuration * 1000); 
                 }, delay);
             }
         }
 
-        document.addEventListener('click', (e) => {
-            lastClickX = e.clientX; lastClickY = e.clientY;
-            spawnRipple(e.clientX, e.clientY);
-        });
-
-        function buildColors(containerId) {
-            const ctn = document.getElementById(containerId); ctn.innerHTML = '';
-            colors.forEach(c => {
-                const dv = document.createElement('div'); dv.className = 'color-opt'; dv.style.background = c;
-                if(c == selC) dv.classList.add('selected');
-                dv.onclick = () => { ctn.querySelectorAll('.color-opt').forEach(x=>x.classList.remove('selected')); dv.classList.add('selected'); selC = c; };
-                ctn.appendChild(dv);
-            });
-        }
-
-        window.handleImageUpload = (event, imgId) => {
-            const file = event.target.files[0]; if(!file) return;
-            const reader = new FileReader(); reader.onload = (e) => {
-                const img = new Image(); img.onload = () => {
-                    const canvas = document.createElement('canvas'); const size = 150; canvas.width = size; canvas.height = size;
-                    const ctx = canvas.getContext('2d'); const min = Math.min(img.width, img.height);
-                    ctx.drawImage(img, (img.width-min)/2, (img.height-min)/2, min, min, 0, 0, size, size);
-                    tempPhoto = canvas.toDataURL('image/jpeg', 0.8); document.getElementById(imgId).src = tempPhoto;
-                }; img.src = e.target.result;
-            }; reader.readAsDataURL(file);
-        };
+        document.addEventListener('click', (e) => { lastClickX = e.clientX; lastClickY = e.clientY; spawnRipple(e.clientX, e.clientY); });
 
         onAuthStateChanged(auth, async (u) => {
             if (u) {
-                user = u;
-                const d = await getDoc(doc(db, "users", u.uid));
-                if (d.exists()) { 
-                    myP = d.data(); 
-                    myP._isDummy = false; 
-                    memberProfiles[user.email] = myP; 
-
-                    updateHeaderIcon(); 
-                    loadPJs(); 
-                } else { showSetup(); }
-            } else {
-                document.getElementById('auth-screen').style.display = 'flex';
-                document.getElementById('login-v').style.display = 'block';
-                document.getElementById('setup-v').style.display = 'none';
-                hideLoading();
-            }
+                user = u; const d = await getDoc(doc(db, "users", u.uid));
+                if (d.exists()) { myP = d.data(); myP._isDummy = false; memberProfiles[user.email] = myP; updateHeaderIcon(); loadPJs(); } else { showSetup(); }
+            } else { document.getElementById('auth-screen').style.display = 'flex'; hideLoading(); }
         });
 
         window.login = () => signInWithPopup(auth, provider);
-        window.logout = () => signOut(auth);
+        
+        function showSetup() { document.getElementById('auth-screen').style.display = 'flex'; document.getElementById('login-v').style.display = 'none'; document.getElementById('setup-v').style.display = 'block'; document.getElementById('setup-n').value = user.displayName; tempPhoto = user.photoURL || ""; document.getElementById('setup-img').src = tempPhoto; buildColors('setup-colors'); hideLoading(); }
+        window.finishSetup = async () => { const name = document.getElementById('setup-n').value; if(!name) return alert("なまえ入力してね"); myP = { email: user.email, name, color: selC, photo: tempPhoto }; await setDoc(doc(db, "users", user.uid), myP); myP._isDummy = false; memberProfiles[user.email] = myP; await addDoc(collection(db, "projects"), { title: "My Tasks", members: [user.email], blocks: [], koiSize: 0.5 }); location.reload(); };
+        window.openProfile = () => { document.getElementById('edit-n').value = myP.name; selC = myP.color || colors[0]; tempPhoto = myP.photo || ""; document.getElementById('edit-img').src = tempPhoto; buildColors('edit-colors'); window.openM('profile-m'); };
+        window.saveProfile = async () => { const name = document.getElementById('edit-n').value; if(!name) return; myP.name = name; myP.color = selC; myP.photo = tempPhoto; await setDoc(doc(db, "users", user.uid), myP, {merge: true}); memberProfiles[user.email] = myP; updateHeaderIcon(); window.closeM('profile-m'); syncCurPJ(); };
 
-        function showSetup() {
-            document.getElementById('auth-screen').style.display = 'flex';
-            document.getElementById('login-v').style.display = 'none';
-            document.getElementById('setup-v').style.display = 'block';
-            document.getElementById('setup-n').value = user.displayName;
-            tempPhoto = user.photoURL || "";
-            document.getElementById('setup-img').src = tempPhoto;
-            buildColors('setup-colors'); hideLoading();
-        }
-
-        window.finishSetup = async () => {
-            const name = document.getElementById('setup-n').value;
-            if(!name) return alert("名前を入力してね");
-            myP = { email: user.email, name, color: selC, photo: tempPhoto }; 
-            await setDoc(doc(db, "users", user.uid), myP);
-            myP._isDummy = false; memberProfiles[user.email] = myP;
-            await addDoc(collection(db, "projects"), { title: "My Tasks", members: [user.email], blocks: [], koiSize: 0.5 });
-            location.reload();
-        };
-
-        window.openProfile = () => {
-            document.getElementById('edit-n').value = myP.name;
-            selC = myP.color || colors[0]; tempPhoto = myP.photo || "";
-            document.getElementById('edit-img').src = tempPhoto;
-            buildColors('edit-colors'); window.openM('profile-m');
-        };
-
-        window.saveProfile = async () => {
-            const name = document.getElementById('edit-n').value; if(!name) return;
-            myP.name = name; myP.color = selC; myP.photo = tempPhoto;
-            await setDoc(doc(db, "users", user.uid), myP, {merge: true});
-            memberProfiles[user.email] = myP; updateHeaderIcon(); window.closeM('profile-m'); syncCurPJ(); 
-        };
-
-        function updateHeaderIcon() {
-            document.getElementById('header-user-icon').src = myP.photo || "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' fill='%2338bdf8' viewBox='0 0 24 24'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/></svg>";
-        }
+        function updateHeaderIcon() { document.getElementById('header-user-icon').src = myP.photo || "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' fill='%2338bdf8' viewBox='0 0 24 24'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/></svg>"; }
 
         async function fetchMemberProfiles() {
             if (!curPD || !curPD.members) return;
@@ -460,212 +274,110 @@
             fetchMemberProfiles();
         }
 
-        function updateHeaderMembers() {
-            const activeMembers = curPD.members.filter(m => memberProfiles[m] && !memberProfiles[m]._isDummy);
-            const names = activeMembers.map(m => memberProfiles[m].name);
-            document.getElementById('mem-count').innerText = "👤 " + (names.length > 0 ? names.join(', ') : "-");
+        // ✨ ヘッダーのプロジェクトメンバーを、写真付きの横並びバッジに変更
+        function updateHeaderMembers() { 
+            const defaultIcon = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' fill='%2394a3b8' viewBox='0 0 24 24'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/></svg>";
+            const html = curPD.members.map(m => {
+                const p = memberProfiles[m];
+                const name = (p && !p._isDummy) ? p.name : m.split('@')[0] + " (待機中)";
+                const photo = (p && !p._isDummy && p.photo) ? p.photo : defaultIcon;
+                return `<div style="display:inline-flex; align-items:center; gap:4px; margin-right:8px; background:rgba(255,255,255,0.6); padding:2px 8px 2px 2px; border-radius:20px; flex-shrink:0; border: 1px solid #fff;"><img src="${photo}" style="width:16px;height:16px;border-radius:50%;object-fit:cover;background:#fff;"><span>${name}</span></div>`;
+            }).join('');
+            document.getElementById('mem-count').innerHTML = html || "-";
         }
 
         function renderDash() {
             const el = document.getElementById('dashboard'); el.innerHTML = '';
             const w = el.clientWidth - 40, h = el.clientHeight - 40;
             const blks = curPD.blocks || [], total = blks.length + 1;
-            let opt = 0;
-            for(let c=1; c<=total; c++) { let r = Math.ceil(total/c); let s = Math.min((w-(c-1)*20)/c, (h-(r-1)*20)/r); if(s > opt) opt = s; }
+            let opt = 0; for(let c=1; c<=total; c++) { let r = Math.ceil(total/c); let s = Math.min((w-(c-1)*20)/c, (h-(r-1)*20)/r); if(s > opt) opt = s; }
             const size = Math.min(Math.max(opt, 80), 140); 
             
             blks.forEach(b => {
                 const div = document.createElement('div'); div.className = 'circle-block';
                 div.style.width = div.style.height = size + 'px'; div.style.borderColor = b.color;
+                div.onclick = () => { if(isDraggingCircle) return; div.classList.add('jelly-anim'); setTimeout(() => { div.classList.remove('jelly-anim'); window.openTaskM(b.id); }, 250); };
                 
-                div.onclick = (e) => {
-                    if(isDraggingCircle) return; 
-                    div.classList.add('jelly-anim');
-                    setTimeout(() => { div.classList.remove('jelly-anim'); window.openTaskM(b.id); }, 250); 
-                };
-
-                div.innerHTML = `<div class="circle-title" style="font-size:${size*0.14}px">${b.title}</div><div class="circle-creator" style="color:${b.color}">by ${b.userName}</div>`;
+                div.innerHTML = `<div class="circle-title" style="font-size:${size*0.14}px">${b.title}</div>`;
                 
-                const myUncompletedTasks = (b.items || []).filter(i => 
-                    !i.completed && (i.assEmail === user.email || i.assName === user.email.split('@')[0] || i.assName === myP.name)
-                );
-                const uc = myUncompletedTasks.length;
+                const myUncompleted = (b.items || []).filter(i => !i.completed && i.assEmail === user.email).length;
+                const othersUncompleted = (b.items || []).filter(i => !i.completed && i.assEmail !== user.email).length;
 
-                if(uc > 0) {
-                    const bg = document.createElement('div'); bg.className='badge';
-                    bg.style.width = bg.style.height = Math.max(25, size*0.3)+'px';
-                    bg.style.fontSize = Math.max(12, size*0.15)+'px';
-                    bg.innerText = uc; bg.style.background = b.color; div.appendChild(bg);
+                const badgeSize = Math.max(25, size*0.3);
+                const badgeFontSize = Math.max(12, size*0.15);
+
+                if(myUncompleted > 0) {
+                    const bg = document.createElement('div'); bg.className='badge badge-self';
+                    bg.style.width = bg.style.height = badgeSize+'px'; bg.style.fontSize = badgeFontSize+'px';
+                    bg.innerText = myUncompleted; bg.style.background = b.color; div.appendChild(bg);
+                }
+                if(othersUncompleted > 0) {
+                    const bg = document.createElement('div'); bg.className='badge badge-others';
+                    bg.style.width = bg.style.height = badgeSize+'px'; bg.style.fontSize = badgeFontSize+'px';
+                    bg.innerText = othersUncompleted; div.appendChild(bg);
                 }
                 el.appendChild(div);
             });
             
-            const add = document.createElement('div'); add.className = 'circle-block add-new'; add.style.width = add.style.height = size + 'px';
-            add.style.borderStyle = 'dashed'; add.innerHTML = `<span style="font-size:2.5rem; color:var(--primary)">＋</span>`;
-            add.onclick = window.addBlock; el.appendChild(add);
-
-            if(window.dashSortable) window.dashSortable.destroy();
-            window.dashSortable = Sortable.create(el, {
-                animation: 250, delay: 200, delayOnTouchOnly: true, filter: '.add-new',
-                onStart: () => { isDraggingCircle = true; },
-                onEnd: async (e) => {
-                    setTimeout(() => { isDraggingCircle = false; }, 50);
-                    if(e.oldIndex === e.newIndex) return;
-                    const moved = curPD.blocks.splice(e.oldIndex, 1)[0];
-                    curPD.blocks.splice(e.newIndex, 0, moved);
-                    await save();
-                }
-            });
+            const add = document.createElement('div'); add.className = 'circle-block add-new'; add.style.width = add.style.height = size + 'px'; add.style.borderStyle = 'dashed'; add.innerHTML = `<span style="font-size:2.5rem; color:var(--primary)">＋</span>`; add.onclick = window.addBlock; el.appendChild(add);
+            if(window.dashSortable) window.dashSortable.destroy(); window.dashSortable = Sortable.create(el, { animation: 250, delay: 200, filter: '.add-new', onStart: () => { isDraggingCircle = true; }, onEnd: async (e) => { setTimeout(() => { isDraggingCircle = false; }, 50); if(e.oldIndex === e.newIndex) return; const moved = curPD.blocks.splice(e.oldIndex, 1)[0]; curPD.blocks.splice(e.newIndex, 0, moved); await save(); } });
         }
 
-        window.openTaskM = (id) => {
-            curBId = id; const b = curPD.blocks.find(x=>x.id==id);
-            document.getElementById('m-title').value = b.title;
-            document.getElementById('m-title').style.color = b.color;
-            showCompletedTasks = false; 
-            renderTasks(); window.openM('modal');
-        };
-
-        function createTaskDom(item) {
-            const div = document.createElement('div'); div.className = `task-item ${item.completed ? 'completed' : ''}`;
-            const displayName = (item.assEmail && memberProfiles[item.assEmail]) ? memberProfiles[item.assEmail].name : item.assName;
-            const displayColor = (item.assEmail && memberProfiles[item.assEmail]) ? memberProfiles[item.assEmail].color : (item.assColor || '#94a3b8');
+        window.openTaskM = (id) => { curBId = id; const b = curPD.blocks.find(x=>x.id==id); document.getElementById('m-title').value = b.title; document.getElementById('m-title').style.color = b.color; showCompletedTasks = false; renderTasks(); window.openM('modal'); };
+        
+        // ✨ タスクリストの担当者ラベルにもアイコンを追加
+        function createTaskDom(item) { 
+            const div = document.createElement('div'); div.className = `task-item ${item.completed ? 'completed' : ''}`; 
+            const p = memberProfiles[item.assEmail];
+            const displayName = (p && !p._isDummy) ? p.name : item.assName; 
+            const displayColor = (p && !p._isDummy) ? p.color : (item.assColor || '#94a3b8'); 
+            const defaultIcon = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' fill='%23ffffff' viewBox='0 0 24 24'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/></svg>";
+            const displayPhoto = (p && !p._isDummy && p.photo) ? p.photo : defaultIcon;
 
             div.innerHTML = `<div class="drag-handle" style="${item.completed ? 'visibility:hidden;' : ''}">≡</div>
                              <input type="checkbox" class="task-checkbox" ${item.completed?'checked':''} onchange="window.toggleT('${item.id}', '${displayColor}')">
                              <div class="task-content"><div class="task-text" contenteditable="${!item.completed}" onblur="window.editT('${item.id}', this.innerText)">${item.text}</div>
-                             <span class="task-tag" style="background:${displayColor}">${displayName}</span></div>
-                             <button style="border:none; background:none; cursor:pointer; font-size:1.2rem; color:#cbd5e1;" onclick="window.delT('${item.id}')">✕</button>`;
-            return div;
+                             <span class="task-tag" style="background:${displayColor}"><img src="${displayPhoto}" style="width:14px;height:14px;border-radius:50%;object-fit:cover;background:rgba(255,255,255,0.3);"> ${displayName}</span></div>
+                             <button style="border:none; background:none; cursor:pointer; font-size:1.2rem; color:#cbd5e1;" onclick="window.delT('${item.id}')">✕</button>`; 
+            return div; 
         }
 
-        function renderTasks() {
-            const b = curPD.blocks.find(x=>x.id==curBId);
-            const activeContainer = document.getElementById('active-task-list');
-            const compSection = document.getElementById('completed-task-section');
-            activeContainer.innerHTML = ''; compSection.innerHTML = '';
-            
-            if(!b.items) b.items = [];
-            
-            const activeTasks = b.items.filter(i => !i.completed);
-            const completedTasks = b.items.filter(i => i.completed);
+        function renderTasks() { const b = curPD.blocks.find(x=>x.id==curBId); const activeContainer = document.getElementById('active-task-list'); const compSection = document.getElementById('completed-task-section'); activeContainer.innerHTML = ''; compSection.innerHTML = ''; if(!b.items) b.items = []; const activeTasks = b.items.filter(i => !i.completed); const completedTasks = b.items.filter(i => i.completed); activeTasks.forEach(item => activeContainer.appendChild(createTaskDom(item))); if(completedTasks.length > 0) { const btn = document.createElement('button'); btn.className = 'toggle-completed-btn'; btn.innerText = showCompletedTasks ? '完了したタスクを隠す ∧' : `完了したタスクを表示 (${completedTasks.length}) ∨`; btn.onclick = () => { showCompletedTasks = !showCompletedTasks; renderTasks(); }; compSection.appendChild(btn); if(showCompletedTasks) { const compContainer = document.createElement('div'); completedTasks.forEach(item => compContainer.appendChild(createTaskDom(item))); compSection.appendChild(compContainer); } } if(window.taskSortable) window.taskSortable.destroy(); window.taskSortable = Sortable.create(activeContainer, { animation: 150, handle: '.drag-handle', onEnd: async (e) => { if(e.oldIndex === e.newIndex) return; const moved = activeTasks.splice(e.oldIndex, 1)[0]; activeTasks.splice(e.newIndex, 0, moved); b.items = [...activeTasks, ...completedTasks]; await save(); } }); }
 
-            activeTasks.forEach(item => activeContainer.appendChild(createTaskDom(item)));
-
-            if(completedTasks.length > 0) {
-                const btn = document.createElement('button');
-                btn.className = 'toggle-completed-btn';
-                btn.innerText = showCompletedTasks ? '完了したタスクを隠す ∧' : `完了したタスクを表示 (${completedTasks.length}) ∨`;
-                btn.onclick = () => { showCompletedTasks = !showCompletedTasks; renderTasks(); };
-                compSection.appendChild(btn);
-
-                if(showCompletedTasks) {
-                    const compContainer = document.createElement('div');
-                    completedTasks.forEach(item => compContainer.appendChild(createTaskDom(item)));
-                    compSection.appendChild(compContainer);
-                }
-            }
-
-            if(window.taskSortable) window.taskSortable.destroy();
-            window.taskSortable = Sortable.create(activeContainer, { 
-                animation: 150, handle: '.drag-handle', 
-                onEnd: async (e) => { 
-                    if(e.oldIndex === e.newIndex) return;
-                    const moved = activeTasks.splice(e.oldIndex, 1)[0]; 
-                    activeTasks.splice(e.newIndex, 0, moved); 
-                    b.items = [...activeTasks, ...completedTasks];
-                    await save(); 
-                } 
-            });
-        }
-
-        window.addTask = async () => {
-            const input = document.getElementById('t-input'), text = input.value.trim(); if(!text) return;
-            const assE = document.getElementById('ass-sel').value;
-            const profile = memberProfiles[assE] || { name: assE.split('@')[0], color: '#94a3b8' };
-            const b = curPD.blocks.find(x=>x.id==curBId);
-            if(!b.items) b.items = [];
-            
-            b.items.unshift({ 
-                id: Date.now().toString(), text, completed: false, 
-                assName: profile.name, assEmail: assE, assColor: profile.color 
-            });
-            input.value = ''; await save();
-        };
-
-        window.toggleT = async (tid, color) => { 
-            const b = curPD.blocks.find(x=>x.id==curBId); 
-            const i = b.items.find(x=>x.id==tid); 
-            const wasCompleted = i.completed;
-            i.completed = !i.completed; 
-            
-            if (!wasCompleted && i.completed) {
-                spawnFood(lastClickX, lastClickY, color);
-            }
-
-            const active = b.items.filter(x => !x.completed);
-            const comp = b.items.filter(x => x.completed);
-            b.items = [...active, ...comp];
-            
-            await save(); 
-        };
-
+        window.addTask = async () => { const input = document.getElementById('t-input'), text = input.value.trim(); if(!text) return; const assE = document.getElementById('ass-sel').value; const profile = memberProfiles[assE] || { name: assE.split('@')[0], color: '#94a3b8' }; const b = curPD.blocks.find(x=>x.id==curBId); if(!b.items) b.items = []; b.items.unshift({ id: Date.now().toString(), text, completed: false, assName: profile.name, assEmail: assE, assColor: profile.color }); input.value = ''; await save(); };
+        window.toggleT = async (tid, color) => { const b = curPD.blocks.find(x=>x.id==curBId); const i = b.items.find(x=>x.id==tid); const wasCompleted = i.completed; i.completed = !i.completed; if (!wasCompleted && i.completed) { spawnFood(lastClickX, lastClickY, color); } const active = b.items.filter(x => !x.completed); const comp = b.items.filter(x => x.completed); b.items = [...active, ...comp]; await save(); };
         window.editT = async (tid, txt) => { const b = curPD.blocks.find(x=>x.id==curBId); const i = b.items.find(x=>x.id==tid); if(i.text != txt){ i.text = txt; await save(); } };
         window.delT = async (tid) => { const b = curPD.blocks.find(x=>x.id==curBId); b.items = b.items.filter(x=>x.id!=tid); await save(); };
         window.saveName = async () => { const b = curPD.blocks.find(x=>x.id==curBId); const val = document.getElementById('m-title').value; if(b.title != val) { b.title = val; await save(); } };
-        
-        window.addBlock = async () => {
-            const id = Date.now().toString();
-            curPD.blocks.push({ id, title: "新しいカテゴリ", userName: myP.name, color: myP.color, items: [] });
-            await save(); window.openTaskM(id);
-        };
-
+        window.addBlock = async () => { const id = Date.now().toString(); curPD.blocks.push({ id, title: "新しいカテゴリ", color: myP.color, items: [] }); await save(); window.openTaskM(id); };
         window.delBlock = async () => { if(!confirm("削除しますか？")) return; curPD.blocks = curPD.blocks.filter(x=>x.id != curBId); await save(); window.closeM('modal'); };
-        
         window.createPJ = async () => { const t = document.getElementById('new-p-t').value; if(!t) return; await addDoc(collection(db, "projects"), { title: t, members: [user.email], blocks: [], koiSize: 0.5 }); window.closeM('new-p-m'); };
-        
         window.sendInv = async () => { const e = document.getElementById('inv-e').value; if(!e) return; if(!curPD.members.includes(e)) { curPD.members.push(e); await save(); alert("招待しました"); } window.closeM('invite-m'); };
-        
         window.switchProj = () => { curPId = document.getElementById('proj-sel').value; localStorage.setItem('last_proj_id', curPId); syncCurPJ(); };
         async function save() { await setDoc(doc(db, "projects", curPId), curPD); }
-        
-        window.openM = (id) => document.getElementById(id).classList.add('active');
-        window.closeM = (id) => { document.getElementById(id).classList.remove('active'); if(id=='modal') curBId=null; };
+        window.openM = (id) => document.getElementById(id).classList.add('active'); window.closeM = (id) => { document.getElementById(id).classList.remove('active'); if(id=='modal') curBId=null; };
         function hideLoading() { document.getElementById('loading-screen').style.opacity = '0'; setTimeout(() => document.getElementById('loading-screen').style.display='none', 500); }
         window.addEventListener('resize', renderDash);
-        
         function updateProjList() { const sel = document.getElementById('proj-sel'); sel.innerHTML = ''; pjs.forEach(p => { const o = document.createElement('option'); o.value = p.id; o.innerText = p.data.title; sel.appendChild(o); }); sel.value = curPId; }
-        function updateAssList() { const sel = document.getElementById('ass-sel'); sel.innerHTML = ''; const activeMembers = curPD.members.filter(m => memberProfiles[m] && !memberProfiles[m]._isDummy); activeMembers.forEach(m => { const o = document.createElement('option'); o.value = m; o.innerText = memberProfiles[m].name; sel.appendChild(o); }); sel.value = user.email; }
-
-        function getScreenScale() {
-            if (window.innerWidth < 500) return 0.7; 
-            if (window.innerWidth < 800) return 0.85; 
-            return 1.0; 
+        
+        function updateAssList() { 
+            const sel = document.getElementById('ass-sel'); sel.innerHTML = ''; 
+            curPD.members.forEach(m => { 
+                const p = memberProfiles[m]; 
+                const name = (p && !p._isDummy) ? p.name : m.split('@')[0] + " (待機中)"; 
+                const o = document.createElement('option'); o.value = m; o.innerText = name; sel.appendChild(o); 
+            }); 
+            if(curPD.members.includes(user.email)) sel.value = user.email; 
         }
+        
+        function buildColors(containerId) { const ctn = document.getElementById(containerId); ctn.innerHTML = ''; colors.forEach(c => { const dv = document.createElement('div'); dv.className = 'color-opt'; dv.style.background = c; if(c == selC) dv.classList.add('selected'); dv.onclick = () => { ctn.querySelectorAll('.color-opt').forEach(x=>x.classList.remove('selected')); dv.classList.add('selected'); selC = c; }; ctn.appendChild(dv); }); }
+        window.handleImageUpload = (event, imgId) => { const file = event.target.files[0]; if(!file) return; const reader = new FileReader(); reader.onload = (e) => { const img = new Image(); img.onload = () => { const canvas = document.createElement('canvas'); const size = 150; canvas.width = size; canvas.height = size; const ctx = canvas.getContext('2d'); const min = Math.min(img.width, img.height); ctx.drawImage(img, (img.width-min)/2, (img.height-min)/2, min, min, 0, 0, size, size); tempPhoto = canvas.toDataURL('image/jpeg', 0.8); document.getElementById(imgId).src = tempPhoto; }; img.src = e.target.result; }; reader.readAsDataURL(file); };
 
-        const KOI_BASE_SPEED = 0.6;     
-        const KOI_CHASE_SPEED = 3.0;    
-        const KOI_TURN_SOFTNESS = 0.02; 
-        const SWAY_AMP = 0.1;           
-        const SWAY_FREQ = 0.004;        
-
-        let koiEl = document.getElementById('koi-fish');
-        let kX = window.innerWidth / 2, kY = window.innerHeight / 2;
-        let kAngle = 0, kSize = 0.5; 
-        let speed = KOI_BASE_SPEED; 
-        let currentTarget = null;
-        let foods = [];
-
-        function spawnFood(x, y, color) {
-            const food = document.createElement('div');
-            food.className = 'fish-food';
-            food.style.left = x + 'px';
-            food.style.top = y + 'px';
-            food.style.backgroundColor = color || '#ffcc00';
-            document.body.appendChild(food);
-            foods.push({ el: food, x, y });
-        }
-
+        function getScreenScale() { if (window.innerWidth < 500) return 0.7; if (window.innerWidth < 800) return 0.85; return 1.0; }
+        const KOI_BASE_SPEED = 0.6; const KOI_CHASE_SPEED = 3.0; const KOI_TURN_SOFTNESS = 0.02; const SWAY_AMP = 0.1; const SWAY_FREQ = 0.004;
+        let koiEl = document.getElementById('koi-fish'); let kX = window.innerWidth / 2, kY = window.innerHeight / 2; let kAngle = 0, kSize = 0.5; let speed = KOI_BASE_SPEED; let currentTarget = null; let foods = [];
+        function spawnFood(x, y, color) { const food = document.createElement('div'); food.className = 'fish-food'; food.style.left = x + 'px'; food.style.top = y + 'px'; food.style.backgroundColor = color || '#ffcc00'; document.body.appendChild(food); foods.push({ el: food, x, y }); }
+        
         function updateKoi() {
             if (!koiEl) return;
 
@@ -703,7 +415,6 @@
                     save(); 
                 }
 
-                // ✨ 餌を食べた時にも複数の波紋を発生させる
                 spawnRipple(kX, kY);
             }
 
