@@ -75,10 +75,7 @@
         .icon-btn:hover { transform: scale(1.05); }
         .icon-btn img { width: 100%; height: 100%; object-fit: cover; }
 
-        /* ✨ 溢れた時の安全装置として auto に変更 */
         .dashboard { display: flex; flex-wrap: wrap; justify-content: center; align-content: flex-start; flex-grow: 1; overflow-y: auto; z-index: 20; }
-        
-        /* ✨ box-sizing: border-box; を追加して、枠線込みでサイズ計算が完璧に合うように修正 */
         .circle-block { position: relative; box-sizing: border-box; border-radius: 50%; background: linear-gradient(135deg, rgba(255,255,255,0.85), rgba(255,255,255,0.4)); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; cursor: pointer; box-shadow: 0 10px 25px rgba(2, 132, 199, 0.15); backdrop-filter: blur(5px); user-select: none; -webkit-user-select: none; flex-shrink: 0; }
         .circle-title { font-weight: 900; line-height: 1.2; padding: 0 10%; pointer-events: none; overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; color:#0f172a;}
 
@@ -350,33 +347,40 @@
             await save(); window.closeM('manager-m'); updateHeaderMembers(); renderDash();
         };
 
-        // ✨ 画面サイズに合わせて玉を安全にリサイズ計算
         function renderDash() {
             const el = document.getElementById('dashboard'); el.innerHTML = '';
             
             const isMobile = window.innerWidth < 600;
-            const gapSize = isMobile ? 10 : 20;
-            el.style.gap = gapSize + 'px';
-            el.style.padding = isMobile ? '15px 10px' : '30px 24px';
+            const gapSize = isMobile ? 12 : 20;
+            const padTop = isMobile ? 15 : 30;
+            const padBot = isMobile ? 45 : 40; 
+            const padX = isMobile ? 10 : 24;
             
-            const w = el.clientWidth - (isMobile ? 20 : 48); 
-            const h = el.clientHeight - (isMobile ? 30 : 60);
+            el.style.gap = gapSize + 'px';
+            el.style.padding = `${padTop}px ${padX}px ${padBot}px`;
+            
+            const w = el.clientWidth - (padX * 2); 
+            const h = el.clientHeight - (padTop + padBot);
 
             const blks = curPD.blocks || [], total = blks.length + 1;
             let opt = 0; 
+            const rowHeightRatio = 1.18; 
+
             for(let c=1; c<=total; c++) { 
                 let r = Math.ceil(total/c); 
-                let s = Math.min((w-(c-1)*gapSize)/c, (h-(r-1)*gapSize)/r); 
+                let s = Math.min((w-(c-1)*gapSize)/c, (h-(r-1)*gapSize)/(r * rowHeightRatio)); 
                 if(s > opt) opt = s; 
             }
             
             const size = Math.max(Math.min(opt, 150), 40); 
             const isManager = curPD.managers && curPD.managers.includes(user.email);
+            const marginTopPx = size * (rowHeightRatio - 1); 
             
             blks.forEach(b => {
                 const div = document.createElement('div'); div.className = 'circle-block';
                 div.style.width = div.style.height = size + 'px'; div.style.borderColor = b.color;
                 div.style.borderWidth = Math.max(2, size*0.03) + 'px'; 
+                div.style.marginTop = marginTopPx + 'px'; 
                 
                 div.onclick = () => { if(isDraggingCircle) return; div.classList.add('jelly-anim'); setTimeout(() => { div.classList.remove('jelly-anim'); window.openTaskM(b.id); }, 250); };
                 
@@ -421,7 +425,7 @@
                 el.appendChild(div);
             });
             
-            const add = document.createElement('div'); add.className = 'circle-block add-new'; add.style.width = add.style.height = size + 'px'; add.style.borderStyle = 'dashed'; add.innerHTML = `<span style="font-size:${Math.max(16, size*0.4)}px; color:var(--primary)">＋</span>`; add.onclick = window.addBlock; el.appendChild(add);
+            const add = document.createElement('div'); add.className = 'circle-block add-new'; add.style.width = add.style.height = size + 'px'; add.style.borderStyle = 'dashed'; add.innerHTML = `<span style="font-size:${Math.max(16, size*0.4)}px; color:var(--primary)">＋</span>`; add.onclick = window.addBlock; add.style.marginTop = marginTopPx + 'px'; el.appendChild(add);
             
             if(window.dashSortable) window.dashSortable.destroy(); 
             window.dashSortable = Sortable.create(el, { animation: 250, delay: 150, delayOnTouchOnly: true, fallbackOnBody: true, filter: '.add-new', onStart: () => { isDraggingCircle = true; }, onEnd: async (e) => { setTimeout(() => { isDraggingCircle = false; }, 50); if(e.oldIndex === e.newIndex) return; const moved = curPD.blocks.splice(e.oldIndex, 1)[0]; curPD.blocks.splice(e.newIndex, 0, moved); await save(); } });
