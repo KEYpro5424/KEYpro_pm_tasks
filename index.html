@@ -19,7 +19,7 @@
             --radius-xl: 32px; --radius-lg: 24px;
         }
 
-        /* ✨ スマホでタップした時の変なグレーの点滅を完全に無効化 */
+        /* スマホでのタップ時のグレー点滅を無効化 */
         * {
             -webkit-tap-highlight-color: transparent;
         }
@@ -28,26 +28,24 @@
 
         body {
             font-family: 'Nunito', 'Zen Maru Gothic', sans-serif;
-            margin: 0; background: linear-gradient(-45deg, var(--bg-1), var(--bg-2), var(--bg-3), var(--bg-4));
-            background-size: 400% 400%; animation: aurora 15s ease infinite;
-            display: flex; flex-direction: column; height: 100dvh; overflow: hidden; color: var(--text);
+            margin: 0; 
+            background-color: #e0f2fe; /* 真っ白防止のベースカラー */
+            background-image: linear-gradient(-45deg, var(--bg-1), var(--bg-2), var(--bg-3), var(--bg-4));
+            background-size: 400% 400%; 
+            animation: aurora 15s ease infinite;
+            display: flex; flex-direction: column; 
+            height: 100vh; /* フォールバック */
+            height: 100dvh; 
+            overflow: hidden; color: var(--text);
             position: relative;
         }
 
+        /* ✨ 特殊な合成設定をやめ、透明度だけで水面テクスチャを表現（四角いバグ＆真っ白を完全防止） */
         body::before {
-            content: ""; position: fixed; top: -50%; left: -50%; width: 200%; height: 200%; z-index: -1; pointer-events: none; 
-            background-image: 
-                radial-gradient(circle at 50% 50%, rgba(255,255,255,0.25) 0%, transparent 30%),
-                radial-gradient(circle at 20% 30%, rgba(255,255,255,0.3) 0%, transparent 40%),
-                radial-gradient(circle at 80% 70%, rgba(255,255,255,0.2) 0%, transparent 35%);
-            animation: waterShimmer 12s infinite alternate ease-in-out;
-        }
-        @keyframes waterShimmer {
-            0% { transform: rotate(0deg) scale(1); }
-            100% { transform: rotate(10deg) scale(1.05); }
+            content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none; opacity: 0.15;
+            background: url('data:image/svg+xml;utf8,<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><filter id="noiseFilter"><feTurbulence type="fractalNoise" baseFrequency="0.015" numOctaves="3" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23noiseFilter)"/></svg>');
         }
 
-        /* ✨ 悪さをしていた backdrop-filter を完全削除し、四角いバグを撲滅。シャドウだけで水面を表現 */
         .ripple {
             position: fixed; border-radius: 50%;
             border: 2px solid rgba(255, 255, 255, 0.5);
@@ -184,7 +182,20 @@
 
     <div id="dashboard" class="dashboard"></div>
 
-    <div id="modal" class="modal-overlay" onclick="if(event.target==this)window.closeM('modal')"><div class="modal-content"><div class="modal-header"><input type="text" id="m-title" class="modal-title-input" onblur="window.saveName()"><button class="close-btn" onclick="window.closeM('modal')">✕</button></div><div id="active-task-list" class="task-list" style="margin-bottom: 0;"></div><div id="completed-task-section" style="padding: 0 24px 10px; flex-shrink: 0;"></div><div class="add-area"><select id="ass-sel" class="assign-sel"></select><input type="text" id="t-input" class="add-input" placeholder="タスクを追加..." onkeydown="if(event.key === 'Enter') { window.addTask(); event.preventDefault(); }"><button class="add-btn" onclick="window.addTask()">追加</button></div><button style="color:#f43f5e; border:none; background:none; padding:15px; font-weight:900; cursor:pointer;" onclick="window.delBlock()">🗑 このカテゴリを削除</button></div></div>
+    <div id="modal" class="modal-overlay" onclick="if(event.target==this)window.closeM('modal')">
+        <div class="modal-content">
+            <div class="modal-header"><input type="text" id="m-title" class="modal-title-input" onblur="window.saveName()"><button class="close-btn" onclick="window.closeM('modal')">✕</button></div>
+            <div id="active-task-list" class="task-list" style="margin-bottom: 0;"></div>
+            <div id="completed-task-section" style="padding: 0 24px 10px; flex-shrink: 0;"></div>
+            <div class="add-area">
+                <select id="ass-sel" class="assign-sel"></select>
+                <input type="text" id="t-input" class="add-input" placeholder="タスクを追加 (Cmd+Enter)" onkeydown="if((event.metaKey || event.ctrlKey) && event.key === 'Enter') { window.addTask(); event.preventDefault(); }">
+                <button class="add-btn" onclick="window.addTask()">追加</button>
+            </div>
+            <button style="color:#f43f5e; border:none; background:none; padding:15px; font-weight:900; cursor:pointer;" onclick="window.delBlock()">🗑 このカテゴリを削除</button>
+        </div>
+    </div>
+    
     <div id="new-p-m" class="modal-overlay" onclick="if(event.target==this)window.closeM('new-p-m')"><div class="modal-content" style="padding:30px; height:auto;"><h2>新規PJ作成</h2><input type="text" id="new-p-t" class="add-input" style="width:100%; box-sizing:border-box; margin-bottom:20px;" placeholder="PJ名"><button class="add-btn" style="width:100%; padding:15px; background:#34d399;" onclick="window.createPJ()">作成</button></div></div>
     <div id="invite-m" class="modal-overlay" onclick="if(event.target==this)window.closeM('invite-m')"><div class="modal-content" style="padding:30px; height:auto;"><h2>招待</h2><input type="email" id="inv-e" class="add-input" style="width:100%; box-sizing:border-box; margin-bottom:20px;" placeholder="email@gmail.com"><button class="add-btn" style="width:100%; padding:15px; background:#8b5cf6;" onclick="window.sendInv()">招待を送る</button></div></div>
 
@@ -223,6 +234,7 @@
 
                 setTimeout(() => {
                     const ripple = document.createElement('div'); ripple.className = 'ripple'; 
+                    // ✨ ズレの原因だったマイナス余白の計算を完全撤廃し、絶対座標で配置
                     ripple.style.left = x + 'px'; ripple.style.top = y + 'px';
                     const finalSize = baseSize * scaleModifier; const finalDuration = baseDuration * durationModifier;
                     ripple.style.width = finalSize + 'px'; ripple.style.height = finalSize + 'px'; 
