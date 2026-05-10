@@ -19,8 +19,11 @@
             --radius-xl: 32px; --radius-lg: 24px;
         }
 
-        /* スマホでのタップ時のグレー点滅を無効化 */
-        * { -webkit-tap-highlight-color: transparent; }
+        /* ✨ スマホでの横揺れを防ぐため、すべての要素のサイズ計算を「枠線・余白込み」に統一 */
+        * { 
+            -webkit-tap-highlight-color: transparent; 
+            box-sizing: border-box; 
+        }
 
         @keyframes aurora { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
 
@@ -29,7 +32,10 @@
             margin: 0; background-color: #e0f2fe; 
             background-image: linear-gradient(-45deg, var(--bg-1), var(--bg-2), var(--bg-3), var(--bg-4));
             background-size: 400% 400%; animation: aurora 15s ease infinite;
-            display: flex; flex-direction: column; height: 100vh; height: 100dvh; overflow: hidden; color: var(--text);
+            display: flex; flex-direction: column; height: 100vh; height: 100dvh; 
+            width: 100vw; max-width: 100%; /* ✨ 横幅を画面に完全に固定 */
+            overflow: hidden; /* ✨ 画面全体のスクロール・横揺れを禁止 */
+            color: var(--text);
             position: relative;
         }
 
@@ -72,14 +78,19 @@
         .icon-btn:hover { transform: scale(1.05); }
         .icon-btn img { width: 100%; height: 100%; object-fit: cover; }
 
-        .dashboard { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; flex-grow: 1; overflow-y: auto; z-index: 20; padding-bottom: 60px;}
+        /* ✨ 横スクロール（スライド現象）を禁止し、縦スクロールのみに限定 */
+        .dashboard { 
+            display: flex; flex-direction: column; align-items: center; justify-content: flex-start; 
+            flex-grow: 1; overflow-y: auto; overflow-x: hidden; 
+            z-index: 20; padding-bottom: 60px; width: 100%;
+        }
         
-        /* ✨ 装飾のない、最も使いやすいシンプルなすりガラスのパネル */
+        /* 装飾のない、最も使いやすいシンプルなすりガラスのパネル */
         .glass-panel {
             background: rgba(255, 255, 255, 0.35); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
             border: 1px solid rgba(255, 255, 255, 0.6); border-radius: var(--radius-lg); 
             display: flex; flex-direction: column; box-shadow: 0 8px 24px rgba(0, 100, 200, 0.08);
-            box-sizing: border-box; width: 100%; max-width: 800px; transition: all 0.3s ease;
+            width: 100%; max-width: 800px; transition: all 0.3s ease;
         }
         .panel-header { 
             display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; cursor: pointer; 
@@ -104,7 +115,7 @@
         .add-new-group:hover { background: rgba(255, 255, 255, 0.4); }
 
         /* タスクのサークル */
-        .circle-block { position: relative; box-sizing: border-box; border-radius: 50%; background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(255,255,255,0.6)); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; cursor: pointer; box-shadow: 0 10px 25px rgba(2, 132, 199, 0.15); user-select: none; -webkit-user-select: none; flex-shrink: 0; }
+        .circle-block { position: relative; border-radius: 50%; background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(255,255,255,0.6)); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; cursor: pointer; box-shadow: 0 10px 25px rgba(2, 132, 199, 0.15); user-select: none; -webkit-user-select: none; flex-shrink: 0; }
         .circle-title { font-weight: 900; line-height: 1.2; padding: 0 10%; pointer-events: none; overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; color:#0f172a;}
 
         /* 目立ちすぎない薄いプラスの円 */
@@ -249,7 +260,6 @@
 
                 setTimeout(() => {
                     const ripple = document.createElement('div'); ripple.className = 'ripple'; 
-                    // JSによるマイナスマージンは削除済み（中央寄せはCSSのtransformに任せる）
                     ripple.style.left = x + 'px'; ripple.style.top = y + 'px';
                     const finalSize = baseSize * scaleModifier; const finalDuration = baseDuration * durationModifier;
                     ripple.style.width = finalSize + 'px'; ripple.style.height = finalSize + 'px'; 
@@ -437,7 +447,6 @@
             const rowHeightRatio = 1.18; 
             let opt = 0; 
             
-            // 丸のサイズの自動計算（親コンテナが安定したのでそのまま利用）
             if (totalOpenItems > 0 && h > 50) {
                 for(let c=1; c<=totalOpenItems; c++) { 
                     let r = Math.ceil(totalOpenItems/c); 
