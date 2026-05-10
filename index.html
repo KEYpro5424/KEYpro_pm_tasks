@@ -28,7 +28,7 @@
             margin: 0; background-color: #e0f2fe; 
             background-image: linear-gradient(-45deg, var(--bg-1), var(--bg-2), var(--bg-3), var(--bg-4));
             background-size: 400% 400%; animation: aurora 15s ease infinite;
-            display: flex; flex-direction: column; height: 100dvh; 
+            display: flex; flex-direction: column; height: 100vh; height: 100dvh; 
             width: 100vw; max-width: 100%; overflow: hidden; color: var(--text);
             position: relative;
         }
@@ -70,75 +70,101 @@
         .icon-btn:hover { transform: scale(1.05); }
         .icon-btn img { width: 100%; height: 100%; object-fit: cover; }
 
+        /* ✨ ダッシュボードは横並び（wrap）でタスクやバーを配置 */
         .dashboard { 
             display: flex; flex-wrap: wrap; justify-content: center; align-content: flex-start; 
             flex-grow: 1; overflow-y: auto; overflow-x: hidden; 
-            z-index: 20; padding: 30px 15px 100px; gap: 15px; width: 100%;
+            z-index: 20; padding: 20px 15px 100px; gap: 15px; width: 100%;
         }
 
         /* =========================================
-           ✨ 島（グループ）とタスク（丸）の共通・個別スタイル
+           ✨ 新UI：島（グループ）を横幅100%の「バー」に変更
            ========================================= */
-        
-        /* 基本の丸サイズ */
-        .circle-size {
-            width: clamp(80px, 23vw, 125px); height: clamp(80px, 23vw, 125px);
-            flex-shrink: 0; margin-top: 15px;
+        .group-row-container {
+            width: 100%; flex-basis: 100%; /* 常に1行を占有し、横の要素を押し出さない */
+            display: flex; flex-direction: column;
+            margin: 5px 0; transition: all 0.3s ease;
         }
 
-        /* 1. 直置きタスクの丸（清潔感のある白） */
-        .circle-block { 
-            position: relative; border-radius: 50%; 
-            background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(255,255,255,0.7)); 
-            display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; cursor: pointer; 
-            box-shadow: 0 10px 25px rgba(2, 132, 199, 0.15); user-select: none; border: 3px solid #fff;
-        }
-
-        /* 2. 島（グループ）の丸（砂浜テクスチャ） */
-        .group-container {
-            position: relative; border-radius: 50%; 
-            background: linear-gradient(135deg, #fde6b3 0%, #fde6b3 45%, #bae6fd 55%, #7dd3fc 100%);
-            display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer;
-            box-shadow: 0 10px 25px rgba(2, 132, 199, 0.2); border: 3px solid #fff;
-            transition: width 0.3s ease, height 0.3s ease, border-radius 0.3s ease;
-        }
-
-        /* 島が開いた時のパネル化 */
-        .group-container.open {
-            width: 100%; max-width: 800px; height: auto; min-height: 120px;
-            border-radius: var(--radius-lg); margin-top: 5px;
+        .group-header-bar {
+            width: 100%; min-height: 60px;
+            /* ✨ シンプルな濃淡の違い（濃いめのすりガラス）と太い白枠（2px） */
             background: rgba(255, 255, 255, 0.35); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
-            border: 1px solid rgba(255, 255, 255, 0.6);
+            border: 2px solid rgba(255, 255, 255, 0.9);
+            border-radius: var(--radius-lg);
+            display: flex; align-items: center; padding: 10px 20px;
+            cursor: pointer; box-shadow: 0 6px 15px rgba(2, 132, 199, 0.1);
+            transition: 0.2s; position: relative;
+        }
+        .group-row-container.open .group-header-bar {
+            border-bottom-left-radius: 0; border-bottom-right-radius: 0;
+            border-bottom: 1px dashed rgba(255, 255, 255, 0.5);
+            background: rgba(255, 255, 255, 0.45);
         }
 
-        .group-header { width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .group-container.open .group-header { flex-direction: row; justify-content: space-between; padding: 15px 20px; height: auto; border-bottom: 1px solid rgba(255,255,255,0.4); }
+        .toggle-icon { font-size: 1rem; color: var(--primary); transition: transform 0.3s; margin-right: 12px; font-weight: 900;}
+        .group-row-container.open .toggle-icon { transform: rotate(90deg); }
 
         .group-title { 
             background: transparent; border: none; font-weight: 900; color: #0f172a; outline: none; 
-            text-align: center; width: 100%; font-family: inherit; font-size: 14px; pointer-events: none;
-            overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2;
+            font-family: inherit; font-size: 1.1rem; flex-grow: 1; min-width: 0;
+            pointer-events: auto; /* 常に編集可能 */
         }
-        .group-container.open .group-title { font-size: 1.1rem; text-align: left; pointer-events: auto; display: block; }
 
-        .circle-title { font-weight: 900; line-height: 1.2; padding: 0 10%; pointer-events: none; overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; color:#0f172a; font-size: 13px;}
+        .badge-wrapper { display: flex; gap: 4px; margin-right: 15px; }
+        .badge-mini {
+            width: 22px; height: 22px; font-size: 11px; color: #fff; font-weight: 900;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            border: 2px solid #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
 
-        /* バッジ */
-        .badge-wrapper { position: absolute; top: 0; left: 50%; transform: translate(-50%, -50%); display: flex; gap: 2px; z-index: 5; pointer-events: none; }
-        .group-container.open .badge-wrapper { position: static; transform: none; padding-left: 10px; }
-        .badge-mini { width: 20px; height: 20px; font-size: 11px; color: #fff; font-weight: 900; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid #fff; margin-left: -6px; }
+        .del-group-btn { background: rgba(255, 255, 255, 0.7); border: none; border-radius: 50%; width: 30px; height: 30px; font-size: 0.9rem; font-weight: 900; color: #64748b; cursor: pointer; flex-shrink: 0; transition: 0.2s;}
+        .del-group-btn:hover { background: #f43f5e; color: #fff; }
 
-        .group-circles { display: none; flex-wrap: wrap; justify-content: center; align-items: center; padding: 25px 15px 35px; gap: 15px; min-height: 100px; width: 100%; }
-        .group-container.open .group-circles { display: flex; }
+        /* グループの中身（開いた時だけ表示） */
+        .group-content-area { 
+            display: none; flex-wrap: wrap; justify-content: center; align-items: flex-start; 
+            padding: 20px 10px 35px; gap: 15px; width: 100%;
+            background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.5); border-top: none;
+            border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+        }
+        .group-row-container.open .group-content-area { display: flex; }
 
-        /* 追加ボタン */
-        .add-btn-circle { border: 1px dashed rgba(15, 23, 42, 0.2); background: rgba(255, 255, 255, 0.25); opacity: 0.6; }
-        .add-btn-circle span { font-size: 24px; color: var(--primary); font-weight: 900; }
+        /* 新しい島を追加するボタン（バー形式） */
         .add-new-island { 
-            width: 100%; max-width: 800px; padding: 15px; border: 1px dashed rgba(15, 23, 42, 0.2); 
-            border-radius: var(--radius-lg); text-align: center; font-weight: 900; color: var(--primary);
-            cursor: pointer; background: rgba(255, 255, 255, 0.15); margin-top: 20px;
+            width: 100%; flex-basis: 100%; min-height: 56px; margin-top: 10px;
+            border-radius: var(--radius-lg); border: 2px dashed rgba(255, 255, 255, 0.6); 
+            display: flex; justify-content: center; align-items: center; 
+            background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);
+            cursor: pointer; transition: background 0.2s;
+            font-weight: 900; color: var(--primary); font-size: 1.1rem;
         }
+        .add-new-island:hover { background: rgba(255, 255, 255, 0.4); }
+
+        /* =========================================
+           ✨ タスクの丸（直置き＆グループ内共通）
+           ========================================= */
+        .circle-block { 
+            position: relative; box-sizing: border-box; border-radius: 50%; 
+            background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(255,255,255,0.6)); 
+            display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; cursor: pointer; 
+            box-shadow: 0 8px 20px rgba(2, 132, 199, 0.15); user-select: none; flex-shrink: 0; 
+            border: 1px solid #fff; /* グループの2pxより細い線 */
+            
+            /* ✨ PC/スマホ共通の安全な可変サイズ */
+            width: clamp(75px, 23vw, 115px); height: clamp(75px, 23vw, 115px); 
+        }
+        .circle-title { font-weight: 900; line-height: 1.2; padding: 0 5%; pointer-events: none; overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; color:#0f172a; font-size: clamp(11px, 3vw, 14px);}
+
+        /* タスクの丸の上に付くバッジ */
+        .task-badge-wrapper { position: absolute; top: 0; left: 50%; transform: translate(-50%, -50%); display: flex; gap: 2px; z-index: 5; pointer-events: none; }
+
+        /* タスク追加用の丸 */
+        .circle-block.add-btn-circle {
+            border: 1px dashed rgba(15, 23, 42, 0.2); background: rgba(255, 255, 255, 0.25); box-shadow: none;
+        }
+        .circle-block.add-btn-circle span { font-size: clamp(20px, 5vw, 30px); color: var(--primary); font-weight: 900; opacity: 0.7; }
 
         /* モーダル関連 */
         .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.15); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); display: none; align-items: flex-end; justify-content: center; z-index: 1000; }
@@ -153,7 +179,7 @@
         .close-btn { background: #f1f5f9; border: none; width: 32px; height: 32px; border-radius: 50%; font-weight: 900; cursor: pointer; color:var(--text-m);}
         .task-list { padding: 0 24px; overflow-y: auto; flex-grow: 1; }
         .task-item { display: flex; align-items: center; padding: 12px; margin-bottom: 10px; background: rgba(248, 250, 252, 0.8); border-radius: var(--radius-lg); border: 2px solid #e2e8f0; }
-        .drag-handle { cursor: grab; padding: 5px; margin-right: 10px; color: #cbd5e1; font-size: 1.2rem; }
+        .drag-handle { cursor: grab; padding: 5px; margin-right: 10px; color: #cbd5e1; font-size: 1.2rem; user-select: none; }
         .task-checkbox { appearance: none; width: 22px; height: 22px; border-radius: 6px; border: 3px solid #cbd5e1; margin-right: 12px; cursor: pointer; position: relative; }
         .task-checkbox:checked { background: var(--primary); border-color: var(--primary); }
         .task-checkbox:checked::after { content: '✔'; position: absolute; inset: 0; color: #fff; font-size: 12px; display: flex; align-items: center; justify-content: center; }
@@ -165,6 +191,9 @@
         .assign-sel { padding: 10px; border-radius: 10px; border: 2px solid #f1f5f9; font-weight: 800; font-family: inherit; color:#0f172a; outline: none; max-width: 140px;}
         .add-input { flex-grow: 1; padding: 10px 15px; border-radius: 10px; border: 2px solid #f1f5f9; font-family: inherit; font-weight: 800; outline: none; }
         .add-btn { background: var(--primary); color: #fff; border: none; padding: 0 15px; border-radius: 10px; font-weight: 900; cursor: pointer; }
+        
+        @keyframes jelly { 0% { transform: scale(1, 1); } 30% { transform: scale(1.15, 0.85); } 40% { transform: scale(0.85, 1.15); } 50% { transform: scale(1.05, 0.95); } 65% { transform: scale(0.98, 1.02); } 75% { transform: scale(1.02, 0.98); } 100% { transform: scale(1, 1); } }
+        .jelly-anim { animation: jelly 0.6s ease; }
     </style>
 </head>
 <body>
@@ -308,11 +337,11 @@
             // 1. 直置きタスクの描画
             curPD.standaloneBlocks.forEach(b => el.appendChild(createCircleDom(b, null)));
 
-            // 2. 島の描画
+            // 2. グループ（島）の描画（アコーディオンバー）
             curPD.groups.forEach(g => {
                 const isOpen = window.openGroups.has(g.id);
                 const groupEl = document.createElement('div');
-                groupEl.className = `group-container circle-size ${isOpen?'open':''}`;
+                groupEl.className = `group-row-container ${isOpen?'open':''}`;
                 groupEl.dataset.id = g.id;
 
                 let badgeHtml = '';
@@ -325,21 +354,20 @@
                 Object.keys(counts).forEach(c => badgeHtml += `<div class="badge-mini" style="background:${c}">${counts[c]}</div>`);
 
                 groupEl.innerHTML = `
-                    <div class="group-header" onclick="window.toggleG('${g.id}')">
+                    <div class="group-header-bar" onclick="if(event.target.tagName !== 'INPUT' && event.target.tagName !== 'BUTTON') window.toggleG('${g.id}')">
+                        <span class="toggle-icon">▶</span>
+                        <input type="text" value="${g.title}" onblur="window.updateGN('${g.id}', this.value)" onclick="event.stopPropagation()" class="group-title">
                         <div class="badge-wrapper">${badgeHtml}</div>
-                        <div class="group-title-wrapper">
-                            <span class="toggle-icon">▶</span>
-                            <input type="text" value="${g.title}" onblur="window.updateGN('${g.id}', this.value)" onclick="event.stopPropagation()" class="group-title" ${isOpen?'':'readonly'}>
-                        </div>
-                        ${isOpen ? `<button class="del-group-btn" onclick="event.stopPropagation(); window.delG('${g.id}')">✕</button>` : ''}
+                        <button class="del-group-btn" onclick="event.stopPropagation(); window.delG('${g.id}')">✕</button>
                     </div>
-                    <div class="group-circles" id="circles-${g.id}"></div>
+                    <div class="group-content-area" id="circles-${g.id}"></div>
                 `;
+                
                 if(isOpen) {
-                    const container = groupEl.querySelector('.group-circles');
+                    const container = groupEl.querySelector('.group-content-area');
                     g.blocks.forEach(b => container.appendChild(createCircleDom(b, g.id)));
                     const addBtn = document.createElement('div');
-                    addBtn.className = 'circle-block add-btn-circle circle-size';
+                    addBtn.className = 'circle-block add-btn-circle';
                     addBtn.innerHTML = '<span>＋</span>';
                     addBtn.onclick = () => window.addB(g.id);
                     container.appendChild(addBtn);
@@ -349,7 +377,7 @@
 
             // 直置き用の追加ボタン
             const addT = document.createElement('div');
-            addT.className = 'circle-block add-btn-circle circle-size';
+            addT.className = 'circle-block add-btn-circle';
             addT.innerHTML = '<span>＋</span>';
             addT.onclick = () => window.addB(null);
             el.appendChild(addT);
@@ -360,20 +388,19 @@
             addG.onclick = window.addG;
             el.appendChild(addG);
 
-            // Sortable 設定
             setupSortables();
         };
 
         function createCircleDom(b, gId) {
             const div = document.createElement('div');
-            div.className = 'circle-block circle-size';
+            div.className = 'circle-block';
             div.dataset.id = b.id;
             div.style.borderColor = b.color || "#fff";
-            div.onclick = () => { if(!isDraggingCircle) window.openTaskM(gId, b.id); };
+            div.onclick = () => { if(!isDraggingCircle) { div.classList.add('jelly-anim'); setTimeout(() => { div.classList.remove('jelly-anim'); window.openTaskM(gId, b.id); }, 250); }};
             div.innerHTML = `<div class="circle-title">${b.title}</div>`;
 
             const badgeContainer = document.createElement('div');
-            badgeContainer.className = 'badge-wrapper';
+            badgeContainer.className = 'task-badge-wrapper';
             const isMgr = curPD.managers.includes(user.email);
             const counts = {};
             (b.items || []).filter(i => !i.completed).forEach(i => {
@@ -389,12 +416,13 @@
         function setupSortables() {
             // ダッシュボード全体の並び替え
             Sortable.create(document.getElementById('dashboard'), {
-                group: 'dashboard', animation: 250, delay: 150, delayOnTouchOnly: true, filter: '.add-btn-circle, .add-new-island',
+                group: { name: 'dashboard', put: true, pull: true },
+                animation: 250, delay: 150, delayOnTouchOnly: true, filter: '.add-btn-circle, .add-new-island, input, button', preventOnFilter: false,
                 onEnd: async (e) => {
                     const items = Array.from(e.to.children).filter(x => !x.classList.contains('add-btn-circle') && !x.classList.contains('add-new-island'));
                     const newStandalone = [], newGroups = [];
                     items.forEach(el => {
-                        if(el.classList.contains('group-container')) newGroups.push(curPD.groups.find(g => g.id === el.dataset.id));
+                        if(el.classList.contains('group-row-container')) newGroups.push(curPD.groups.find(g => g.id === el.dataset.id));
                         else newStandalone.push(curPD.standaloneBlocks.find(b => b.id === el.dataset.id));
                     });
                     curPD.standaloneBlocks = newStandalone; curPD.groups = newGroups; await save();
@@ -406,20 +434,17 @@
                 const container = document.getElementById(`circles-${g.id}`);
                 if(!container) return;
                 Sortable.create(container, {
-                    group: { name: 'circles', put: true, pull: true }, animation: 200, delay: 150, delayOnTouchOnly: true, filter: '.add-btn-circle',
-                    onAdd: async (e) => moveBlock(e), onEnd: async (e) => moveBlock(e)
+                    group: { name: 'dashboard', put: true, pull: true }, 
+                    animation: 200, delay: 150, delayOnTouchOnly: true, filter: '.add-btn-circle',
+                    onAdd: async (e) => moveBlock(e), onEnd: async (e) => { if (e.from === e.to && e.oldIndex !== e.newIndex) moveBlock(e); }
                 });
-            });
-
-            // 海（ルート）も受け入れ可能にするためのダミー
-            Sortable.create(document.getElementById('dashboard'), {
-                group: { name: 'circles', put: true, pull: true }, animation: 200, filter: '.island-panel, .add-new-island'
             });
         }
 
         async function moveBlock(e) {
             const blockId = e.item.dataset.id;
-            const fromGId = e.from.id.replace('circles-', '') || null;
+            if(!blockId) return; // Addボタン等の誤作動防止
+            const fromGId = e.from.id === 'dashboard' ? null : e.from.id.replace('circles-', '');
             const toGId = e.to.id === 'dashboard' ? null : e.to.id.replace('circles-', '');
             
             let blockData;
@@ -431,6 +456,8 @@
                 blockData = g.blocks.find(b => b.id === blockId);
                 g.blocks = g.blocks.filter(b => b.id !== blockId);
             }
+
+            if(!blockData) return;
 
             if(!toGId) {
                 curPD.standaloneBlocks.splice(e.newIndex, 0, blockData);
