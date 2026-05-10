@@ -29,11 +29,22 @@
             position: relative;
         }
 
+        /* ✨ SVGフィルターをやめ、安全なCSSグラデーションで水面の煌めきを表現（四角いブロックバグの解消） */
         body::before {
-            content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none; mix-blend-mode: overlay; opacity: 0.4;
-            background: url('data:image/svg+xml;utf8,<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><filter id="noiseFilter"><feTurbulence type="fractalNoise" baseFrequency="0.015" numOctaves="3" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23noiseFilter)"/></svg>');
+            content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none; mix-blend-mode: overlay; opacity: 0.5;
+            background-image: 
+                radial-gradient(circle at 50% 50%, rgba(255,255,255,0.8) 0%, transparent 60%),
+                radial-gradient(circle at 80% 20%, rgba(255,255,255,0.5) 0%, transparent 50%),
+                radial-gradient(circle at 20% 80%, rgba(255,255,255,0.6) 0%, transparent 40%);
+            background-size: 200vw 200vh;
+            animation: waterShimmer 10s infinite alternate linear;
+        }
+        @keyframes waterShimmer {
+            0% { transform: scale(1) translate(0, 0); }
+            100% { transform: scale(1.1) translate(-2%, -2%); }
         }
 
+        /* ✨ 座標ズレを修正したリアルな波紋シミュレーション */
         .ripple {
             position: fixed; border-radius: 50%;
             border: 1px solid rgba(255, 255, 255, 0.3);
@@ -44,6 +55,7 @@
             transform-origin: center;
             animation: rippleAnim cubic-bezier(0.15, 0.6, 0.3, 1) forwards;
         }
+        /* transform: translate(-50%, -50%) だけで中央寄せする */
         @keyframes rippleAnim {
             0% { transform: translate(-50%, -50%) scale(0); opacity: 1; border-width: 6px; }
             100% { transform: translate(-50%, -50%) scale(1); opacity: 0; border-width: 0px; }
@@ -192,6 +204,7 @@
         const colors = ["#38bdf8", "#fb7185", "#34d399", "#fbbf24", "#a78bfa", "#f472b6", "#fb923c", "#0f172a"];
         let selC = colors[0];
 
+        // ✨ 座標のズレをなくした波紋生成
         function spawnRipple(x, y) {
             const numRings = Math.floor(Math.random() * 2) + 2; 
             const baseSize = 80 + Math.random() * 80; 
@@ -204,11 +217,12 @@
 
                 setTimeout(() => {
                     const ripple = document.createElement('div'); ripple.className = 'ripple'; 
+                    // ✨ マウス座標をそのまま指定（CSSのtransform: translateで中央寄せ）
                     ripple.style.left = x + 'px'; ripple.style.top = y + 'px';
                     const finalSize = baseSize * scaleModifier; const finalDuration = baseDuration * durationModifier;
                     ripple.style.width = finalSize + 'px'; ripple.style.height = finalSize + 'px'; 
                     ripple.style.animationDuration = finalDuration + 's';
-                    ripple.style.margin = `-${finalSize / 2}px 0 0 -${finalSize / 2}px`;
+                    // ✨ marginによるネガティブ調整を削除（これがズレの原因でした）
                     document.body.appendChild(ripple); setTimeout(() => ripple.remove(), finalDuration * 1000); 
                 }, delay);
             }
@@ -347,6 +361,7 @@
             await save(); window.closeM('manager-m'); updateHeaderMembers(); renderDash();
         };
 
+        // ✨ 画面サイズに合わせて玉を安全にリサイズ。バッジのはみ出し（上部）を計算に含める
         function renderDash() {
             const el = document.getElementById('dashboard'); el.innerHTML = '';
             
@@ -364,7 +379,7 @@
 
             const blks = curPD.blocks || [], total = blks.length + 1;
             let opt = 0; 
-            const rowHeightRatio = 1.18; 
+            const rowHeightRatio = 1.18; // バッジが上にはみ出る分（18%）
 
             for(let c=1; c<=total; c++) { 
                 let r = Math.ceil(total/c); 
