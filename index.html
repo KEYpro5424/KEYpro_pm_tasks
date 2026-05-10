@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PM CORE - Focused Blue Edition</title>
+    <title>PM CORE - Ocean Jelly Edition</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -12,10 +12,16 @@
 
     <style>
         :root {
-            --bg-1: #ffffff; --bg-2: #f0f9ff; --bg-3: #e0f2fe; --bg-4: #bae6fd;
+            /* ✨ 動いているのが分かる、白〜水色〜少し濃い青のグラデーション */
+            --bg-1: #ffffff; 
+            --bg-2: #e0f2fe; 
+            --bg-3: #bae6fd; 
+            --bg-4: #7dd3fc;
+            
             --surface: rgba(255, 255, 255, 0.85);
-            --text: #312e81; --text-m: #94a3b8;
-            --primary: #38bdf8; --radius-xl: 32px; --radius-lg: 24px;
+            --text: #0f172a; --text-m: #64748b;
+            --primary: #0ea5e9; 
+            --radius-xl: 32px; --radius-lg: 24px;
         }
 
         @keyframes aurora { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
@@ -23,16 +29,15 @@
         body {
             font-family: 'Nunito', 'Zen Maru Gothic', sans-serif;
             margin: 0; background: linear-gradient(-45deg, var(--bg-1), var(--bg-2), var(--bg-3), var(--bg-4));
-            background-size: 400% 400%; animation: aurora 15s ease infinite;
+            background-size: 400% 400%; animation: aurora 12s ease infinite;
             display: flex; flex-direction: column; height: 100dvh; overflow: hidden; color: var(--text);
         }
 
         #loading-screen {
             position: fixed; inset: 0; background: #fff; z-index: 10000;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            transition: opacity 0.5s ease;
+            display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.5s ease;
         }
-        .loader { width: 60px; height: 60px; border: 8px solid var(--bg-1); border-top: 8px solid var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
+        .loader { width: 60px; height: 60px; border: 8px solid var(--bg-2); border-top: 8px solid var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         .top-bar { display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; background: rgba(255,255,255,0.6); backdrop-filter: blur(10px); border-bottom: 2px solid #fff; }
@@ -47,23 +52,33 @@
 
         .dashboard { display: flex; flex-wrap: wrap; padding: 20px; justify-content: center; align-content: center; flex-grow: 1; overflow: hidden; gap: 15px;}
         .circle-block { 
-            position: relative; border-radius: 50%; background: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(255,255,255,0.6)); 
+            position: relative; border-radius: 50%; background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(255,255,255,0.6)); 
             border: 4px solid #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; 
-            cursor: pointer; box-shadow: 0 8px 20px rgba(0,0,0,0.05); transition: 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            cursor: pointer; box-shadow: 0 10px 25px rgba(2, 132, 199, 0.1); 
+            /* 長押ししやすいように、ブラウザのデフォルト選択を禁止 */
+            user-select: none; -webkit-user-select: none;
         }
+
+        /* ✨ プリンのようにぷるん！と弾けるアニメーション */
+        @keyframes jelly {
+            0% { transform: scale(1, 1); }
+            30% { transform: scale(1.15, 0.85); }
+            40% { transform: scale(0.85, 1.15); }
+            50% { transform: scale(1.05, 0.95); }
+            65% { transform: scale(0.98, 1.02); }
+            75% { transform: scale(1.02, 0.98); }
+            100% { transform: scale(1, 1); }
+        }
+        .jelly-anim { animation: jelly 0.6s ease; }
+
         .circle-title { font-weight: 900; line-height: 1.2; padding: 0 10%; pointer-events: none; overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; color:#0f172a;}
-        .circle-creator { font-size: 0.6rem; font-weight: 800; margin-top: 4px; opacity: 0.7; }
-        .badge { position: absolute; top: 0; right: 0; transform: translate(15%, -15%); color: #fff; font-weight: 900; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 3px solid #fff; z-index: 2; }
+        .circle-creator { font-size: 0.6rem; font-weight: 800; margin-top: 4px; opacity: 0.7; pointer-events: none;}
+        .badge { position: absolute; top: 0; right: 0; transform: translate(15%, -15%); color: #fff; font-weight: 900; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 3px solid #fff; z-index: 2; pointer-events: none;}
 
         .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.25); backdrop-filter: blur(5px); display: none; align-items: flex-end; justify-content: center; z-index: 1000; }
         .modal-overlay.active { display: flex; }
-        .modal-content { background: #fff; width: 100%; max-height: 85vh; border-radius: var(--radius-xl) var(--radius-xl) 0 0; display: flex; flex-direction: column; animation: slideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
-        
-        @media (min-width: 600px) { 
-            .modal-overlay { align-items: center; } 
-            .modal-content { width: 450px; border-radius: var(--radius-xl); animation: fadeInScale 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); } 
-        }
-        
+        .modal-content { background: #fff; width: 100%; max-height: 85vh; border-radius: var(--radius-xl) var(--radius-xl) 0 0; display: flex; flex-direction: column; animation: slideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); box-shadow: 0 10px 40px rgba(0,0,0,0.1); }
+        @media (min-width: 600px) { .modal-overlay { align-items: center; } .modal-content { width: 450px; border-radius: var(--radius-xl); animation: fadeInScale 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); } }
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
         @keyframes fadeInScale { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
 
@@ -74,7 +89,6 @@
         .task-list { padding: 0 24px; overflow-y: auto; flex-grow: 1; }
         .task-item { display: flex; align-items: center; padding: 12px; margin-bottom: 10px; background: #f8fafc; border-radius: var(--radius-lg); border: 2px solid #f1f5f9; }
         .drag-handle { cursor: grab; padding: 5px; margin-right: 10px; color: #cbd5e1; font-size: 1.2rem; user-select: none; }
-
         .task-checkbox { appearance: none; width: 22px; height: 22px; border-radius: 6px; border: 3px solid #cbd5e1; margin-right: 12px; cursor: pointer; position: relative; }
         .task-checkbox:checked { background: var(--primary); border-color: var(--primary); }
         .task-checkbox:checked::after { content: '✔'; position: absolute; inset: 0; color: #fff; font-size: 12px; display: flex; align-items: center; justify-content: center; }
@@ -107,7 +121,7 @@
     <div id="auth-screen" class="auth-overlay" style="display:none;">
         <div class="auth-card" id="login-v">
             <h2 style="font-weight:900; font-size:2rem; color:#0f172a;">PM Tasks</h2>
-            <button class="google-login" onclick="window.login()">Googleでログイン</button>
+            <button class="google-login" onclick="window.login()"><svg width="20" height="20" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>Googleでログイン</button>
         </div>
         <div class="auth-card" id="setup-v" style="display:none;">
             <h2 style="font-weight:900; color:#0f172a;">Profile Setup</h2>
@@ -182,6 +196,28 @@
         const colors = ["#38bdf8", "#fb7185", "#34d399", "#fbbf24", "#a78bfa", "#f472b6", "#fb923c", "#0f172a"];
         let selC = colors[0];
 
+        function buildColors(containerId) {
+            const ctn = document.getElementById(containerId); ctn.innerHTML = '';
+            colors.forEach(c => {
+                const dv = document.createElement('div'); dv.className = 'color-opt'; dv.style.background = c;
+                if(c == selC) dv.classList.add('selected');
+                dv.onclick = () => { ctn.querySelectorAll('.color-opt').forEach(x=>x.classList.remove('selected')); dv.classList.add('selected'); selC = c; };
+                ctn.appendChild(dv);
+            });
+        }
+
+        window.handleImageUpload = (event, imgId) => {
+            const file = event.target.files[0]; if(!file) return;
+            const reader = new FileReader(); reader.onload = (e) => {
+                const img = new Image(); img.onload = () => {
+                    const canvas = document.createElement('canvas'); const size = 150; canvas.width = size; canvas.height = size;
+                    const ctx = canvas.getContext('2d'); const min = Math.min(img.width, img.height);
+                    ctx.drawImage(img, (img.width-min)/2, (img.height-min)/2, min, min, 0, 0, size, size);
+                    tempPhoto = canvas.toDataURL('image/jpeg', 0.8); document.getElementById(imgId).src = tempPhoto;
+                }; img.src = e.target.result;
+            }; reader.readAsDataURL(file);
+        };
+
         onAuthStateChanged(auth, async (u) => {
             if (u) {
                 user = u;
@@ -240,8 +276,19 @@
             onSnapshot(q, (sn) => {
                 pjs = sn.docs.map(d => ({ id: d.id, data: d.data() }));
                 updateProjList();
-                if(!curPId && pjs.length) curPId = pjs[0].id;
-                syncCurPJ(); hideLoading();
+
+                // ✨ プロジェクトの記憶を復元
+                const savedProjId = localStorage.getItem('last_proj_id');
+                if (pjs.length > 0) {
+                    if (savedProjId && pjs.find(p => p.id === savedProjId)) {
+                        curPId = savedProjId;
+                    } else if (!curPId || !pjs.find(p => p.id === curPId)) {
+                        curPId = pjs[0].id;
+                    }
+                    document.getElementById('proj-sel').value = curPId;
+                    syncCurPJ();
+                }
+                hideLoading();
             });
         }
 
@@ -261,16 +308,22 @@
             let opt = 0;
             for(let c=1; c<=total; c++) { let r = Math.ceil(total/c); let s = Math.min((w-(c-1)*15)/c, (h-(r-1)*15)/r); if(s > opt) opt = s; }
             const size = Math.min(Math.max(opt, 80), 150);
+            
             blks.forEach(b => {
                 const div = document.createElement('div'); div.className = 'circle-block';
                 div.style.width = div.style.height = size + 'px'; div.style.borderColor = b.color;
-                div.onclick = () => window.openTaskM(b.id);
-                div.innerHTML = `<div class="circle-title" style="font-size:${size*0.15}px">${b.title}</div><div class="circle-creator" style="color:${b.color}">by ${b.userName}</div>`;
                 
-                // ✨ 修正ポイント：自分宛の未完了タスクのみカウント
-                const myUncompletedTasks = (b.items || []).filter(i => 
-                    !i.completed && (i.assEmail === user.email || i.assName === user.email.split('@')[0])
-                );
+                // ✨ ぷるんアニメーション＆クリック処理
+                div.onclick = () => {
+                    div.classList.add('jelly-anim');
+                    setTimeout(() => {
+                        div.classList.remove('jelly-anim');
+                        window.openTaskM(b.id);
+                    }, 300); // 弾けた後に開く
+                };
+
+                div.innerHTML = `<div class="circle-title" style="font-size:${size*0.15}px">${b.title}</div><div class="circle-creator" style="color:${b.color}">by ${b.userName}</div>`;
+                const myUncompletedTasks = (b.items || []).filter(i => !i.completed && (i.assEmail === user.email || i.assName === user.email.split('@')[0]));
                 const uc = myUncompletedTasks.length;
 
                 if(uc > 0) {
@@ -281,9 +334,25 @@
                 }
                 el.appendChild(div);
             });
-            const add = document.createElement('div'); add.className = 'circle-block'; add.style.width = add.style.height = size + 'px';
+            
+            const add = document.createElement('div'); add.className = 'circle-block add-new'; add.style.width = add.style.height = size + 'px';
             add.style.borderStyle = 'dashed'; add.innerHTML = `<span style="font-size:2.5rem; color:var(--primary)">＋</span>`;
             add.onclick = window.addBlock; el.appendChild(add);
+
+            // ✨ 長押し・ドラッグでカテゴリ（丸）の並び替え
+            if(window.dashSortable) window.dashSortable.destroy();
+            window.dashSortable = Sortable.create(el, {
+                animation: 250,
+                delay: 200, // スマホで長押しした時だけ動くように（誤作動防止）
+                delayOnTouchOnly: true,
+                filter: '.add-new', // 追加ボタンはドラッグ不可
+                onEnd: async (e) => {
+                    if(e.oldIndex === e.newIndex) return;
+                    const moved = curPD.blocks.splice(e.oldIndex, 1)[0];
+                    curPD.blocks.splice(e.newIndex, 0, moved);
+                    await save();
+                }
+            });
         }
 
         window.openTaskM = (id) => {
@@ -315,12 +384,9 @@
             const assE = document.getElementById('ass-sel').value;
             const b = curPD.blocks.find(x=>x.id==curBId);
             if(!b.items) b.items = [];
-            // ✨ 追加：assEmailを保存するように変更
             b.items.push({ 
                 id: Date.now().toString(), text, completed: false, 
-                assName: assE.split('@')[0], 
-                assEmail: assE,
-                assColor: (assE==user.email?myP.color:'#94a3b8') 
+                assName: assE.split('@')[0], assEmail: assE, assColor: (assE==user.email?myP.color:'#94a3b8') 
             });
             input.value = ''; await save();
         };
@@ -329,33 +395,32 @@
         window.editT = async (tid, txt) => { const b = curPD.blocks.find(x=>x.id==curBId); const i = b.items.find(x=>x.id==tid); if(i.text != txt){ i.text = txt; await save(); } };
         window.delT = async (tid) => { const b = curPD.blocks.find(x=>x.id==curBId); b.items = b.items.filter(x=>x.id!=tid); await save(); };
         window.saveName = async () => { const b = curPD.blocks.find(x=>x.id==curBId); const val = document.getElementById('m-title').value; if(b.title != val) { b.title = val; await save(); } };
-        window.addBlock = async () => { const id = Date.now().toString(); curPD.blocks.push({ id, title: "New", userName: myP.name, color: myP.color, items: [] }); await save(); window.openTaskM(id); };
-        window.delBlock = async () => { if(!confirm("削除しますか？")) return; curPD.blocks = curPD.blocks.filter(x=>x.id != curBId); await save(); window.closeM('modal'); };
+        
+        window.addBlock = async () => {
+            const id = Date.now().toString();
+            curPD.blocks.push({ id, title: "新しいカテゴリ", userName: myP.name, color: myP.color, items: [] });
+            await save(); window.openTaskM(id);
+        };
 
+        window.delBlock = async () => { if(!confirm("削除しますか？")) return; curPD.blocks = curPD.blocks.filter(x=>x.id != curBId); await save(); window.closeM('modal'); };
         window.createPJ = async () => { const t = document.getElementById('new-p-t').value; if(!t) return; await addDoc(collection(db, "projects"), { title: t, members: [user.email], blocks: [] }); window.closeM('new-p-m'); };
         window.sendInv = async () => { const e = document.getElementById('inv-e').value; if(!e) return; if(!curPD.members.includes(e)) { curPD.members.push(e); await save(); alert("招待しました"); } window.closeM('invite-m'); };
-        window.switchProj = () => { curPId = document.getElementById('proj-sel').value; syncCurPJ(); };
-
-        window.handleImageUpload = (event, imgId) => {
-            const file = event.target.files[0]; if(!file) return;
-            const reader = new FileReader(); reader.onload = (e) => {
-                const img = new Image(); img.onload = () => {
-                    const canvas = document.createElement('canvas'); const size = 150; canvas.width = size; canvas.height = size;
-                    const ctx = canvas.getContext('2d'); const min = Math.min(img.width, img.height);
-                    ctx.drawImage(img, (img.width-min)/2, (img.height-min)/2, min, min, 0, 0, size, size);
-                    tempPhoto = canvas.toDataURL('image/jpeg', 0.8); document.getElementById(imgId).src = tempPhoto;
-                }; img.src = e.target.result;
-            }; reader.readAsDataURL(file);
+        
+        // ✨ プロジェクト切り替え時に記憶
+        window.switchProj = () => { 
+            curPId = document.getElementById('proj-sel').value; 
+            localStorage.setItem('last_proj_id', curPId); // 記憶する
+            syncCurPJ(); 
         };
 
         async function save() { await setDoc(doc(db, "projects", curPId), curPD); }
-        function buildColors(id) { const ctn = document.getElementById(id); ctn.innerHTML = ''; colors.forEach(c => { const dv = document.createElement('div'); dv.className = 'color-opt'; dv.style.background = c; if(c == selC) dv.classList.add('selected'); dv.onclick = () => { ctn.querySelectorAll('.color-opt').forEach(x=>x.classList.remove('selected')); dv.classList.add('selected'); selC = c; }; ctn.appendChild(dv); }); }
-        function updateProjList() { const sel = document.getElementById('proj-sel'); sel.innerHTML = ''; pjs.forEach(p => { const o = document.createElement('option'); o.value = p.id; o.innerText = p.data.title; sel.appendChild(o); }); sel.value = curPId; }
-        function updateAssList() { const sel = document.getElementById('ass-sel'); sel.innerHTML = ''; curPD.members.forEach(m => { const o = document.createElement('option'); o.value = m; o.innerText = m.split('@')[0]; sel.appendChild(o); }); sel.value = user.email; }
         window.openM = (id) => document.getElementById(id).classList.add('active');
         window.closeM = (id) => { document.getElementById(id).classList.remove('active'); if(id=='modal') curBId=null; };
         function hideLoading() { document.getElementById('loading-screen').style.opacity = '0'; setTimeout(() => document.getElementById('loading-screen').style.display='none', 500); }
         window.addEventListener('resize', renderDash);
+        
+        function updateProjList() { const sel = document.getElementById('proj-sel'); sel.innerHTML = ''; pjs.forEach(p => { const o = document.createElement('option'); o.value = p.id; o.innerText = p.data.title; sel.appendChild(o); }); sel.value = curPId; }
+        function updateAssList() { const sel = document.getElementById('ass-sel'); sel.innerHTML = ''; curPD.members.forEach(m => { const o = document.createElement('option'); o.value = m; o.innerText = m.split('@')[0]; sel.appendChild(o); }); sel.value = user.email; }
     </script>
 </body>
 </html>
