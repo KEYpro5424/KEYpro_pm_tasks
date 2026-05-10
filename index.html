@@ -30,26 +30,28 @@
             position: relative;
         }
 
-        /* ✨ リアルなCaustics（光の網目模様）と波紋シミュレーション */
+        /* ✨ リアルなCaustics（光の網目模様）と池の底の表現 */
         body::before {
             content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none; mix-blend-mode: overlay; opacity: 0.4;
             background: url('data:image/svg+xml;utf8,<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><filter id="noiseFilter"><feTurbulence type="fractalNoise" baseFrequency="0.015" numOctaves="3" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23noiseFilter)"/></svg>');
         }
 
-        /* ✨ リアルな波紋シミュレーション（物理学的なエネルギー減衰と光の屈折を表現） */
+        /* ✨ 究極のリアル波紋シミュレーション（光の屈折・山と谷の表現） */
         .ripple {
             position: fixed; border-radius: 50%;
-            border: 2px solid rgba(255, 255, 255, 0.6);
-            /* 表面張力と波の頂点による光の反射・屈折を表現 */
-            box-shadow: 0 0 12px rgba(255, 255, 255, 0.4), inset 0 0 10px rgba(255, 255, 255, 0.2);
-            transform: scale(0); pointer-events: none; z-index: 9999;
-            /* 距離の逆二乗則に近い減衰と、水の粘性を加味したイージング */
-            animation: rippleAnim cubic-bezier(0.1, 0.4, 0.4, 1) forwards;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            /* 波の頂点(明るい)と谷(暗い)をシャドウで立体的に表現 */
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.6), inset 0 0 20px rgba(135, 206, 235, 0.4);
+            /* 光学的な屈折（水レンズ効果）。背景を少し歪ませ、明るさを変える */
+            backdrop-filter: blur(1.5px) brightness(1.05);
+            -webkit-backdrop-filter: blur(1.5px) brightness(1.05);
+            pointer-events: none; z-index: 9999;
+            animation: rippleAnim cubic-bezier(0.15, 0.6, 0.3, 1) forwards;
         }
         @keyframes rippleAnim {
-            0% { transform: scale(0); opacity: 1; border-width: 5px; }
-            40% { opacity: 0.6; border-width: 2px; }
-            100% { transform: scale(1); opacity: 0; border-width: 0px; }
+            0% { transform: translate(-50%, -50%) scale(0); opacity: 1; border-width: 6px; }
+            40% { opacity: 0.8; border-width: 2px; }
+            100% { transform: translate(-50%, -50%) scale(1); opacity: 0; border-width: 0px; }
         }
 
         /* ✨ タスク完了担当者に応じた色の小さな餌（円） */
@@ -281,32 +283,40 @@
         const colors = ["#38bdf8", "#fb7185", "#34d399", "#fbbf24", "#a78bfa", "#f472b6", "#fb923c", "#0f172a"];
         let selC = colors[0];
 
-        // ✨ 流体力学的な波の伝播と分散を模した、リアルでランダムな波紋生成関数
+        // ✨ 物理学的な流体波紋（分散と減衰）のシミュレーション関数
         function spawnRipple(x, y) {
-            // 波紋の輪の数をランダムに（2〜5個）
-            const numRings = Math.floor(Math.random() * 4) + 2; 
+            // 水滴の不規則さを表現：波紋の輪の数を3〜5個でランダムに発生
+            const numRings = Math.floor(Math.random() * 3) + 3; 
             
+            // ベースとなる波の強さ（最大到達サイズとスピード）
+            const baseSize = 150 + Math.random() * 150; 
+            const baseDuration = 1.5 + Math.random() * 1.0;
+
             for (let i = 0; i < numRings; i++) {
-                // 波の発生間隔にランダムな揺らぎを加える（位相速度と群速度の違いによる波束の分散を表現）
-                const delay = i * (200 + Math.random() * 150); 
-                
+                // 波の分散（Dispersion）: 後から来る波ほど間隔が広がり、小さく、遅くなる
+                const delay = i * (150 + i * 50); 
+                const scaleModifier = 1 - (i * 0.15); 
+                const durationModifier = 1 + (i * 0.2); 
+
                 setTimeout(() => {
                     const ripple = document.createElement('div');
                     ripple.className = 'ripple';
                     ripple.style.left = x + 'px';
                     ripple.style.top = y + 'px';
                     
-                    // エネルギーの減衰（広がるほど薄くなる）と波長のばらつき
-                    const baseSize = 120 + Math.random() * 150; // 最大到達サイズ（120px〜270px）
-                    const duration = 1.5 + Math.random() * 1.5;   // 伝播時間（1.5s〜3.0s）
+                    const finalSize = baseSize * scaleModifier;
+                    const finalDuration = baseDuration * durationModifier;
                     
-                    ripple.style.width = baseSize + 'px';
-                    ripple.style.height = baseSize + 'px';
-                    ripple.style.margin = `-${baseSize / 2}px 0 0 -${baseSize / 2}px`; // 中心合わせ
-                    ripple.style.animationDuration = duration + 's';
+                    ripple.style.width = finalSize + 'px';
+                    ripple.style.height = finalSize + 'px';
+                    // 中央から広がるようにネガティブマージンを設定
+                    ripple.style.margin = `-${finalSize / 2}px 0 0 -${finalSize / 2}px`;
+                    ripple.style.animationDuration = finalDuration + 's';
                     
                     document.body.appendChild(ripple);
-                    setTimeout(() => ripple.remove(), duration * 1000); 
+                    
+                    // アニメーション完了後にDOMから削除
+                    setTimeout(() => ripple.remove(), finalDuration * 1000); 
                 }, delay);
             }
         }
