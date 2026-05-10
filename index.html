@@ -12,7 +12,6 @@
 
     <style>
         :root {
-            /* ✨ より淡く、透き通るような水色グラデーション */
             --bg-1: #e0f2fe; --bg-2: #bae6fd; --bg-3: #7dd3fc; --bg-4: #e0f2fe;
             --surface: rgba(255, 255, 255, 0.75);
             --text: #0f172a; --text-m: #64748b;
@@ -35,7 +34,6 @@
             background: url('data:image/svg+xml;utf8,<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><filter id="noiseFilter"><feTurbulence type="fractalNoise" baseFrequency="0.015" numOctaves="3" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23noiseFilter)"/></svg>');
         }
 
-        /* ✨ 座標ズレを修正したリアルな波紋シミュレーション */
         .ripple {
             position: fixed; border-radius: 50%;
             border: 1px solid rgba(255, 255, 255, 0.3);
@@ -189,14 +187,13 @@
         let user = null, myP = null, pjs = [], curPId = null, curPD = null, curBId = null, tempPhoto = "";
         let isDraggingCircle = false; let showCompletedTasks = false; let memberProfiles = {};
         let lastClickX = window.innerWidth / 2; let lastClickY = window.innerHeight / 2;
-        let targetManagerEmail = null; // ✨ 責任者モーダル用のターゲットメアド
+        let targetManagerEmail = null;
         
         const colors = ["#38bdf8", "#fb7185", "#34d399", "#fbbf24", "#a78bfa", "#f472b6", "#fb923c", "#0f172a"];
         let selC = colors[0];
 
-        // ✨ 座標のズレをなくした波紋生成関数
         function spawnRipple(x, y) {
-            const numRings = Math.floor(Math.random() * 2) + 2; // 2-3個の波
+            const numRings = Math.floor(Math.random() * 2) + 2; 
             const baseSize = 80 + Math.random() * 80; 
             const baseDuration = 1.0 + Math.random() * 0.5;
 
@@ -252,7 +249,6 @@
 
         function showSetup() { document.getElementById('auth-screen').style.display = 'flex'; document.getElementById('login-v').style.display = 'none'; document.getElementById('setup-v').style.display = 'block'; document.getElementById('setup-n').value = user.displayName; tempPhoto = user.photoURL || ""; document.getElementById('setup-img').src = tempPhoto; buildColors('setup-colors'); hideLoading(); }
         
-        // ✨ 新規作成時、自分が最初の責任者(managers)になるように設定
         window.finishSetup = async () => { const name = document.getElementById('setup-n').value; if(!name) return alert("なまえ入力してね"); myP = { email: user.email, name, color: selC, photo: tempPhoto }; await setDoc(doc(db, "users", user.uid), myP); myP._isDummy = false; memberProfiles[user.email] = myP; await addDoc(collection(db, "projects"), { title: "My Tasks", members: [user.email], managers: [user.email], blocks: [], koiSize: 0.5 }); location.reload(); };
         
         window.openProfile = () => { document.getElementById('edit-n').value = myP.name; selC = myP.color || colors[0]; tempPhoto = myP.photo || ""; document.getElementById('edit-img').src = tempPhoto; buildColors('edit-colors'); window.openM('profile-m'); };
@@ -304,7 +300,6 @@
             curPD = p.data;
             document.getElementById('header-pj-name').innerText = curPD.title;
             
-            // 古いデータへの互換性対応（managersが存在しない場合は、最初のメンバーを責任者にする）
             if (!curPD.managers) { curPD.managers = [curPD.members[0]]; save(); }
 
             kSize = curPD.koiSize || 0.5;
@@ -314,7 +309,7 @@
             fetchMemberProfiles();
         }
 
-        // ✨ ヘッダーメンバータップで責任者モーダル起動
+        // ✨ 責任者マークを風鈴🎐に変更
         function updateHeaderMembers() { 
             const defaultIcon = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' fill='%2394a3b8' viewBox='0 0 24 24'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/></svg>";
             const html = curPD.members.map(m => {
@@ -322,13 +317,12 @@
                 const name = (p && !p._isDummy) ? p.name : m.split('@')[0] + " (待機)";
                 const photo = (p && !p._isDummy && p.photo) ? p.photo : defaultIcon;
                 const isMgr = curPD.managers.includes(m);
-                const mgrCrown = isMgr ? '<span style="margin-left:2px;">👑</span>' : '';
+                const mgrCrown = isMgr ? '<span style="margin-left:2px;">🎐</span>' : '';
                 return `<div onclick="window.openManagerModal('${m}')" style="display:inline-flex; align-items:center; gap:4px; margin-right:8px; background:rgba(255,255,255,0.6); padding:2px 8px 2px 2px; border-radius:20px; flex-shrink:0; border: 1px solid #fff; cursor:pointer;"><img src="${photo}" style="width:16px;height:16px;border-radius:50%;object-fit:cover;background:#fff;"><span>${name}${mgrCrown}</span></div>`;
             }).join('');
             document.getElementById('mem-count').innerHTML = html || "-";
         }
 
-        // ✨ 責任者モーダルの処理
         window.openManagerModal = (email) => {
             if (!curPD.managers.includes(user.email)) {
                 alert("責任者のみが権限を変更できます。"); return;
@@ -353,7 +347,6 @@
             await save(); window.closeM('manager-m'); updateHeaderMembers(); renderDash();
         };
 
-        // ✨ ダッシュボード描画（カラフルな担当者別バッジシステム）
         function renderDash() {
             const el = document.getElementById('dashboard'); el.innerHTML = '';
             const w = el.clientWidth - 40, h = el.clientHeight - 40;
@@ -376,7 +369,6 @@
 
                 const badgeSize = Math.max(25, size*0.25); const badgeFontSize = Math.max(12, size*0.13);
 
-                // ✨ 責任者の場合は色別のバッジを並べる。一般の場合は自分の色だけ。
                 if (isManager) {
                     const colorCounts = {};
                     (b.items || []).filter(i => !i.completed).forEach(i => {
@@ -430,7 +422,6 @@
             return div; 
         }
 
-        // ✨ 責任者と一般メンバーで表示するタスクを切り分ける
         function renderTasks() { 
             const b = curPD.blocks.find(x=>x.id==curBId); 
             const activeContainer = document.getElementById('active-task-list'); 
@@ -439,7 +430,6 @@
             if(!b.items) b.items = []; 
             
             const isManager = curPD.managers && curPD.managers.includes(user.email);
-            // 責任者はすべて。一般は自分のタスクのみ表示
             let visibleTasks = isManager ? b.items : b.items.filter(i => i.assEmail === user.email);
 
             const activeTasks = visibleTasks.filter(i => !i.completed); 
@@ -457,7 +447,6 @@
                 animation: 150, handle: '.drag-handle', 
                 onEnd: async (e) => { 
                     if(e.oldIndex === e.newIndex) return; 
-                    // 並び替え処理：見えない他人のタスクを消さないように安全に結合
                     const moved = activeTasks.splice(e.oldIndex, 1)[0]; 
                     activeTasks.splice(e.newIndex, 0, moved); 
                     const hiddenTasks = isManager ? [] : b.items.filter(i => i.assEmail !== user.email);
@@ -469,7 +458,6 @@
 
         window.addTask = async () => { const input = document.getElementById('t-input'), text = input.value.trim(); if(!text) return; const assE = document.getElementById('ass-sel').value; const profile = memberProfiles[assE] || { name: assE.split('@')[0], color: '#94a3b8' }; const b = curPD.blocks.find(x=>x.id==curBId); if(!b.items) b.items = []; b.items.unshift({ id: Date.now().toString(), text, completed: false, assName: profile.name, assEmail: assE, assColor: profile.color }); input.value = ''; await save(); };
         window.toggleT = async (tid, color) => { const b = curPD.blocks.find(x=>x.id==curBId); const i = b.items.find(x=>x.id==tid); const wasCompleted = i.completed; i.completed = !i.completed; if (!wasCompleted && i.completed) { spawnFood(lastClickX, lastClickY, color); } 
-            // 完了状態の切り替え時も安全に並び替え
             const isManager = curPD.managers && curPD.managers.includes(user.email);
             const visibleTasks = isManager ? b.items : b.items.filter(x => x.assEmail === user.email);
             const active = visibleTasks.filter(x => !x.completed); 
@@ -539,6 +527,7 @@
 
             if (foods.length > 0 && dist < 30) {
                 let f = foods.shift(); f.el.remove();
+                
                 kSize += 0.05;
                 if (curPD) { curPD.koiSize = kSize; save(); }
                 spawnRipple(kX, kY);
