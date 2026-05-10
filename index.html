@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PM CORE - Ocean Jelly Edition</title>
+    <title>PM CORE - Clear Blue Edition</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -12,12 +12,7 @@
 
     <style>
         :root {
-            /* ✨ 動いているのが分かる、白〜水色〜少し濃い青のグラデーション */
-            --bg-1: #ffffff; 
-            --bg-2: #e0f2fe; 
-            --bg-3: #bae6fd; 
-            --bg-4: #7dd3fc;
-            
+            --bg-1: #ffffff; --bg-2: #e0f2fe; --bg-3: #bae6fd; --bg-4: #7dd3fc;
             --surface: rgba(255, 255, 255, 0.85);
             --text: #0f172a; --text-m: #64748b;
             --primary: #0ea5e9; 
@@ -50,16 +45,20 @@
         .icon-btn { background: var(--surface); border: 2px solid #fff; color: var(--primary); width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.1); transition: 0.2s; }
         .icon-btn img { width: 100%; height: 100%; object-fit: cover; }
 
-        .dashboard { display: flex; flex-wrap: wrap; padding: 20px; justify-content: center; align-content: center; flex-grow: 1; overflow: hidden; gap: 15px;}
+        /* ✨ 画面中央ではなく、上部（flex-start）に配置されるように修正 */
+        .dashboard { 
+            display: flex; flex-wrap: wrap; padding: 30px 24px; 
+            justify-content: center; align-content: flex-start; /* 上寄せ */
+            flex-grow: 1; overflow-y: auto; gap: 20px;
+        }
+
         .circle-block { 
             position: relative; border-radius: 50%; background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(255,255,255,0.6)); 
             border: 4px solid #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; 
             cursor: pointer; box-shadow: 0 10px 25px rgba(2, 132, 199, 0.1); 
-            /* 長押ししやすいように、ブラウザのデフォルト選択を禁止 */
-            user-select: none; -webkit-user-select: none;
+            user-select: none; -webkit-user-select: none; flex-shrink: 0;
         }
 
-        /* ✨ プリンのようにぷるん！と弾けるアニメーション */
         @keyframes jelly {
             0% { transform: scale(1, 1); }
             30% { transform: scale(1.15, 0.85); }
@@ -193,6 +192,8 @@
         const provider = new GoogleAuthProvider();
 
         let user = null, myP = null, pjs = [], curPId = null, curPD = null, curBId = null, tempPhoto = "";
+        let isDraggingCircle = false; // ✨ ドラッグ競合防止フラグ
+
         const colors = ["#38bdf8", "#fb7185", "#34d399", "#fbbf24", "#a78bfa", "#f472b6", "#fb923c", "#0f172a"];
         let selC = colors[0];
 
@@ -277,7 +278,6 @@
                 pjs = sn.docs.map(d => ({ id: d.id, data: d.data() }));
                 updateProjList();
 
-                // ✨ プロジェクトの記憶を復元
                 const savedProjId = localStorage.getItem('last_proj_id');
                 if (pjs.length > 0) {
                     if (savedProjId && pjs.find(p => p.id === savedProjId)) {
@@ -306,23 +306,24 @@
             const w = el.clientWidth - 40, h = el.clientHeight - 40;
             const blks = curPD.blocks || [], total = blks.length + 1;
             let opt = 0;
-            for(let c=1; c<=total; c++) { let r = Math.ceil(total/c); let s = Math.min((w-(c-1)*15)/c, (h-(r-1)*15)/r); if(s > opt) opt = s; }
-            const size = Math.min(Math.max(opt, 80), 150);
+            for(let c=1; c<=total; c++) { let r = Math.ceil(total/c); let s = Math.min((w-(c-1)*20)/c, (h-(r-1)*20)/r); if(s > opt) opt = s; }
+            const size = Math.min(Math.max(opt, 80), 140); // サイズ少し調整
             
             blks.forEach(b => {
                 const div = document.createElement('div'); div.className = 'circle-block';
                 div.style.width = div.style.height = size + 'px'; div.style.borderColor = b.color;
                 
-                // ✨ ぷるんアニメーション＆クリック処理
-                div.onclick = () => {
+                // ✨ ぷるんアニメーション＆ドラッグ競合防止
+                div.onclick = (e) => {
+                    if(isDraggingCircle) return; // ドラッグ直後は開かない
                     div.classList.add('jelly-anim');
                     setTimeout(() => {
                         div.classList.remove('jelly-anim');
                         window.openTaskM(b.id);
-                    }, 300); // 弾けた後に開く
+                    }, 250); 
                 };
 
-                div.innerHTML = `<div class="circle-title" style="font-size:${size*0.15}px">${b.title}</div><div class="circle-creator" style="color:${b.color}">by ${b.userName}</div>`;
+                div.innerHTML = `<div class="circle-title" style="font-size:${size*0.14}px">${b.title}</div><div class="circle-creator" style="color:${b.color}">by ${b.userName}</div>`;
                 const myUncompletedTasks = (b.items || []).filter(i => !i.completed && (i.assEmail === user.email || i.assName === user.email.split('@')[0]));
                 const uc = myUncompletedTasks.length;
 
@@ -343,10 +344,12 @@
             if(window.dashSortable) window.dashSortable.destroy();
             window.dashSortable = Sortable.create(el, {
                 animation: 250,
-                delay: 200, // スマホで長押しした時だけ動くように（誤作動防止）
+                delay: 200, // スマホで長押しした時だけ動くように
                 delayOnTouchOnly: true,
-                filter: '.add-new', // 追加ボタンはドラッグ不可
+                filter: '.add-new',
+                onStart: () => { isDraggingCircle = true; },
                 onEnd: async (e) => {
+                    setTimeout(() => { isDraggingCircle = false; }, 50); // 少し待ってフラグ解除
                     if(e.oldIndex === e.newIndex) return;
                     const moved = curPD.blocks.splice(e.oldIndex, 1)[0];
                     curPD.blocks.splice(e.newIndex, 0, moved);
@@ -406,10 +409,9 @@
         window.createPJ = async () => { const t = document.getElementById('new-p-t').value; if(!t) return; await addDoc(collection(db, "projects"), { title: t, members: [user.email], blocks: [] }); window.closeM('new-p-m'); };
         window.sendInv = async () => { const e = document.getElementById('inv-e').value; if(!e) return; if(!curPD.members.includes(e)) { curPD.members.push(e); await save(); alert("招待しました"); } window.closeM('invite-m'); };
         
-        // ✨ プロジェクト切り替え時に記憶
         window.switchProj = () => { 
             curPId = document.getElementById('proj-sel').value; 
-            localStorage.setItem('last_proj_id', curPId); // 記憶する
+            localStorage.setItem('last_proj_id', curPId); 
             syncCurPJ(); 
         };
 
