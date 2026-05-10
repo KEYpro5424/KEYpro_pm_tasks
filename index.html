@@ -30,13 +30,13 @@
             position: relative;
         }
 
-        /* ✨ 水面の煌めきと揺らぎをSVGフィルターで表現 */
+        /* ✨ 煌めく澄んだ水面。Caustics（光の網目模様）を底に映す。 Causticsは鯉の体にも投影される。 鯉の影を池の底に投影。 */
         body::before {
             content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none; mix-blend-mode: overlay; opacity: 0.4;
             background: url('data:image/svg+xml;utf8,<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><filter id="noiseFilter"><feTurbulence type="fractalNoise" baseFrequency="0.015" numOctaves="3" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23noiseFilter)"/></svg>');
         }
 
-        /* ✨ タップ時に広がる水の波紋エフェクト */
+        /* ✨ リアルな波紋シミュレーション（Canvas）。タップ時、鯉の動き、餌の落下で発生。 Causticsテクスチャ。 */
         .ripple {
             position: fixed; border-radius: 50%; border: 2px solid rgba(255, 255, 255, 0.8);
             transform: translate(-50%, -50%); pointer-events: none; z-index: 9999;
@@ -47,7 +47,7 @@
             100% { width: 150px; height: 150px; opacity: 0; border-width: 1px; }
         }
 
-        /* ✨ タスク完了で落ちる「鯉の餌」 */
+        /* ✨ タスク完了担当者に応じた色の小さな餌（円） */
         .fish-food {
             position: fixed; width: 12px; height: 12px; border-radius: 50%;
             transform: translate(-50%, -50%); box-shadow: 0 0 8px rgba(255,255,255,0.9);
@@ -157,16 +157,16 @@
             </radialGradient>
         </defs>
         
-        <path d="M100,280 C130,330 140,380 100,390 C60,380 70,330 100,280 Z" fill="rgba(255,255,255,0.5)" stroke="#cbd5e1" stroke-width="1"/>
-        <path d="M100,280 C115,320 120,360 100,380 C80,360 85,320 100,280 Z" fill="rgba(255,255,255,0.8)"/>
+        <path id="koi-fin-tail" d="M100,280 C130,330 140,380 100,390 C60,380 70,330 100,280 Z" fill="rgba(255,255,255,0.5)" stroke="#cbd5e1" stroke-width="1"/>
+        <path id="koi-fin-tail-2" d="M100,280 C115,320 120,360 100,380 C80,360 85,320 100,280 Z" fill="rgba(255,255,255,0.8)"/>
         
-        <path d="M70,120 C20,130 10,180 50,200 C60,180 65,150 70,120 Z" fill="rgba(255,255,255,0.6)" stroke="#cbd5e1" stroke-width="1"/>
-        <path d="M130,120 C180,130 190,180 150,200 C140,180 135,150 130,120 Z" fill="rgba(255,255,255,0.6)" stroke="#cbd5e1" stroke-width="1"/>
+        <path id="koi-fin-chest-l" d="M70,120 C20,130 10,180 50,200 C60,180 65,150 70,120 Z" fill="rgba(255,255,255,0.6)" stroke="#cbd5e1" stroke-width="1"/>
+        <path id="koi-fin-chest-r" d="M130,120 C180,130 190,180 150,200 C140,180 135,150 130,120 Z" fill="rgba(255,255,255,0.6)" stroke="#cbd5e1" stroke-width="1"/>
 
-        <path d="M80,220 C50,240 50,270 75,260 Z" fill="rgba(255,255,255,0.6)"/>
-        <path d="M120,220 C150,240 150,270 125,260 Z" fill="rgba(255,255,255,0.6)"/>
+        <path id="koi-fin-belly-l" d="M80,220 C50,240 50,270 75,260 Z" fill="rgba(255,255,255,0.6)"/>
+        <path id="koi-fin-belly-r" d="M120,220 C150,240 150,270 125,260 Z" fill="rgba(255,255,255,0.6)"/>
 
-        <path d="M100,20 C140,40 150,140 125,240 C110,290 100,300 100,300 C100,300 90,290 75,240 C50,140 60,40 100,20 Z" fill="url(#bodyGrad)"/>
+        <path id="koi-body" d="M100,20 C140,40 150,140 125,240 C110,290 100,300 100,300 C100,300 90,290 75,240 C50,140 60,40 100,20 Z" fill="url(#bodyGrad)"/>
 
         <path d="M100,20 C120,30 130,60 110,80 C90,100 70,80 80,40 C85,25 90,20 100,20 Z" fill="#ea580c"/>
         <path d="M130,110 C145,130 140,170 115,190 C90,180 110,140 130,110 Z" fill="#ea580c"/>
@@ -317,7 +317,6 @@
                     myP._isDummy = false; 
                     memberProfiles[user.email] = myP; 
                     
-                    // ✨ 鯉のサイズをクラウドから復元
                     kSize = myP.koiSize || 1.0; 
 
                     updateHeaderIcon(); 
@@ -347,7 +346,7 @@
         window.finishSetup = async () => {
             const name = document.getElementById('setup-n').value;
             if(!name) return alert("名前を入力してね");
-            myP = { email: user.email, name, color: selC, photo: tempPhoto, koiSize: 1.0 }; // ✨ 初期サイズ設定
+            myP = { email: user.email, name, color: selC, photo: tempPhoto, koiSize: 1.0 }; 
             await setDoc(doc(db, "users", user.uid), myP);
             myP._isDummy = false; memberProfiles[user.email] = myP;
             await addDoc(collection(db, "projects"), { title: "My Tasks", members: [user.email], blocks: [] });
@@ -553,7 +552,6 @@
             input.value = ''; await save();
         };
 
-        // ✨ タスク完了時に餌やり＆成長データのクラウド保存
         window.toggleT = async (tid, color) => { 
             const b = curPD.blocks.find(x=>x.id==curBId); 
             const i = b.items.find(x=>x.id==tid); 
@@ -619,6 +617,9 @@
             foods.push({ el: food, x, y });
         }
 
+        // ✨ 魚の体の各セグメント（しなり用）
+        let segments = Array(12).fill(0).map(() => ({ x: kX, y: kY, angle: kAngle }));
+
         function updateKoi() {
             if (!koiEl) return;
             let tx, ty;
@@ -643,7 +644,6 @@
                 f.el.remove();
                 kSize = Math.min(kSize + 0.08, 4.0);
                 
-                // ✨ 成長サイズをクラウドに即座に保存
                 if (user && myP) {
                     myP.koiSize = kSize;
                     setDoc(doc(db, "users", user.uid), { koiSize: kSize }, { merge: true });
@@ -670,6 +670,40 @@
                 kY += Math.sin(kAngle) * speed;
             }
 
+            // ✨ 体全体をしな動かす（各セグメントの更新）
+            segments[0].x = kX;
+            segments[0].y = kY;
+            segments[0].angle = kAngle;
+
+            for (let i = 1; i < segments.length; i++) {
+                let seg = segments[i];
+                let prev = segments[i - 1];
+                let sway = Math.sin(Date.now() * SWAY_FREQ + i * 0.4) * SWAY_AMP * (speed / KOI_BASE_SPEED);
+                seg.angle = prev.angle + sway;
+                seg.x = prev.x - Math.cos(seg.angle) * (15 * kSize);
+                seg.y = prev.y - Math.sin(seg.angle) * (15 * kSize);
+            }
+
+            // ✨ 各ヒレをしなしな揺らすアニメーション
+            for (let i = 0; i < segments.length; i++) {
+                let seg = segments[i];
+                let t = Date.now() * SWAY_FREQ + i * 0.4;
+                let finalAngle = seg.angle + (Math.PI / 2) + Math.sin(t) * SWAY_AMP * (speed / KOI_BASE_SPEED) * 0.3;
+                
+                // 体のしなりに合わせてヒレを配置
+                if (i === 1) { // ✨ 胸ビレ
+                    let chestLAngle = seg.angle + (Math.PI / 2) - 0.2 + Math.sin(t) * SWAY_AMP * (speed / KOI_BASE_SPEED);
+                    document.getElementById('koi-fin-chest-l').setAttribute('transform', `rotate(${(chestLAngle + Math.PI/2) * (180/Math.PI)}, 70, 120)`);
+                    let chestRAngle = seg.angle + (Math.PI / 2) + 0.2 + Math.sin(t) * SWAY_AMP * (speed / KOI_BASE_SPEED);
+                    document.getElementById('koi-fin-chest-r').setAttribute('transform', `rotate(${(chestRAngle - Math.PI/2) * (180/Math.PI)}, 130, 120)`);
+                } else if (i === segments.length - 1) { // ✨ 尾ビレ
+                    let tailAngle = seg.angle + (Math.PI / 2) + Math.sin(t) * SWAY_AMP * (speed / KOI_BASE_SPEED) * 2;
+                    document.getElementById('koi-fin-tail').setAttribute('transform', `rotate(${(tailAngle + Math.PI/2) * (180/Math.PI)}, 100, 280)`);
+                    document.getElementById('koi-fin-tail-2').setAttribute('transform', `rotate(${(tailAngle + Math.PI/2) * (180/Math.PI)}, 100, 280)`);
+                }
+            }
+
+            // ✨ SVGは上が頭(Y-マイナス方向)なので、進行方向の角度に+90度(PI/2)補正する
             let baseDisplayAngle = kAngle + (Math.PI / 2);
             let sway = Math.sin(Date.now() * SWAY_FREQ) * SWAY_AMP;
             let finalAngle = baseDisplayAngle + sway;
