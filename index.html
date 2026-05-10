@@ -30,13 +30,13 @@
             position: relative;
         }
 
-        /* ✨ リアルなCaustics（光の網目模様）と波紋シミュレーション（Canvas）。タップ時、鯉の動き、餌の落下で発生。 Causticsテクスチャ。 Causticsは鯉の体にも投影される。 鯉の影を池の底に投影。 */
+        /* ✨ リアルなCaustics（光の網目模様）と波紋シミュレーション */
         body::before {
             content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none; mix-blend-mode: overlay; opacity: 0.4;
             background: url('data:image/svg+xml;utf8,<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><filter id="noiseFilter"><feTurbulence type="fractalNoise" baseFrequency="0.015" numOctaves="3" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23noiseFilter)"/></svg>');
         }
 
-        /* ✨ リアルな波紋シミュレーション（Canvasベースの物理シミュレーション）。タップ時、鯉の動き、餌の落下で発生。 Causticsテクスチャ。 */
+        /* ✨ リアルな波紋シミュレーション */
         .ripple {
             position: fixed; border-radius: 50%; border: 2px solid rgba(255, 255, 255, 0.8);
             transform: translate(-50%, -50%); pointer-events: none; z-index: 9999;
@@ -316,8 +316,6 @@
                     myP = d.data(); 
                     myP._isDummy = false; 
                     memberProfiles[user.email] = myP; 
-                    
-                    kSize = myP.koiSize || 1.0; 
 
                     updateHeaderIcon(); 
                     loadPJs(); 
@@ -346,10 +344,10 @@
         window.finishSetup = async () => {
             const name = document.getElementById('setup-n').value;
             if(!name) return alert("名前を入力してね");
-            myP = { email: user.email, name, color: selC, photo: tempPhoto, koiSize: 1.0 }; 
+            myP = { email: user.email, name, color: selC, photo: tempPhoto }; 
             await setDoc(doc(db, "users", user.uid), myP);
             myP._isDummy = false; memberProfiles[user.email] = myP;
-            await addDoc(collection(db, "projects"), { title: "My Tasks", members: [user.email], blocks: [] });
+            await addDoc(collection(db, "projects"), { title: "My Tasks", members: [user.email], blocks: [], koiSize: 0.5 });
             location.reload();
         };
 
@@ -414,6 +412,9 @@
             const p = pjs.find(x => x.id == curPId); if(!p) return;
             curPD = p.data;
             document.getElementById('header-pj-name').innerText = curPD.title;
+            
+            kSize = curPD.koiSize || 0.5;
+
             updateHeaderMembers(); renderDash(); updateAssList();
             if(curBId) renderTasks();
             fetchMemberProfiles();
@@ -580,7 +581,9 @@
         };
 
         window.delBlock = async () => { if(!confirm("削除しますか？")) return; curPD.blocks = curPD.blocks.filter(x=>x.id != curBId); await save(); window.closeM('modal'); };
-        window.createPJ = async () => { const t = document.getElementById('new-p-t').value; if(!t) return; await addDoc(collection(db, "projects"), { title: t, members: [user.email], blocks: [] }); window.closeM('new-p-m'); };
+        
+        window.createPJ = async () => { const t = document.getElementById('new-p-t').value; if(!t) return; await addDoc(collection(db, "projects"), { title: t, members: [user.email], blocks: [], koiSize: 0.5 }); window.closeM('new-p-m'); };
+        
         window.sendInv = async () => { const e = document.getElementById('inv-e').value; if(!e) return; if(!curPD.members.includes(e)) { curPD.members.push(e); await save(); alert("招待しました"); } window.closeM('invite-m'); };
         
         window.switchProj = () => { curPId = document.getElementById('proj-sel').value; localStorage.setItem('last_proj_id', curPId); syncCurPJ(); };
@@ -594,15 +597,21 @@
         function updateProjList() { const sel = document.getElementById('proj-sel'); sel.innerHTML = ''; pjs.forEach(p => { const o = document.createElement('option'); o.value = p.id; o.innerText = p.data.title; sel.appendChild(o); }); sel.value = curPId; }
         function updateAssList() { const sel = document.getElementById('ass-sel'); sel.innerHTML = ''; const activeMembers = curPD.members.filter(m => memberProfiles[m] && !memberProfiles[m]._isDummy); activeMembers.forEach(m => { const o = document.createElement('option'); o.value = m; o.innerText = memberProfiles[m].name; sel.appendChild(o); }); sel.value = user.email; }
 
+        function getScreenScale() {
+            if (window.innerWidth < 500) return 0.7; 
+            if (window.innerWidth < 800) return 0.85; 
+            return 1.0; 
+        }
+
         const KOI_BASE_SPEED = 0.6;     
         const KOI_CHASE_SPEED = 3.0;    
         const KOI_TURN_SOFTNESS = 0.02; 
-        const SWAY_AMP = 0.12;           
-        const SWAY_FREQ = 0.003;        
+        const SWAY_AMP = 0.1;           
+        const SWAY_FREQ = 0.004;        
 
         let koiEl = document.getElementById('koi-fish');
         let kX = window.innerWidth / 2, kY = window.innerHeight / 2;
-        let kAngle = 0, kSize = 1.0;
+        let kAngle = 0, kSize = 0.5; 
         let speed = KOI_BASE_SPEED; 
         let currentTarget = null;
         let foods = [];
@@ -616,9 +625,6 @@
             document.body.appendChild(food);
             foods.push({ el: food, x, y });
         }
-
-        // ✨ 魚の体の各セグメント（しなり用）。 Vertex ShaderのようにJSで計算して適用
-        let segments = Array(12).fill(0).map(() => ({ x: kX, y: kY, angle: kAngle }));
 
         function updateKoi() {
             if (!koiEl) return;
@@ -642,12 +648,13 @@
             if (foods.length > 0 && dist < 30) {
                 let f = foods.shift();
                 f.el.remove();
-                kSize = Math.min(kSize + 0.08, 4.0);
                 
-                // ✨ 成長サイズをクラウドに即座に保存
-                if (user && myP) {
-                    myP.koiSize = kSize;
-                    setDoc(doc(db, "users", user.uid), { koiSize: kSize }, { merge: true });
+                // ✨上限を解除。 無限に巨大化していく
+                kSize += 0.05;
+                
+                if (curPD) {
+                    curPD.koiSize = kSize;
+                    save(); 
                 }
 
                 const ripple = document.createElement('div');
@@ -671,48 +678,23 @@
                 kY += Math.sin(kAngle) * speed;
             }
 
-            // ✨ 体全体をしな動かす（各セグメントの更新）。 Vertex Shader風パス操作でしなる
-            segments[0].x = kX;
-            segments[0].y = kY;
-            segments[0].angle = kAngle;
-
-            for (let i = 1; i < segments.length; i++) {
-                let seg = segments[i];
-                let prev = segments[i - 1];
-                // サイン波によるしなり計算
-                let sway = Math.sin(Date.now() * SWAY_FREQ + i * 0.4) * SWAY_AMP * (speed / KOI_BASE_SPEED);
-                seg.angle = prev.angle + sway;
-                seg.x = prev.x - Math.cos(seg.angle) * (15 * kSize);
-                seg.y = prev.y - Math.sin(seg.angle) * (15 * kSize);
-            }
-
-            // ✨ 各ヒレをしなしな揺らすアニメーション（ Vertex Shader風パス操作）。 Vertex ShaderのようにJSで計算して適用
-            for (let i = 0; i < segments.length; i++) {
-                let seg = segments[i];
-                let t = Date.now() * SWAY_FREQ + i * 0.4;
-                let finalAngle = seg.angle + (Math.PI / 2) + Math.sin(t) * SWAY_AMP * (speed / KOI_BASE_SPEED) * 0.3;
-                
-                // 体のしなりに合わせてヒレを配置
-                if (i === 1) { // ✨ 胸ビレ
-                    let chestLAngle = seg.angle + (Math.PI / 2) - 0.2 + Math.sin(t) * SWAY_AMP * (speed / KOI_BASE_SPEED);
-                    document.getElementById('koi-fin-chest-l').setAttribute('transform', `rotate(${(chestLAngle + Math.PI/2) * (180/Math.PI)}, 70, 120)`);
-                    let chestRAngle = seg.angle + (Math.PI / 2) + 0.2 + Math.sin(t) * SWAY_AMP * (speed / KOI_BASE_SPEED);
-                    document.getElementById('koi-fin-chest-r').setAttribute('transform', `rotate(${(chestRAngle - Math.PI/2) * (180/Math.PI)}, 130, 120)`);
-                } else if (i === segments.length - 1) { // ✨ 尾ビレ。 尾ビレ（`koi-fin-tail`）自体の制御点をサイン波で左右に動かすことで、ヒレ自体が波打つ動き
-                    let tailAngle = seg.angle + (Math.PI / 2) + Math.sin(t) * SWAY_AMP * (speed / KOI_BASE_SPEED) * 2;
-                    document.getElementById('koi-fin-tail').setAttribute('transform', `rotate(${(tailAngle + Math.PI/2) * (180/Math.PI)}, 100, 280)`);
-                    document.getElementById('koi-fin-tail-2').setAttribute('transform', `rotate(${(tailAngle + Math.PI/2) * (180/Math.PI)}, 100, 280)`);
-                }
-            }
-
-            // ✨ SVGは上が頭(Y-マイナス方向)なので、進行方向の角度に+90度(PI/2)補正する
             let baseDisplayAngle = kAngle + (Math.PI / 2);
-            let sway = Math.sin(Date.now() * SWAY_FREQ) * SWAY_AMP;
-            let finalAngle = baseDisplayAngle + sway;
+            let bodySway = Math.sin(Date.now() * SWAY_FREQ) * SWAY_AMP * (speed / KOI_BASE_SPEED);
+            let finalAngle = baseDisplayAngle + bodySway;
+
+            let finSway = Math.sin(Date.now() * SWAY_FREQ * 1.5) * 15 * (speed / KOI_BASE_SPEED); 
+            let tailSway = Math.sin(Date.now() * SWAY_FREQ - 1.0) * 25 * (speed / KOI_BASE_SPEED);
+
+            document.getElementById('koi-fin-chest-l').setAttribute('transform', `rotate(${finSway}, 70, 120)`);
+            document.getElementById('koi-fin-chest-r').setAttribute('transform', `rotate(${-finSway}, 130, 120)`);
+            document.getElementById('koi-fin-tail').setAttribute('transform', `rotate(${tailSway}, 100, 280)`);
+            document.getElementById('koi-fin-tail-2').setAttribute('transform', `rotate(${tailSway}, 100, 280)`);
+
+            let currentScreenScale = getScreenScale();
 
             koiEl.style.left = kX + 'px';
             koiEl.style.top = kY + 'px';
-            koiEl.style.transform = `translate(-50%, -50%) scale(${kSize}) rotate(${finalAngle}rad)`;
+            koiEl.style.transform = `translate(-50%, -50%) scale(${kSize * currentScreenScale}) rotate(${finalAngle}rad)`;
 
             requestAnimationFrame(updateKoi);
         }
