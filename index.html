@@ -12,6 +12,7 @@
 
     <style>
         :root {
+            /* ✨ より淡く、透き通るような水色グラデーション */
             --bg-1: #e0f2fe; --bg-2: #bae6fd; --bg-3: #7dd3fc; --bg-4: #e0f2fe;
             --surface: rgba(255, 255, 255, 0.75);
             --text: #0f172a; --text-m: #64748b;
@@ -34,6 +35,7 @@
             background: url('data:image/svg+xml;utf8,<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><filter id="noiseFilter"><feTurbulence type="fractalNoise" baseFrequency="0.015" numOctaves="3" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23noiseFilter)"/></svg>');
         }
 
+        /* ✨ 座標ズレを修正したリアルな波紋シミュレーション */
         .ripple {
             position: fixed; border-radius: 50%;
             border: 1px solid rgba(255, 255, 255, 0.3);
@@ -78,6 +80,11 @@
         .dashboard { display: flex; flex-wrap: wrap; padding: 30px 24px; justify-content: center; align-content: flex-start; flex-grow: 1; overflow-y: auto; gap: 20px; z-index: 20; }
         .circle-block { position: relative; border-radius: 50%; background: linear-gradient(135deg, rgba(255,255,255,0.85), rgba(255,255,255,0.4)); border: 4px solid rgba(255,255,255,0.8); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; cursor: pointer; box-shadow: 0 10px 25px rgba(2, 132, 199, 0.15); backdrop-filter: blur(5px); user-select: none; -webkit-user-select: none; flex-shrink: 0; }
         .circle-title { font-weight: 900; line-height: 1.2; padding: 0 10%; pointer-events: none; overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; color:#0f172a;}
+
+        /* ✨ バッジのデザイン（自分用と他人用） */
+        .badge { position: absolute; color: #fff; font-weight: 900; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 3px solid #fff; z-index: 2; pointer-events: none; }
+        .badge-self { top: 0; right: 0; transform: translate(15%, -15%); }
+        .badge-others { top: 0; left: 0; transform: translate(-15%, -15%); background: #94a3b8; }
 
         .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.15); backdrop-filter: blur(5px); display: none; align-items: flex-end; justify-content: center; z-index: 1000; }
         .modal-overlay.active { display: flex; }
@@ -192,6 +199,7 @@
         const colors = ["#38bdf8", "#fb7185", "#34d399", "#fbbf24", "#a78bfa", "#f472b6", "#fb923c", "#0f172a"];
         let selC = colors[0];
 
+        // ✨ 座標ズレをなくした波紋生成
         function spawnRipple(x, y) {
             const numRings = Math.floor(Math.random() * 2) + 2; 
             const baseSize = 80 + Math.random() * 80; 
@@ -401,7 +409,9 @@
             });
             
             const add = document.createElement('div'); add.className = 'circle-block add-new'; add.style.width = add.style.height = size + 'px'; add.style.borderStyle = 'dashed'; add.innerHTML = `<span style="font-size:2.5rem; color:var(--primary)">＋</span>`; add.onclick = window.addBlock; el.appendChild(add);
-            if(window.dashSortable) window.dashSortable.destroy(); window.dashSortable = Sortable.create(el, { animation: 250, delay: 200, filter: '.add-new', onStart: () => { isDraggingCircle = true; }, onEnd: async (e) => { setTimeout(() => { isDraggingCircle = false; }, 50); if(e.oldIndex === e.newIndex) return; const moved = curPD.blocks.splice(e.oldIndex, 1)[0]; curPD.blocks.splice(e.newIndex, 0, moved); await save(); } });
+            if(window.dashSortable) window.dashSortable.destroy(); 
+            // ✨ スマホでもドラッグ＆ドロップできるように安全化
+            window.dashSortable = Sortable.create(el, { animation: 250, delay: 150, delayOnTouchOnly: true, fallbackOnBody: true, filter: '.add-new', onStart: () => { isDraggingCircle = true; }, onEnd: async (e) => { setTimeout(() => { isDraggingCircle = false; }, 50); if(e.oldIndex === e.newIndex) return; const moved = curPD.blocks.splice(e.oldIndex, 1)[0]; curPD.blocks.splice(e.newIndex, 0, moved); await save(); } });
         }
 
         window.openTaskM = (id) => { curBId = id; const b = curPD.blocks.find(x=>x.id==id); document.getElementById('m-title').value = b.title; document.getElementById('m-title').style.color = b.color; showCompletedTasks = false; renderTasks(); window.openM('modal'); };
@@ -443,29 +453,44 @@
             } 
             
             if(window.taskSortable) window.taskSortable.destroy(); 
+            // ✨ スマホでもドラッグ＆ドロップできるように安全化、かつ他人のタスク順序を破壊しない安全な保存ロジック
             window.taskSortable = Sortable.create(activeContainer, { 
-                animation: 150, handle: '.drag-handle', 
+                animation: 150, handle: '.drag-handle', delay: 150, delayOnTouchOnly: true, fallbackOnBody: true,
                 onEnd: async (e) => { 
                     if(e.oldIndex === e.newIndex) return; 
                     const moved = activeTasks.splice(e.oldIndex, 1)[0]; 
                     activeTasks.splice(e.newIndex, 0, moved); 
-                    const hiddenTasks = isManager ? [] : b.items.filter(i => i.assEmail !== user.email);
-                    b.items = [...activeTasks, ...completedTasks, ...hiddenTasks]; 
+                    
+                    let activeIdx = 0;
+                    b.items = b.items.map(item => {
+                        const isVisibleActive = isManager ? !item.completed : (!item.completed && item.assEmail === user.email);
+                        if (isVisibleActive) return activeTasks[activeIdx++];
+                        return item;
+                    });
                     await save(); 
                 } 
             }); 
         }
 
         window.addTask = async () => { const input = document.getElementById('t-input'), text = input.value.trim(); if(!text) return; const assE = document.getElementById('ass-sel').value; const profile = memberProfiles[assE] || { name: assE.split('@')[0], color: '#94a3b8' }; const b = curPD.blocks.find(x=>x.id==curBId); if(!b.items) b.items = []; b.items.unshift({ id: Date.now().toString(), text, completed: false, assName: profile.name, assEmail: assE, assColor: profile.color }); input.value = ''; await save(); };
-        window.toggleT = async (tid, color) => { const b = curPD.blocks.find(x=>x.id==curBId); const i = b.items.find(x=>x.id==tid); const wasCompleted = i.completed; i.completed = !i.completed; if (!wasCompleted && i.completed) { spawnFood(lastClickX, lastClickY, color); } 
-            const isManager = curPD.managers && curPD.managers.includes(user.email);
-            const visibleTasks = isManager ? b.items : b.items.filter(x => x.assEmail === user.email);
-            const active = visibleTasks.filter(x => !x.completed); 
-            const comp = visibleTasks.filter(x => x.completed); 
-            const hiddenTasks = isManager ? [] : b.items.filter(x => x.assEmail !== user.email);
-            b.items = [...active, ...comp, ...hiddenTasks]; 
+        
+        // ✨ タスク完了・未完了の安全な保存ロジック（完了は末尾へ、未完了は先頭へ）
+        window.toggleT = async (tid, color) => { 
+            const b = curPD.blocks.find(x=>x.id==curBId); 
+            const i = b.items.find(x=>x.id==tid); 
+            const wasCompleted = i.completed;
+            i.completed = !i.completed; 
+            if (!wasCompleted && i.completed) { spawnFood(lastClickX, lastClickY, color); } 
+            
+            b.items = b.items.filter(x => x.id !== tid);
+            if (i.completed) {
+                b.items.push(i);
+            } else {
+                b.items.unshift(i);
+            }
             await save(); 
         };
+
         window.editT = async (tid, txt) => { const b = curPD.blocks.find(x=>x.id==curBId); const i = b.items.find(x=>x.id==tid); if(i.text != txt){ i.text = txt; await save(); } };
         window.delT = async (tid) => { const b = curPD.blocks.find(x=>x.id==curBId); b.items = b.items.filter(x=>x.id!=tid); await save(); };
         window.saveName = async () => { const b = curPD.blocks.find(x=>x.id==curBId); const val = document.getElementById('m-title').value; if(b.title != val) { b.title = val; await save(); } };
