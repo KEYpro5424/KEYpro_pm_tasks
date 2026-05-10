@@ -74,24 +74,24 @@
         .dashboard { 
             display: flex; flex-wrap: wrap; justify-content: center; align-content: flex-start; 
             flex-grow: 1; overflow-y: auto; overflow-x: hidden; 
-            z-index: 20; padding: 20px 15px 60px; gap: 15px; width: 100%;
+            z-index: 20; padding: 30px 20px 80px; gap: 20px; width: 100%;
         }
         
         /* =========================================
-           ✨ 新UI：丸くコンパクトに収納される「島（グループ）」
+           ✨ 新UI：シンプルで美しい「グループ（閉じた状態はガラス玉）」
            ========================================= */
         .group-container {
             position: relative; box-sizing: border-box;
-            /* 閉じた時はタスクの丸と全く同じサイズ */
-            width: clamp(75px, 22vw, 120px); height: clamp(75px, 22vw, 120px);
+            /* ✨ PC用の固定サイズ（メディアクエリでスマホ用に縮小） */
+            width: 130px; height: 130px;
             border-radius: 50%; 
-            /* ✨ 一目で島（まとめ）だとわかる波打ち際（砂浜と海）のテクスチャー */
-            background: linear-gradient(135deg, #fde6b3 0%, #fde6b3 45%, #bae6fd 55%, #7dd3fc 100%);
-            border: 3px solid #fff;
-            box-shadow: 0 10px 25px rgba(2, 132, 199, 0.15);
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+            border: 3px double rgba(255, 255, 255, 0.8); /* タスクの丸とは違うダブルライン */
+            box-shadow: 0 10px 25px rgba(2, 132, 199, 0.1);
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             cursor: pointer; transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-            flex-shrink: 0; margin-top: 15px; /* バッジ用マージン */
+            flex-shrink: 0; margin-top: 10px; /* バッジ用マージン */
         }
 
         /* 開いた時は、横幅いっぱいのすりガラスパネルに美しく変形！ */
@@ -112,19 +112,17 @@
             background: rgba(255,255,255,0.2); border-radius: var(--radius-lg) var(--radius-lg) 0 0;
         }
 
-        .group-title-wrapper { display: flex; align-items: center; justify-content: center; width: 100%; padding: 0 10%; }
+        .group-title-wrapper { display: flex; align-items: center; justify-content: center; width: 100%; padding: 0 5%; }
         .group-container.open .group-title-wrapper { justify-content: flex-start; padding: 0; }
 
-        /* 島のタイトル（閉じた時は丸の中、開いた時はヘッダー左） */
         .group-title { 
             background: transparent; border: none; font-weight: 900; color: #0f172a; outline: none; 
             text-align: center; width: 100%; font-family: inherit; 
-            font-size: clamp(11px, 3vw, 15px);
-            pointer-events: none; /* 閉じている時は編集不可（ドラッグ優先） */
-            overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; white-space: normal;
+            font-size: 14px;
+            pointer-events: none; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; white-space: normal;
         }
         .group-container.open .group-title { 
-            font-size: 1.1rem; text-align: left; margin-left: 10px; pointer-events: auto; /* 開いたら編集可能 */
+            font-size: 1.1rem; text-align: left; margin-left: 10px; pointer-events: auto;
             white-space: nowrap; display: block;
         }
 
@@ -134,7 +132,7 @@
         .del-group-btn { display: none; background: rgba(255, 255, 255, 0.7); border: none; border-radius: 50%; width: 28px; height: 28px; font-size: 0.8rem; font-weight: 900; color: #64748b; cursor: pointer; flex-shrink: 0;}
         .group-container.open .del-group-btn { display: block; }
 
-        /* 閉じた状態でのサマリーバッジ（上にちょこんと乗る） */
+        /* 閉じた状態でのサマリーバッジ */
         .badge-wrapper {
             position: absolute; top: 0; left: 50%; transform: translate(-50%, -50%);
             display: flex; gap: 2px; z-index: 2; pointer-events: none; padding-left: 6px;
@@ -143,7 +141,7 @@
             position: static; transform: none; display: flex; flex-direction: row;
         }
         .badge-mini {
-            width: 18px; height: 18px; font-size: 10px; color: #fff; font-weight: 900;
+            width: 20px; height: 20px; font-size: 11px; color: #fff; font-weight: 900;
             border-radius: 50%; display: flex; align-items: center; justify-content: center;
             border: 2px solid #fff; margin-left: -6px;
         }
@@ -152,34 +150,48 @@
         .group-circles { display: none; flex-wrap: wrap; justify-content: center; align-items: center; padding: 25px 15px 35px; gap: 15px;}
         .group-container.open .group-circles { display: flex; }
 
-        /* 新しい島を追加するボタン（これも丸い） */
+        /* 新しいグループを追加するボタン */
         .add-new-group { 
-            width: clamp(75px, 22vw, 120px); height: clamp(75px, 22vw, 120px); margin-top: 15px;
+            width: 130px; height: 130px; margin-top: 10px;
             border-radius: 50%; border: 1px dashed rgba(15, 23, 42, 0.2); 
             display: flex; justify-content: center; align-items: center; 
-            background: rgba(255, 255, 255, 0.3); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);
             cursor: pointer; transition: background 0.2s; flex-shrink: 0;
         }
-        .add-new-group:hover { background: rgba(255, 255, 255, 0.5); }
-        .add-new-group span { font-size: clamp(20px, 6vw, 30px); color: var(--primary); font-weight: 900; }
+        .add-new-group:hover { background: rgba(255, 255, 255, 0.4); }
+        .add-new-group span { font-size: 30px; color: var(--primary); font-weight: 900; opacity: 0.5;}
 
         /* =========================================
            ✨ タスクの丸（Circle Block）
            ========================================= */
         .circle-block { 
             position: relative; box-sizing: border-box; border-radius: 50%; 
-            background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(255,255,255,0.6)); 
+            background: linear-gradient(135deg, rgba(255,255,255,1), rgba(255,255,255,0.7)); 
             display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; cursor: pointer; 
-            box-shadow: 0 10px 25px rgba(2, 132, 199, 0.15); user-select: none; -webkit-user-select: none; flex-shrink: 0; 
-            /* ✨ CSSのclampを使って、画面サイズに合わせて安全に自動可変！ */
-            width: clamp(75px, 22vw, 120px); height: clamp(75px, 22vw, 120px); 
-            border-width: 3px; border-style: solid; margin-top: 15px;
+            box-shadow: 0 8px 20px rgba(2, 132, 199, 0.15); user-select: none; -webkit-user-select: none; flex-shrink: 0; 
+            width: 110px; height: 110px; 
+            border: 2px solid #fff;
         }
-        .circle-title { font-weight: 900; line-height: 1.2; padding: 0 5%; pointer-events: none; overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; color:#0f172a; font-size: clamp(11px, 3vw, 15px);}
+        .circle-title { font-weight: 900; line-height: 1.2; padding: 0 5%; pointer-events: none; overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; color:#0f172a; font-size: 13px;}
 
+        /* タスク追加用の丸 */
         .circle-block.add-new {
-            border: 1px dashed rgba(15, 23, 42, 0.15); 
-            background: rgba(255, 255, 255, 0.3); 
+            border: 1px dashed rgba(15, 23, 42, 0.2); background: rgba(255, 255, 255, 0.2); 
+            box-shadow: none;
+        }
+        .circle-block.add-new span { font-size: 24px; color: var(--primary); opacity: 0.5; }
+
+        /* ✨ スマホ用のレスポンシブ設定（サイズを少し小さくして画面に収める） */
+        @media (max-width: 600px) {
+            .dashboard { padding: 20px 10px 60px; gap: 10px;}
+            .group-container { width: 85px; height: 85px; margin-top: 8px;}
+            .group-title { font-size: 11px; }
+            .add-new-group { width: 85px; height: 85px; margin-top: 8px;}
+            .add-new-group span { font-size: 24px; }
+            .circle-block { width: 75px; height: 75px; }
+            .circle-title { font-size: 10px; }
+            .badge-mini { width: 16px; height: 16px; font-size: 9px; }
+            .group-circles { gap: 10px; padding: 20px 10px 25px;}
         }
 
         .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.15); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); display: none; align-items: flex-end; justify-content: center; z-index: 1000; }
@@ -374,6 +386,7 @@
         window.openProfile = () => { document.getElementById('edit-n').value = myP.name; selC = myP.color || colors[0]; tempPhoto = myP.photo || ""; document.getElementById('edit-img').src = tempPhoto; buildColors('edit-colors'); window.openM('profile-m'); };
         window.saveProfile = async () => { const name = document.getElementById('edit-n').value; if(!name) return; myP.name = name; myP.color = selC; myP.photo = tempPhoto; await setDoc(doc(db, "users", user.uid), myP, {merge: true}); memberProfiles[user.email] = myP; updateHeaderIcon(); window.closeM('profile-m'); syncCurPJ(); };
 
+        // ✨ タイポ修正： stylewidth -> style="width..." 
         function updateHeaderIcon() { document.getElementById('header-user-icon').src = myP.photo || "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' fill='%2338bdf8' viewBox='0 0 24 24'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/></svg>"; }
 
         async function fetchMemberProfiles() {
@@ -437,7 +450,8 @@
                 const photo = (p && !p._isDummy && p.photo) ? p.photo : defaultIcon;
                 const isMgr = curPD.managers.includes(m);
                 const mgrCrown = isMgr ? '<span style="margin-left:2px;">🎐</span>' : '';
-                return `<div onclick="window.openManagerModal('${m}')" style="display:inline-flex; align-items:center; gap:4px; margin-right:8px; background:rgba(255,255,255,0.6); padding:2px 8px 2px 2px; border-radius:20px; flex-shrink:0; border: 1px solid #fff; cursor:pointer;"><img src="${photo}" stylewidth:16px;height:16px;border-radius:50%;object-fit:cover;background:#fff;"><span>${name}${mgrCrown}</span></div>`;
+                // ✨ タイポ修正済み
+                return `<div onclick="window.openManagerModal('${m}')" style="display:inline-flex; align-items:center; gap:4px; margin-right:8px; background:rgba(255,255,255,0.6); padding:2px 8px 2px 2px; border-radius:20px; flex-shrink:0; border: 1px solid #fff; cursor:pointer;"><img src="${photo}" style="width:16px;height:16px;border-radius:50%;object-fit:cover;background:#fff;"><span>${name}${mgrCrown}</span></div>`;
             }).join('');
             document.getElementById('mem-count').innerHTML = html || "-";
         }
