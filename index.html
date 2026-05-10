@@ -19,6 +19,11 @@
             --radius-xl: 32px; --radius-lg: 24px;
         }
 
+        /* ✨ スマホでタップした時の変なグレーの点滅を完全に無効化 */
+        * {
+            -webkit-tap-highlight-color: transparent;
+        }
+
         @keyframes aurora { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
 
         body {
@@ -29,7 +34,6 @@
             position: relative;
         }
 
-        /* ✨ 四角いタイルのバグを完全に防ぐため、mix-blend-modeを廃止し、巨大なグラデーションの回転アニメーションに変更 */
         body::before {
             content: ""; position: fixed; top: -50%; left: -50%; width: 200%; height: 200%; z-index: -1; pointer-events: none; 
             background-image: 
@@ -43,19 +47,17 @@
             100% { transform: rotate(10deg) scale(1.05); }
         }
 
+        /* ✨ 悪さをしていた backdrop-filter を完全削除し、四角いバグを撲滅。シャドウだけで水面を表現 */
         .ripple {
             position: fixed; border-radius: 50%;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            box-shadow: 0 0 10px rgba(255, 255, 255, 0.6), inset 0 0 20px rgba(135, 206, 235, 0.4);
-            backdrop-filter: blur(1.5px) brightness(1.05);
-            -webkit-backdrop-filter: blur(1.5px) brightness(1.05);
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 0 8px rgba(255, 255, 255, 0.7), inset 0 0 15px rgba(255, 255, 255, 0.4);
             pointer-events: none; z-index: 9999;
             transform-origin: center;
             animation: rippleAnim cubic-bezier(0.15, 0.6, 0.3, 1) forwards;
         }
-        /* ✨ CSS側で「確実に中心をタップ位置に合わせる」記述（JSでの計算は不要） */
         @keyframes rippleAnim {
-            0% { transform: translate(-50%, -50%) scale(0); opacity: 1; border-width: 6px; }
+            0% { transform: translate(-50%, -50%) scale(0); opacity: 1; border-width: 4px; }
             100% { transform: translate(-50%, -50%) scale(1); opacity: 0; border-width: 0px; }
         }
 
@@ -182,7 +184,7 @@
 
     <div id="dashboard" class="dashboard"></div>
 
-    <div id="modal" class="modal-overlay" onclick="if(event.target==this)window.closeM('modal')"><div class="modal-content"><div class="modal-header"><input type="text" id="m-title" class="modal-title-input" onblur="window.saveName()"><button class="close-btn" onclick="window.closeM('modal')">✕</button></div><div id="active-task-list" class="task-list" style="margin-bottom: 0;"></div><div id="completed-task-section" style="padding: 0 24px 10px; flex-shrink: 0;"></div><div class="add-area"><select id="ass-sel" class="assign-sel"></select><input type="text" id="t-input" class="add-input" placeholder="タスクを追加..." onkeypress="if(event.key=='Enter')window.addTask()"><button class="add-btn" onclick="window.addTask()">追加</button></div><button style="color:#f43f5e; border:none; background:none; padding:15px; font-weight:900; cursor:pointer;" onclick="window.delBlock()">🗑 このカテゴリを削除</button></div></div>
+    <div id="modal" class="modal-overlay" onclick="if(event.target==this)window.closeM('modal')"><div class="modal-content"><div class="modal-header"><input type="text" id="m-title" class="modal-title-input" onblur="window.saveName()"><button class="close-btn" onclick="window.closeM('modal')">✕</button></div><div id="active-task-list" class="task-list" style="margin-bottom: 0;"></div><div id="completed-task-section" style="padding: 0 24px 10px; flex-shrink: 0;"></div><div class="add-area"><select id="ass-sel" class="assign-sel"></select><input type="text" id="t-input" class="add-input" placeholder="タスクを追加..." onkeydown="if(event.key === 'Enter') { window.addTask(); event.preventDefault(); }"><button class="add-btn" onclick="window.addTask()">追加</button></div><button style="color:#f43f5e; border:none; background:none; padding:15px; font-weight:900; cursor:pointer;" onclick="window.delBlock()">🗑 このカテゴリを削除</button></div></div>
     <div id="new-p-m" class="modal-overlay" onclick="if(event.target==this)window.closeM('new-p-m')"><div class="modal-content" style="padding:30px; height:auto;"><h2>新規PJ作成</h2><input type="text" id="new-p-t" class="add-input" style="width:100%; box-sizing:border-box; margin-bottom:20px;" placeholder="PJ名"><button class="add-btn" style="width:100%; padding:15px; background:#34d399;" onclick="window.createPJ()">作成</button></div></div>
     <div id="invite-m" class="modal-overlay" onclick="if(event.target==this)window.closeM('invite-m')"><div class="modal-content" style="padding:30px; height:auto;"><h2>招待</h2><input type="email" id="inv-e" class="add-input" style="width:100%; box-sizing:border-box; margin-bottom:20px;" placeholder="email@gmail.com"><button class="add-btn" style="width:100%; padding:15px; background:#8b5cf6;" onclick="window.sendInv()">招待を送る</button></div></div>
 
@@ -209,8 +211,6 @@
         const colors = ["#38bdf8", "#fb7185", "#34d399", "#fbbf24", "#a78bfa", "#f472b6", "#fb923c", "#0f172a"];
         let selC = colors[0];
 
-        // ✨ ズレの原因だったJS側の中央寄せ計算を削除しました。
-        // タップしたXY座標をそのまま要素の位置（CSSでtransform: translate(-50%, -50%)が効く状態）に渡します。
         function spawnRipple(x, y) {
             const numRings = Math.floor(Math.random() * 2) + 2; 
             const baseSize = 80 + Math.random() * 80; 
@@ -223,7 +223,6 @@
 
                 setTimeout(() => {
                     const ripple = document.createElement('div'); ripple.className = 'ripple'; 
-                    // タップした座標（x, y）をそのままleft/topに設定
                     ripple.style.left = x + 'px'; ripple.style.top = y + 'px';
                     const finalSize = baseSize * scaleModifier; const finalDuration = baseDuration * durationModifier;
                     ripple.style.width = finalSize + 'px'; ripple.style.height = finalSize + 'px'; 
@@ -377,396 +376,6 @@
             
             const isMobile = window.innerWidth < 600;
             const gapSize = isMobile ? 12 : 20;
-            const padTop = isMobileはい、タップした場所に「波紋」が生まれるように、位置ズレの修正を完全に完了しました！
-
-前回の「背景のドット（四角い濃淡）バグ」の修正に加え、今回はタップイベントが発生した座標を中心点として、波紋のエフェクトがずれることなく発生するようにコードを調整しています。
-
-これで、どの画面をタップしても、指のど真ん中からリアルな水面の波紋が広がります。鯉の成長や、責任者の風鈴マーク、ショートカットでのタスク追加など、これまでの機能はすべて引き継いでいます。
-
-以下の最新の完全版コードを `index.html` に上書き保存してください！
-
-### 完全版コード (`index.html`)
-
-```html
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PM CORE - Aqua Koi Edition</title>
-    
-    <link rel="preconnect" href="[https://fonts.googleapis.com](https://fonts.googleapis.com)">
-    <link rel="preconnect" href="[https://fonts.gstatic.com](https://fonts.gstatic.com)" crossorigin>
-    <link href="[https://fonts.googleapis.com/css2?family=Nunito:wght@700;900&family=Zen+Maru+Gothic:wght@500;700;900&display=swap](https://fonts.googleapis.com/css2?family=Nunito:wght@700;900&family=Zen+Maru+Gothic:wght@500;700;900&display=swap)" rel="stylesheet">
-    <script src="[https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js](https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js)"></script>
-
-    <style>
-        :root {
-            --bg-1: #e0f2fe; --bg-2: #bae6fd; --bg-3: #7dd3fc; --bg-4: #e0f2fe;
-            --surface: rgba(255, 255, 255, 0.75);
-            --text: #0f172a; --text-m: #64748b;
-            --primary: #0ea5e9; 
-            --radius-xl: 32px; --radius-lg: 24px;
-        }
-
-        @keyframes aurora { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
-
-        body {
-            font-family: 'Nunito', 'Zen Maru Gothic', sans-serif;
-            margin: 0; background: linear-gradient(-45deg, var(--bg-1), var(--bg-2), var(--bg-3), var(--bg-4));
-            background-size: 400% 400%; animation: aurora 15s ease infinite;
-            display: flex; flex-direction: column; height: 100dvh; overflow: hidden; color: var(--text);
-            position: relative;
-        }
-
-        /* ✨ 背景の四角いブロック（タイル状バグ）を解消するため、mix-blend-modeを廃止し、巨大なグラデーションの回転アニメーションに変更 */
-        body::before {
-            content: ""; position: fixed; top: -50%; left: -50%; width: 200%; height: 200%; z-index: -1; pointer-events: none; 
-            background-image: 
-                radial-gradient(circle at 50% 50%, rgba(255,255,255,0.25) 0%, transparent 30%),
-                radial-gradient(circle at 20% 30%, rgba(255,255,255,0.3) 0%, transparent 40%),
-                radial-gradient(circle at 80% 70%, rgba(255,255,255,0.2) 0%, transparent 35%);
-            animation: waterShimmer 12s infinite alternate ease-in-out;
-        }
-        @keyframes waterShimmer {
-            0% { transform: rotate(0deg) scale(1); }
-            100% { transform: rotate(10deg) scale(1.05); }
-        }
-
-        .ripple {
-            position: fixed; border-radius: 50%;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            box-shadow: 0 0 10px rgba(255, 255, 255, 0.6), inset 0 0 20px rgba(135, 206, 235, 0.4);
-            backdrop-filter: blur(1.5px) brightness(1.05);
-            -webkit-backdrop-filter: blur(1.5px) brightness(1.05);
-            pointer-events: none; z-index: 9999;
-            transform-origin: center;
-            animation: rippleAnim cubic-bezier(0.15, 0.6, 0.3, 1) forwards;
-        }
-        /* ✨ CSSのtransformだけで「タップ位置の中心」を調整するよう記述 */
-        @keyframes rippleAnim {
-            0% { transform: translate(-50%, -50%) scale(0); opacity: 1; border-width: 6px; }
-            100% { transform: translate(-50%, -50%) scale(1); opacity: 0; border-width: 0px; }
-        }
-
-        .fish-food {
-            position: fixed; width: 12px; height: 12px; border-radius: 50%;
-            transform: translate(-50%, -50%); box-shadow: 0 0 8px rgba(255,255,255,0.9);
-            z-index: 10; animation: floatFood 1.5s infinite ease-in-out; pointer-events: none;
-        }
-        @keyframes floatFood {
-            0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.9; }
-            50% { transform: translate(-50%, -50%) scale(1.3); opacity: 0.5; }
-        }
-
-        #loading-screen { position: fixed; inset: 0; background: #fff; z-index: 10000; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.5s ease; }
-        .loader { width: 60px; height: 60px; border: 8px solid var(--bg-2); border-top: 8px solid var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-        .top-bar { display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; background: rgba(255,255,255,0.5); backdrop-filter: blur(10px); border-bottom: 2px solid rgba(255,255,255,0.6); z-index: 20;}
-        .project-select { padding: 8px 15px; border-radius: 50px; border: 2px solid #fff; font-weight: 900; font-family: inherit; color: #0284c7; background: var(--surface); cursor: pointer; outline:none; }
-        
-        header { padding: 15px 20px 5px; display: flex; justify-content: space-between; align-items: flex-start; z-index: 20;}
-        .header-titles h1 { margin: 0; font-size: 1.6rem; font-weight: 900; color:#0f172a;}
-        .header-titles .mem-list { margin: 6px 0 0 0; font-size: 0.8rem; font-weight: 800; color: #0f172a; display: flex; overflow-x: auto; scrollbar-width: none; width: 75vw; padding-bottom: 5px;}
-        .header-titles .mem-list::-webkit-scrollbar { display: none; }
-        
-        .icon-btn { background: var(--surface); border: 2px solid #fff; color: var(--primary); width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.1); transition: 0.2s; flex-shrink: 0;}
-        .icon-btn:hover { transform: scale(1.05); }
-        .icon-btn img { width: 100%; height: 100%; object-fit: cover; }
-
-        .dashboard { display: flex; flex-wrap: wrap; justify-content: center; align-content: flex-start; flex-grow: 1; overflow-y: auto; z-index: 20; }
-        .circle-block { position: relative; box-sizing: border-box; border-radius: 50%; background: linear-gradient(135deg, rgba(255,255,255,0.85), rgba(255,255,255,0.4)); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; cursor: pointer; box-shadow: 0 10px 25px rgba(2, 132, 199, 0.15); backdrop-filter: blur(5px); user-select: none; -webkit-user-select: none; flex-shrink: 0; }
-        .circle-title { font-weight: 900; line-height: 1.2; padding: 0 10%; pointer-events: none; overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; color:#0f172a;}
-
-        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.15); backdrop-filter: blur(5px); display: none; align-items: flex-end; justify-content: center; z-index: 1000; }
-        .modal-overlay.active { display: flex; }
-        .modal-content { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(15px); width: 100%; max-height: 85vh; border-radius: var(--radius-xl) var(--radius-xl) 0 0; display: flex; flex-direction: column; animation: slideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); box-shadow: 0 -10px 40px rgba(0,0,0,0.1); }
-        @media (min-width: 600px) { .modal-overlay { align-items: center; } .modal-content { width: 450px; border-radius: var(--radius-xl); animation: fadeInScale 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); box-shadow: 0 10px 40px rgba(0,0,0,0.1);} }
-        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-        @keyframes fadeInScale { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
-
-        .modal-header { padding: 20px 24px; display: flex; justify-content: space-between; align-items: center; }
-        .modal-title-input { font-family: inherit; border: none; font-size: 1.5rem; font-weight: 900; width: 100%; outline: none; color:#0f172a; background:transparent;}
-        .close-btn { background: #f1f5f9; border: none; width: 32px; height: 32px; border-radius: 50%; font-weight: 900; cursor: pointer; color:var(--text-m);}
-
-        .task-list { padding: 0 24px; overflow-y: auto; flex-grow: 1; }
-        .task-item { display: flex; align-items: center; padding: 12px; margin-bottom: 10px; background: rgba(248, 250, 252, 0.8); border-radius: var(--radius-lg); border: 2px solid #e2e8f0; }
-        .drag-handle { cursor: grab; padding: 5px; margin-right: 10px; color: #cbd5e1; font-size: 1.2rem; user-select: none; }
-        .task-checkbox { appearance: none; width: 22px; height: 22px; border-radius: 6px; border: 3px solid #cbd5e1; margin-right: 12px; cursor: pointer; position: relative; }
-        .task-checkbox:checked { background: var(--primary); border-color: var(--primary); }
-        .task-checkbox:checked::after { content: '✔'; position: absolute; inset: 0; color: #fff; font-size: 12px; display: flex; align-items: center; justify-content: center; }
-        .task-content { flex-grow: 1; display: flex; flex-direction: column; }
-        .task-text { font-family: inherit; font-weight: 700; outline: none; color:#0f172a;}
-        .task-item.completed .task-text { text-decoration: line-through; opacity: 0.5; }
-        .task-tag { font-size: 0.7rem; font-weight: 900; padding: 3px 8px 3px 4px; border-radius: 12px; color: #fff; margin-top: 4px; display: inline-flex; align-items: center; gap: 4px; width: fit-content; }
-
-        .toggle-completed-btn { background: transparent; border: 2px dashed #cbd5e1; color: #64748b; font-weight: 800; padding: 10px 20px; border-radius: 50px; font-size: 0.85rem; cursor: pointer; margin-bottom: 15px; width: 100%; font-family: inherit; transition: 0.2s; }
-        .toggle-completed-btn:hover { border-color: var(--primary); color: var(--primary); background: #f0f9ff;}
-
-        .add-area { padding: 20px 24px; display: flex; gap: 8px; border-top: 2px dashed #f1f5f9; }
-        .assign-sel { padding: 10px; border-radius: 10px; border: 2px solid #f1f5f9; font-weight: 800; font-family: inherit; color:#0f172a; outline: none; max-width: 140px;}
-        .add-input { flex-grow: 1; padding: 10px 15px; border-radius: 10px; border: 2px solid #f1f5f9; font-family: inherit; font-weight: 800; outline: none; }
-        .add-btn { background: var(--primary); color: #fff; border: none; padding: 0 15px; border-radius: 10px; font-weight: 900; cursor: pointer; }
-
-        .auth-overlay { position: fixed; inset: 0; background: #fff; z-index: 9999; display: flex; align-items: center; justify-content: center; text-align: center; }
-        .auth-card { padding: 40px; width: 85%; max-width: 320px; }
-        .google-login { width: 100%; padding: 15px; border-radius: 50px; border: 2px solid #f1f5f9; background: #fff; font-weight: 900; font-family: inherit; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
-        .color-opt { width: 35px; height: 35px; border-radius: 50%; border: 3px solid #fff; cursor: pointer; transition: 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .color-opt.selected { transform: scale(1.2); border-color: #0f172a; box-shadow: 0 4px 10px rgba(0,0,0,0.2);}
-
-        .profile-img-btn { position: relative; width: 80px; height: 80px; border-radius: 50%; border: 4px solid #fff; box-shadow: 0 5px 15px rgba(0,0,0,0.1); margin: 0 auto 20px; cursor: pointer; overflow: hidden; background: #f1f5f9; display: flex; align-items: center; justify-content: center;}
-        .profile-img-btn img { width: 100%; height: 100%; object-fit: cover; }
-        .profile-img-btn::after { content: '📷'; position: absolute; bottom: 0; left: 0; width: 100%; background: rgba(0,0,0,0.4); color: #fff; font-size: 0.8rem; padding: 4px 0; text-align: center; }
-        input[type="file"] { display: none; }
-    </style>
-</head>
-<body>
-
-    <svg id="koi-fish" viewBox="0 0 200 400" style="position:fixed; width:80px; height:160px; pointer-events:none; z-index: 5; transform-origin: center center; opacity: 0.95; filter: drop-shadow(0px 15px 20px rgba(0,0,0,0.25));">
-        <defs><radialGradient id="bodyGrad" cx="50%" cy="40%" r="60%"><stop offset="0%" stop-color="#ffffff"/><stop offset="80%" stop-color="#f1f5f9"/><stop offset="100%" stop-color="#cbd5e1"/></radialGradient></defs>
-        <path id="koi-fin-tail" d="M100,280 C130,330 140,380 100,390 C60,380 70,330 100,280 Z" fill="rgba(255,255,255,0.5)" stroke="#cbd5e1" stroke-width="1"/><path id="koi-fin-tail-2" d="M100,280 C115,320 120,360 100,380 C80,360 85,320 100,280 Z" fill="rgba(255,255,255,0.8)"/>
-        <path id="koi-fin-chest-l" d="M70,120 C20,130 10,180 50,200 C60,180 65,150 70,120 Z" fill="rgba(255,255,255,0.6)" stroke="#cbd5e1" stroke-width="1"/><path id="koi-fin-chest-r" d="M130,120 C180,130 190,180 150,200 C140,180 135,150 130,120 Z" fill="rgba(255,255,255,0.6)" stroke="#cbd5e1" stroke-width="1"/>
-        <path id="koi-fin-belly-l" d="M80,220 C50,240 50,270 75,260 Z" fill="rgba(255,255,255,0.6)"/><path id="koi-fin-belly-r" d="M120,220 C150,240 150,270 125,260 Z" fill="rgba(255,255,255,0.6)"/>
-        <path id="koi-body" d="M100,20 C140,40 150,140 125,240 C110,290 100,300 100,300 C100,300 90,290 75,240 C50,140 60,40 100,20 Z" fill="url(#bodyGrad)"/>
-        <path id="koi-mark-red-1" d="M100,20 C120,30 130,60 110,80 C90,100 70,80 80,40 C85,25 90,20 100,20 Z" fill="#ea580c"/><path id="koi-mark-red-2" d="M130,110 C145,130 140,170 115,190 C90,180 110,140 130,110 Z" fill="#ea580c"/><path id="koi-mark-red-3" d="M70,150 C90,140 100,170 85,210 C65,190 55,170 70,150 Z" fill="#ea580c"/><path id="koi-mark-red-4" d="M100,230 C120,240 115,270 100,280 C85,270 80,240 100,230 Z" fill="#ea580c"/>
-        <path id="koi-mark-black-1" d="M80,90 C95,95 90,120 75,115 C65,105 70,90 80,90 Z" fill="#1e293b"/><path id="koi-mark-black-2" d="M120,190 C135,200 125,230 110,225 C100,210 110,195 120,190 Z" fill="#1e293b"/><path id="koi-mark-black-3" d="M85,215 C95,220 90,240 80,235 C75,225 80,215 85,215 Z" fill="#1e293b"/>
-        <circle id="koi-eye-l" cx="75" cy="55" r="4" fill="#0f172a"/><circle id="koi-eye-l-iris" cx="74" cy="54" r="1.5" fill="#ffffff"/><circle id="koi-eye-r" cx="125" cy="55" r="4" fill="#0f172a"/><circle id="koi-eye-r-iris" cx="124" cy="54" r="1.5" fill="#ffffff"/>
-        <path id="koi-whisker-l" d="M85,25 Q70,10 65,15" fill="none" stroke="#e2e8f0" stroke-width="2" stroke-linecap="round"/><path id="koi-whisker-r" d="M115,25 Q130,10 135,15" fill="none" stroke="#e2e8f0" stroke-width="2" stroke-linecap="round"/>
-    </svg>
-
-    <div id="loading-screen"><div class="loader"></div><p style="margin-top:20px; font-weight:900; color:var(--primary)">Loading PM Tasks...</p></div>
-
-    <div id="auth-screen" class="auth-overlay" style="display:none;">
-        <div class="auth-card" id="login-v"><h2 style="font-weight:900; font-size:2rem; color:#0f172a;">PM Tasks</h2><button class="google-login" onclick="window.login()"><svg width="20" height="20" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>Googleでログイン</button></div>
-        <div class="auth-card" id="setup-v" style="display:none;"><h2 style="font-weight:900; color:#0f172a;">Profile Setup</h2><label class="profile-img-btn"><img id="setup-img" src="" alt="icon"><input type="file" accept="image/*" onchange="window.handleImageUpload(event, 'setup-img')"></label><input type="text" id="setup-n" style="width:100%; padding:12px; border-radius:10px; border:2px solid #f1f5f9; margin-bottom:20px; text-align:center; font-family:inherit; font-weight:800;" placeholder="なまえ"><div id="setup-colors" style="display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:30px;"></div><button class="google-login" style="background:var(--primary); color:#fff;" onclick="window.finishSetup()">スタート！</button></div>
-    </div>
-
-    <div id="manager-m" class="modal-overlay" onclick="if(event.target==this)window.closeM('manager-m')">
-        <div class="modal-content" style="padding:30px; height:auto; text-align:center;">
-            <h2 style="margin:0 0 20px; font-weight:900;">メンバー権限</h2>
-            <div id="manager-target-name" style="font-weight:800; margin-bottom: 20px; color: var(--primary); font-size: 1.2rem;"></div>
-            <label style="display:flex; align-items:center; justify-content:center; gap:10px; font-weight:800; cursor:pointer;">
-                <input type="checkbox" id="manager-checkbox" style="width:20px; height:20px;"> 責任者にする（すべてのタスクを管理）
-            </label>
-            <button class="add-btn" style="width:100%; padding:15px; margin-top:30px;" onclick="window.saveManager()">権限を更新する</button>
-        </div>
-    </div>
-
-    <div id="profile-m" class="modal-overlay" onclick="if(event.target==this)window.closeM('profile-m')"><div class="modal-content" style="padding:30px; height:auto; text-align:center;"><h2 style="margin:0 0 20px; font-weight:900;">プロフィール編集</h2><label class="profile-img-btn"><img id="edit-img" src="" alt="icon"><input type="file" accept="image/*" onchange="window.handleImageUpload(event, 'edit-img')"></label><input type="text" id="edit-n" class="add-input" style="width:100%; box-sizing:border-box; margin-bottom:20px; text-align:center;" placeholder="表示名"><div id="edit-colors" style="display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:30px;"></div><button class="add-btn" style="width:100%; padding:15px; margin-bottom:10px;" onclick="window.saveProfile()">保存する</button><button style="background:transparent; border:none; color:#f43f5e; font-weight:900; cursor:pointer; padding:10px;" onclick="window.logout()">ログアウト</button></div></div>
-
-    <div class="top-bar">
-        <select id="proj-sel" class="project-select" onchange="window.switchProj()"></select>
-        <div style="display:flex; gap:8px;"><button class="add-btn" style="padding:8px 12px; font-size:0.75rem; background:#8b5cf6;" onclick="window.openM('invite-m')">招待</button><button class="add-btn" style="padding:8px 12px; font-size:0.75rem; background:#34d399;" onclick="window.openM('new-p-m')">＋ 新規PJ</button></div>
-    </div>
-
-    <header>
-        <div class="header-titles">
-            <h1 id="header-pj-name">Workspace</h1>
-            <div id="mem-count" class="mem-list"></div>
-        </div>
-        <div style="display:flex; gap:10px;">
-            <button class="icon-btn" onclick="window.openProfile()"><img id="header-user-icon" src="" alt="👤"></button>
-        </div>
-    </header>
-
-    <div id="dashboard" class="dashboard"></div>
-
-    <div id="modal" class="modal-overlay" onclick="if(event.target==this)window.closeM('modal')"><div class="modal-content"><div class="modal-header"><input type="text" id="m-title" class="modal-title-input" onblur="window.saveName()"><button class="close-btn" onclick="window.closeM('modal')">✕</button></div><div id="active-task-list" class="task-list" style="margin-bottom: 0;"></div><div id="completed-task-section" style="padding: 0 24px 10px; flex-shrink: 0;"></div><div class="add-area"><select id="ass-sel" class="assign-sel"></select><input type="text" id="t-input" class="add-input" placeholder="タスクを追加..." onkeypress="if(event.key=='Enter')window.addTask()"><button class="add-btn" onclick="window.addTask()">追加</button></div><button style="color:#f43f5e; border:none; background:none; padding:15px; font-weight:900; cursor:pointer;" onclick="window.delBlock()">🗑 このカテゴリを削除</button></div></div>
-    <div id="new-p-m" class="modal-overlay" onclick="if(event.target==this)window.closeM('new-p-m')"><div class="modal-content" style="padding:30px; height:auto;"><h2>新規PJ作成</h2><input type="text" id="new-p-t" class="add-input" style="width:100%; box-sizing:border-box; margin-bottom:20px;" placeholder="PJ名"><button class="add-btn" style="width:100%; padding:15px; background:#34d399;" onclick="window.createPJ()">作成</button></div></div>
-    <div id="invite-m" class="modal-overlay" onclick="if(event.target==this)window.closeM('invite-m')"><div class="modal-content" style="padding:30px; height:auto;"><h2>招待</h2><input type="email" id="inv-e" class="add-input" style="width:100%; box-sizing:border-box; margin-bottom:20px;" placeholder="email@gmail.com"><button class="add-btn" style="width:100%; padding:15px; background:#8b5cf6;" onclick="window.sendInv()">招待を送る</button></div></div>
-
-    <script type="module">
-        import { initializeApp } from "[https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js](https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js)";
-        import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, setPersistence, browserLocalPersistence, onAuthStateChanged, signOut } from "[https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js](https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js)";
-        import { getFirestore, collection, doc, setDoc, getDoc, getDocs, onSnapshot, query, where, addDoc } from "[https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js](https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js)";
-
-        const firebaseConfig = { apiKey: "AIzaSyAKBwm7j4-A__682dRZKXULXeLMX-zLPKE", authDomain: "pm-tasks-f9303.firebaseapp.com", projectId: "pm-tasks-f9303", storageBucket: "pm-tasks-f9303.firebasestorage.app", messagingSenderId: "87002903557", appId: "1:87002903557:web:e48d9ff3e807d7631a586c", measurementId: "G-S61N34YF93" };
-        const app = initializeApp(firebaseConfig); 
-        const auth = getAuth(app); 
-        const db = getFirestore(app); 
-        const provider = new GoogleAuthProvider();
-
-        setPersistence(auth, browserLocalPersistence);
-
-        getRedirectResult(auth).catch(error => { console.error("Login Error:", error); });
-
-        let user = null, myP = null, pjs = [], curPId = null, curPD = null, curBId = null, tempPhoto = "";
-        let isDraggingCircle = false; let showCompletedTasks = false; let memberProfiles = {};
-        let lastClickX = window.innerWidth / 2; let lastClickY = window.innerHeight / 2;
-        let targetManagerEmail = null;
-        
-        const colors = ["#38bdf8", "#fb7185", "#34d399", "#fbbf24", "#a78bfa", "#f472b6", "#fb923c", "#0f172a"];
-        let selC = colors[0];
-
-        // ✨ ズレの原因だったJS側の中央寄せ計算（マイナスマージン）を完全に削除しました。
-        // タップしたXY座標をそのまま要素の位置（CSSでtransform: translate(-50%, -50%)が効く状態）に渡します。
-        function spawnRipple(x, y) {
-            const numRings = Math.floor(Math.random() * 2) + 2; 
-            const baseSize = 80 + Math.random() * 80; 
-            const baseDuration = 1.0 + Math.random() * 0.5;
-
-            for (let i = 0; i < numRings; i++) {
-                const delay = i * 200 + Math.random() * 50; 
-                const scaleModifier = 1 - (i * 0.1); 
-                const durationModifier = 1 + (i * 0.2); 
-
-                setTimeout(() => {
-                    const ripple = document.createElement('div'); ripple.className = 'ripple'; 
-                    // タップした座標（x, y）をそのままleft/topに設定
-                    ripple.style.left = x + 'px'; ripple.style.top = y + 'px';
-                    const finalSize = baseSize * scaleModifier; const finalDuration = baseDuration * durationModifier;
-                    ripple.style.width = finalSize + 'px'; ripple.style.height = finalSize + 'px'; 
-                    ripple.style.animationDuration = finalDuration + 's';
-                    
-                    document.body.appendChild(ripple); setTimeout(() => ripple.remove(), finalDuration * 1000); 
-                }, delay);
-            }
-        }
-
-        document.addEventListener('click', (e) => { lastClickX = e.clientX; lastClickY = e.clientY; spawnRipple(e.clientX, e.clientY); });
-
-        function buildColors(containerId) {
-            const ctn = document.getElementById(containerId); ctn.innerHTML = '';
-            colors.forEach(c => {
-                const dv = document.createElement('div'); dv.className = 'color-opt'; dv.style.background = c;
-                if(c == selC) dv.classList.add('selected');
-                dv.onclick = () => { ctn.querySelectorAll('.color-opt').forEach(x=>x.classList.remove('selected')); dv.classList.add('selected'); selC = c; };
-                ctn.appendChild(dv);
-            });
-        }
-
-        window.handleImageUpload = (event, imgId) => {
-            const file = event.target.files[0]; if(!file) return;
-            const reader = new FileReader(); reader.onload = (e) => {
-                const img = new Image(); img.onload = () => {
-                    const canvas = document.createElement('canvas'); const size = 150; canvas.width = size; canvas.height = size;
-                    const ctx = canvas.getContext('2d'); const min = Math.min(img.width, img.height);
-                    ctx.drawImage(img, (img.width-min)/2, (img.height-min)/2, min, min, 0, 0, size, size);
-                    tempPhoto = canvas.toDataURL('image/jpeg', 0.8); document.getElementById(imgId).src = tempPhoto;
-                }; img.src = e.target.result;
-            }; reader.readAsDataURL(file);
-        };
-
-        onAuthStateChanged(auth, async (u) => {
-            if (u) {
-                user = u; const d = await getDoc(doc(db, "users", u.uid));
-                if (d.exists()) { myP = d.data(); myP._isDummy = false; memberProfiles[user.email] = myP; updateHeaderIcon(); loadPJs(); } else { showSetup(); }
-            } else { document.getElementById('auth-screen').style.display = 'flex'; hideLoading(); }
-        });
-
-        window.login = () => {
-            const isPWA = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
-            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-            if (isPWA || isMobile) { signInWithRedirect(auth, provider); } else { signInWithPopup(auth, provider); }
-        };
-        
-        window.logout = () => signOut(auth);
-
-        function showSetup() { document.getElementById('auth-screen').style.display = 'flex'; document.getElementById('login-v').style.display = 'none'; document.getElementById('setup-v').style.display = 'block'; document.getElementById('setup-n').value = user.displayName; tempPhoto = user.photoURL || ""; document.getElementById('setup-img').src = tempPhoto; buildColors('setup-colors'); hideLoading(); }
-        
-        window.finishSetup = async () => { const name = document.getElementById('setup-n').value; if(!name) return alert("なまえ入力してね"); myP = { email: user.email, name, color: selC, photo: tempPhoto }; await setDoc(doc(db, "users", user.uid), myP); myP._isDummy = false; memberProfiles[user.email] = myP; await addDoc(collection(db, "projects"), { title: "My Tasks", members: [user.email], managers: [user.email], blocks: [], koiSize: 0.5 }); location.reload(); };
-        
-        window.openProfile = () => { document.getElementById('edit-n').value = myP.name; selC = myP.color || colors[0]; tempPhoto = myP.photo || ""; document.getElementById('edit-img').src = tempPhoto; buildColors('edit-colors'); window.openM('profile-m'); };
-        window.saveProfile = async () => { const name = document.getElementById('edit-n').value; if(!name) return; myP.name = name; myP.color = selC; myP.photo = tempPhoto; await setDoc(doc(db, "users", user.uid), myP, {merge: true}); memberProfiles[user.email] = myP; updateHeaderIcon(); window.closeM('profile-m'); syncCurPJ(); };
-
-        function updateHeaderIcon() { document.getElementById('header-user-icon').src = myP.photo || "data:image/svg+xml;utf8,<svg xmlns='[http://www.w3.org/2000/svg](http://www.w3.org/2000/svg)' fill='%2338bdf8' viewBox='0 0 24 24'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/></svg>"; }
-
-        async function fetchMemberProfiles() {
-            if (!curPD || !curPD.members) return;
-            let needsUpdate = false;
-            for (const email of curPD.members) {
-                if (!memberProfiles[email] || memberProfiles[email]._isDummy) {
-                    const q = query(collection(db, "users"), where("email", "==", email));
-                    const qs = await getDocs(q);
-                    if (!qs.empty) {
-                        memberProfiles[email] = qs.docs[0].data();
-                        memberProfiles[email]._isDummy = false;
-                        needsUpdate = true;
-                    } else if (!memberProfiles[email]) {
-                        memberProfiles[email] = { name: email.split('@')[0], color: '#94a3b8', _isDummy: true };
-                        needsUpdate = true;
-                    }
-                }
-            }
-            if (needsUpdate) {
-                updateHeaderMembers(); updateAssList(); renderDash();
-                if(curBId) renderTasks();
-            }
-        }
-
-        function loadPJs() {
-            const q = query(collection(db, "projects"), where("members", "array-contains", user.email));
-            onSnapshot(q, (sn) => {
-                pjs = sn.docs.map(d => ({ id: d.id, data: d.data() }));
-                updateProjList();
-                const savedProjId = localStorage.getItem('last_proj_id');
-                if (pjs.length > 0) {
-                    if (savedProjId && pjs.find(p => p.id === savedProjId)) { curPId = savedProjId; } 
-                    else if (!curPId || !pjs.find(p => p.id === curPId)) { curPId = pjs[0].id; }
-                    document.getElementById('proj-sel').value = curPId;
-                    syncCurPJ();
-                }
-                hideLoading();
-            });
-        }
-
-        function syncCurPJ() {
-            const p = pjs.find(x => x.id == curPId); if(!p) return;
-            curPD = p.data;
-            document.getElementById('header-pj-name').innerText = curPD.title;
-            
-            if (!curPD.managers) { curPD.managers = [curPD.members[0]]; save(); }
-
-            kSize = curPD.koiSize || 0.5;
-
-            updateHeaderMembers(); renderDash(); updateAssList();
-            if(curBId) renderTasks();
-            fetchMemberProfiles();
-        }
-
-        function updateHeaderMembers() { 
-            const defaultIcon = "data:image/svg+xml;utf8,<svg xmlns='[http://www.w3.org/2000/svg](http://www.w3.org/2000/svg)' fill='%2394a3b8' viewBox='0 0 24 24'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/></svg>";
-            const html = curPD.members.map(m => {
-                const p = memberProfiles[m];
-                const name = (p && !p._isDummy) ? p.name : m.split('@')[0] + " (待機)";
-                const photo = (p && !p._isDummy && p.photo) ? p.photo : defaultIcon;
-                const isMgr = curPD.managers.includes(m);
-                const mgrCrown = isMgr ? '<span style="margin-left:2px;">🎐</span>' : '';
-                return `<div onclick="window.openManagerModal('${m}')" style="display:inline-flex; align-items:center; gap:4px; margin-right:8px; background:rgba(255,255,255,0.6); padding:2px 8px 2px 2px; border-radius:20px; flex-shrink:0; border: 1px solid #fff; cursor:pointer;"><img src="${photo}" style="width:16px;height:16px;border-radius:50%;object-fit:cover;background:#fff;"><span>${name}${mgrCrown}</span></div>`;
-            }).join('');
-            document.getElementById('mem-count').innerHTML = html || "-";
-        }
-
-        window.openManagerModal = (email) => {
-            if (!curPD.managers.includes(user.email)) {
-                alert("責任者のみが権限を変更できます。"); return;
-            }
-            targetManagerEmail = email;
-            const p = memberProfiles[email];
-            document.getElementById('manager-target-name').innerText = (p && !p._isDummy) ? p.name : email;
-            document.getElementById('manager-checkbox').checked = curPD.managers.includes(email);
-            window.openM('manager-m');
-        };
-
-        window.saveManager = async () => {
-            const isChecked = document.getElementById('manager-checkbox').checked;
-            if (isChecked && !curPD.managers.includes(targetManagerEmail)) {
-                curPD.managers.push(targetManagerEmail);
-            } else if (!isChecked && curPD.managers.includes(targetManagerEmail)) {
-                if (curPD.managers.length === 1 && curPD.managers[0] === targetManagerEmail) {
-                    alert("最低1人は責任者が必要です！"); return;
-                }
-                curPD.managers = curPD.managers.filter(m => m !== targetManagerEmail);
-            }
-            await save(); window.closeM('manager-m'); updateHeaderMembers(); renderDash();
-        };
-
-        function renderDash() {
-            const el = document.getElementById('dashboard'); el.innerHTML = '';
-            
-            const isMobile = window.innerWidth < 600;
-            const gapSize = isMobile ? 12 : 20;
             const padTop = isMobile ? 15 : 30;
             const padBot = isMobile ? 45 : 40; 
             const padX = isMobile ? 10 : 24;
@@ -853,7 +462,7 @@
             const p = memberProfiles[item.assEmail];
             const displayName = (p && !p._isDummy) ? p.name : item.assName; 
             const displayColor = (p && !p._isDummy) ? p.color : (item.assColor || '#94a3b8'); 
-            const defaultIcon = "data:image/svg+xml;utf8,<svg xmlns='[http://www.w3.org/2000/svg](http://www.w3.org/2000/svg)' fill='%23ffffff' viewBox='0 0 24 24'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/></svg>";
+            const defaultIcon = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' fill='%23ffffff' viewBox='0 0 24 24'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/></svg>";
             const displayPhoto = (p && !p._isDummy && p.photo) ? p.photo : defaultIcon;
 
             div.innerHTML = `<div class="drag-handle" style="${item.completed ? 'visibility:hidden;' : ''}">≡</div>
