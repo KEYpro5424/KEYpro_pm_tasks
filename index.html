@@ -84,10 +84,17 @@
         .del-group-btn { background: rgba(255, 255, 255, 0.6); border: none; border-radius: 50%; width: 28px; height: 28px; font-size: 0.8rem; font-weight: 900; color: #64748b; cursor: pointer; flex-shrink: 0;}
         .panel-circles { display: none; flex-wrap: wrap; justify-content: center; align-items: center; padding: 25px 20px 35px; }
         .glass-panel.open .panel-circles { display: flex; }
+        
         .add-new-group { cursor: pointer; border: 2px dashed rgba(255, 255, 255, 0.6); justify-content: center; align-items: center; padding: 15px; background: rgba(255, 255, 255, 0.15); border-radius: var(--radius-lg); width: 100%; max-width: 800px; text-align:center; font-weight:900; color:var(--primary); font-size: 1.1rem;}
 
         .circle-block { position: relative; box-sizing: border-box; border-radius: 50%; background: linear-gradient(135deg, rgba(255,255,255,0.85), rgba(255,255,255,0.4)); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; cursor: pointer; box-shadow: 0 10px 25px rgba(2, 132, 199, 0.15); user-select: none; -webkit-user-select: none; flex-shrink: 0; }
         .circle-title { font-weight: 900; line-height: 1.2; padding: 0 10%; pointer-events: none; overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; color:#0f172a;}
+
+        /* ✨ 修正後：プラスボタンのスタイル */
+        .circle-block.add-new {
+            border: 1px dashed rgba(15, 23, 42, 0.15); /* 線の太さを1pxにし、色を淡いライトグレーに変更 */
+            background: rgba(255, 255, 255, 0.3); /* 背景を少し透明にしてなじませる */
+        }
 
         .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.15); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); display: none; align-items: flex-end; justify-content: center; z-index: 1000; }
         .modal-overlay.active { display: flex; }
@@ -211,7 +218,6 @@
         const colors = ["#38bdf8", "#fb7185", "#34d399", "#fbbf24", "#a78bfa", "#f472b6", "#fb923c", "#0f172a"];
         let selC = colors[0];
         
-        // ✨ 開いている島のIDを保存するセット
         window.openGroups = window.openGroups || new Set();
 
         function spawnRipple(x, y) {
@@ -374,7 +380,6 @@
             await save(); window.closeM('manager-m'); updateHeaderMembers(); renderDash();
         };
 
-        // ✨ 島（アコーディオン）の開閉処理
         window.toggleGroup = (gId) => {
             if (window.openGroups.has(gId)) { window.openGroups.delete(gId); } 
             else { window.openGroups.add(gId); }
@@ -404,7 +409,6 @@
             
             const w = el.clientWidth - (padX * 2); 
             const headerHeight = 60;
-            // ✨ 「開いている島」の数に合わせて高さを確保
             const h = el.clientHeight - (padTop + padBot) - (curPD.groups.length * headerHeight) - (curPD.groups.length * 15); 
 
             let totalOpenItems = 0;
@@ -435,7 +439,6 @@
                 if (window.openGroups.has(g.id)) panel.classList.add('open');
                 panel.dataset.id = g.id;
 
-                // ✨ ヘッダーに未完了タスクのサマリーバッジを表示
                 let summaryHtml = '';
                 let myUncompTotal = 0;
                 const colorCountsTotal = {};
@@ -529,7 +532,7 @@
                     circlesContainer.appendChild(div);
                 });
 
-                const add = document.createElement('div'); add.className = 'circle-block add-new'; add.style.width = add.style.height = size + 'px'; add.style.borderStyle = 'dashed'; add.innerHTML = `<span style="font-size:${Math.max(16, size*0.4)}px; color:var(--primary)">＋</span>`; add.onclick = () => window.addBlock(g.id); add.style.marginTop = marginTopPx + 'px'; circlesContainer.appendChild(add);
+                const add = document.createElement('div'); add.className = 'circle-block add-new'; add.style.width = add.style.height = size + 'px'; add.innerHTML = `<span style="font-size:${Math.max(16, size*0.4)}px; color:var(--primary)">＋</span>`; add.onclick = () => window.addBlock(g.id); add.style.marginTop = marginTopPx + 'px'; circlesContainer.appendChild(add);
 
                 panel.appendChild(circlesContainer);
                 el.appendChild(panel);
@@ -671,7 +674,7 @@
             } else {
                 b.items.unshift(i);
             }
-            await save(); renderDash(); // サマリーバッジ更新のため
+            await save(); renderDash(); 
         };
 
         window.editT = async (tid, txt) => { const g = curPD.groups.find(x=>x.id==curGId); const b = g.blocks.find(x=>x.id==curBId); const i = b.items.find(x=>x.id==tid); if(i.text != txt){ i.text = txt; await save(); } };
