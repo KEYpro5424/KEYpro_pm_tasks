@@ -29,7 +29,6 @@
             position: relative;
         }
 
-        /* ✨ SVGフィルターをやめ、安全なCSSグラデーションで水面の煌めきを表現 */
         body::before {
             content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none; mix-blend-mode: overlay; opacity: 0.5;
             background-image: 
@@ -200,9 +199,9 @@
     <div id="invite-m" class="modal-overlay" onclick="if(event.target==this)window.closeM('invite-m')"><div class="modal-content" style="padding:30px; height:auto;"><h2>招待</h2><input type="email" id="inv-e" class="add-input" style="width:100%; box-sizing:border-box; margin-bottom:20px;" placeholder="email@gmail.com"><button class="add-btn" style="width:100%; padding:15px; background:#8b5cf6;" onclick="window.sendInv()">招待を送る</button></div></div>
 
     <script type="module">
-        // ✨ iOS（PWA環境）での「毎回ログイン求められる問題」を解消するためのインポート
+        // ✨ iOS（PWA環境）でのセッション保持のためのインポートを強化
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-        import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, setPersistence, browserLocalPersistence, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+        import { getAuth, GoogleAuthProvider, signInWithPopup, setPersistence, indexedDBLocalPersistence, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
         import { getFirestore, collection, doc, setDoc, getDoc, getDocs, onSnapshot, query, where, addDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
         const firebaseConfig = { apiKey: "AIzaSyAKBwm7j4-A__682dRZKXULXeLMX-zLPKE", authDomain: "pm-tasks-f9303.firebaseapp.com", projectId: "pm-tasks-f9303", storageBucket: "pm-tasks-f9303.firebasestorage.app", messagingSenderId: "87002903557", appId: "1:87002903557:web:e48d9ff3e807d7631a586c", measurementId: "G-S61N34YF93" };
@@ -211,14 +210,6 @@
         const db = getFirestore(app); 
         const provider = new GoogleAuthProvider();
 
-        // ✨ ログイン状態をブラウザに永続化させる（ホーム画面アプリ等でのセッション切れ防止）
-        setPersistence(auth, browserLocalPersistence);
-
-        // ✨ リダイレクトログインから戻ってきた時の処理
-        getRedirectResult(auth).catch(error => {
-            console.error("Login Error:", error);
-        });
-
         let user = null, myP = null, pjs = [], curPId = null, curPD = null, curBId = null, tempPhoto = "";
         let isDraggingCircle = false; let showCompletedTasks = false; let memberProfiles = {};
         let lastClickX = window.innerWidth / 2; let lastClickY = window.innerHeight / 2;
@@ -226,6 +217,22 @@
         
         const colors = ["#38bdf8", "#fb7185", "#34d399", "#fbbf24", "#a78bfa", "#f472b6", "#fb923c", "#0f172a"];
         let selC = colors[0];
+
+        // ✨ ログイン処理。ホーム画面でも必ずアプリ内で完結させる（Popup方式）
+        window.login = () => signInWithPopup(auth, provider);
+        window.logout = () => signOut(auth);
+
+        // ✨ 認証状態の監視の前に、強力な永続化（IndexedDB）を明示的にセットして毎回ログアウトされるのを防ぐ
+        setPersistence(auth, indexedDBLocalPersistence).then(() => {
+            onAuthStateChanged(auth, async (u) => {
+                if (u) {
+                    user = u; const d = await getDoc(doc(db, "users", u.uid));
+                    if (d.exists()) { myP = d.data(); myP._isDummy = false; memberProfiles[user.email] = myP; updateHeaderIcon(); loadPJs(); } else { showSetup(); }
+                } else { document.getElementById('auth-screen').style.display = 'flex'; hideLoading(); }
+            });
+        }).catch((error) => {
+            console.error("Auth Persistence Error:", error);
+        });
 
         function spawnRipple(x, y) {
             const numRings = Math.floor(Math.random() * 2) + 2; 
@@ -271,29 +278,6 @@
                 }; img.src = e.target.result;
             }; reader.readAsDataURL(file);
         };
-
-        onAuthStateChanged(auth, async (u) => {
-            if (u) {
-                user = u; const d = await getDoc(doc(db, "users", u.uid));
-                if (d.exists()) { myP = d.data(); myP._isDummy = false; memberProfiles[user.email] = myP; updateHeaderIcon(); loadPJs(); } else { showSetup(); }
-            } else { document.getElementById('auth-screen').style.display = 'flex'; hideLoading(); }
-        });
-
-        // ✨ ポップアップではなく、環境に応じたログイン方式にする（iOS PWA対策）
-        window.login = () => {
-            const isPWA = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
-            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-            
-            if (isPWA || isMobile) {
-                // スマホやホーム画面起動時は、画面遷移するリダイレクトログイン
-                signInWithRedirect(auth, provider);
-            } else {
-                // PCブラウザ等はポップアップ
-                signInWithPopup(auth, provider);
-            }
-        };
-        
-        window.logout = () => signOut(auth);
 
         function showSetup() { document.getElementById('auth-screen').style.display = 'flex'; document.getElementById('login-v').style.display = 'none'; document.getElementById('setup-v').style.display = 'block'; document.getElementById('setup-n').value = user.displayName; tempPhoto = user.photoURL || ""; document.getElementById('setup-img').src = tempPhoto; buildColors('setup-colors'); hideLoading(); }
         
