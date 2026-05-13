@@ -77,16 +77,15 @@
         }
 
         /* =========================================
-           ✨ 島（グループ）のスタイル：閉じた時は丸、開くとパネル
+           ✨ グループのスタイル（島感を廃止し、すりガラスと太枠でシンプルに）
            ========================================= */
         .group-container {
             position: relative; box-sizing: border-box;
-            /* 閉じた時はタスクの丸と同じサイズ */
             width: clamp(75px, 23vw, 115px); height: clamp(75px, 23vw, 115px);
             border-radius: 50%; 
-            /* 砂浜のテクスチャー */
-            background: linear-gradient(135deg, #fde6b3 0%, #fde6b3 45%, #bae6fd 55%, #7dd3fc 100%);
-            border: 3px solid #fff;
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+            border: 4px solid rgba(255, 255, 255, 0.8);
             box-shadow: 0 10px 25px rgba(2, 132, 199, 0.15);
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             cursor: pointer; transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -94,14 +93,12 @@
         }
 
         .group-container.open {
-            /* ✨ 開いた時は幅を広げ、強制的に改行させる（他の丸を横に入れない） */
             width: calc(100% - 30px);
             max-width: 800px;
             height: auto; min-height: 120px;
             border-radius: var(--radius-lg); margin-top: 10px; margin-bottom: 15px;
             background: rgba(255, 255, 255, 0.35); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
             border: 1px solid rgba(255, 255, 255, 0.6);
-            /* ✨ 魔法の余白：画面が大きくても常に1行を占有し、右への回り込みを完全ブロック！ */
             margin-left: max(15px, calc(50% - 400px));
             margin-right: max(15px, calc(50% - 400px));
         }
@@ -146,7 +143,6 @@
             border: 2px solid #fff; margin-left: -6px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
 
-        /* ✨ パネルの中のタスク一覧：左上から綺麗に並ぶように修正 */
         .group-content-area { 
             display: none; flex-wrap: wrap; justify-content: flex-start; align-items: flex-start; 
             padding: 25px 25px 35px; gap: 15px; width: 100%;
@@ -175,7 +171,6 @@
         }
         .circle-block.add-btn-circle span { font-size: clamp(20px, 5vw, 30px); color: var(--primary); font-weight: 900; opacity: 0.6; }
 
-        /* ✨ 新しい島を追加するボタン（押しやすい横長バー形式） */
         .add-new-island { 
             width: calc(100% - 30px); max-width: 800px; min-height: 50px; margin-top: 25px;
             border-radius: 25px; border: 2px dashed rgba(255, 255, 255, 0.6); 
@@ -183,7 +178,6 @@
             background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);
             cursor: pointer; transition: background 0.2s;
             font-weight: 900; color: var(--primary); font-size: 1rem;
-            /* 常に中央に配置し、横に丸を回り込ませない */
             margin-left: max(15px, calc(50% - 400px));
             margin-right: max(15px, calc(50% - 400px));
         }
@@ -390,7 +384,6 @@
             const el = document.getElementById('dashboard'); el.innerHTML = '';
             const isMgr = curPD.managers.includes(user.email);
 
-            // ✨ 1. 先にグループ（島）を上に描画
             curPD.groups.forEach(g => {
                 const isOpen = window.openGroups.has(g.id);
                 const groupEl = document.createElement('div');
@@ -429,20 +422,17 @@
                 el.appendChild(groupEl);
             });
 
-            // ✨ 2. その後に直置きタスク（丸）を描画
             curPD.standaloneBlocks.forEach(b => el.appendChild(createCircleDom(b, null)));
 
-            // 3. 直置き用の追加ボタン
             const addT = document.createElement('div');
             addT.className = 'circle-block add-btn-circle';
             addT.innerHTML = '<span>＋</span>';
             addT.onclick = () => window.addB(null);
             el.appendChild(addT);
 
-            // ✨ 4. 新しい島を追加ボタン（横長バー）
             const addG = document.createElement('div');
             addG.className = 'add-new-island';
-            addG.innerHTML = '＋ 新しい島を追加';
+            addG.innerHTML = '＋ 新しいグループを追加';
             addG.onclick = window.addG;
             el.appendChild(addG);
 
@@ -530,7 +520,7 @@
             else curPD.groups.find(x => x.id === gId).blocks.push(newB);
             await save(); window.openTaskM(gId, id);
         };
-        window.addG = async () => { const id = Date.now().toString(); curPD.groups.push({id, title:"新しい島", blocks:[]}); window.openGroups.add(id); await save(); renderDash(); };
+        window.addG = async () => { const id = Date.now().toString(); curPD.groups.push({id, title:"新しいグループ", blocks:[]}); window.openGroups.add(id); await save(); renderDash(); };
         window.updateGN = async (id, v) => { const g = curPD.groups.find(x=>x.id==id); if(g.title!=v){ g.title=v; await save(); } };
         window.delG = async (id) => { if(curPD.groups.find(x=>x.id==id).blocks.length>0) return alert("空にしてから削除してください"); curPD.groups=curPD.groups.filter(x=>x.id!=id); await save(); renderDash(); };
 
