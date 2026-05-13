@@ -76,9 +76,6 @@
             z-index: 20; padding: 30px 15px 120px; gap: 15px; width: 100%;
         }
 
-        /* =========================================
-           ✨ グループのスタイル（島感を廃止し、すりガラスと太枠でシンプルに）
-           ========================================= */
         .group-container {
             position: relative; box-sizing: border-box;
             width: clamp(75px, 23vw, 115px); height: clamp(75px, 23vw, 115px);
@@ -129,7 +126,6 @@
         .del-group-btn { display: none; background: rgba(255, 255, 255, 0.7); border: none; border-radius: 50%; width: 28px; height: 28px; font-size: 0.8rem; font-weight: 900; color: #64748b; cursor: pointer; flex-shrink: 0;}
         .group-container.open .del-group-btn { display: block; }
 
-        /* バッジ（丸の上に少しはみ出す） */
         .badge-wrapper {
             position: absolute; top: 0; left: 50%; transform: translate(-50%, -50%);
             display: flex; gap: 2px; z-index: 5; pointer-events: none; padding-left: 6px;
@@ -149,9 +145,6 @@
         }
         .group-container.open .group-content-area { display: flex; }
 
-        /* =========================================
-           ✨ タスクの丸（直置き＆グループ内）
-           ========================================= */
         .circle-block { 
             position: relative; box-sizing: border-box; border-radius: 50%; 
             background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(255,255,255,0.6)); 
@@ -159,13 +152,12 @@
             box-shadow: 0 8px 20px rgba(2, 132, 199, 0.15); user-select: none; flex-shrink: 0; 
             border: 2px solid #fff;
             width: clamp(75px, 23vw, 115px); height: clamp(75px, 23vw, 115px); 
-            margin-top: 15px; /* バッジ用マージン */
+            margin-top: 15px;
         }
         .circle-title { font-weight: 900; line-height: 1.2; padding: 0 5%; pointer-events: none; overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; color:#0f172a; font-size: clamp(11px, 3vw, 14px);}
 
         .task-badge-wrapper { position: absolute; top: 0; left: 50%; transform: translate(-50%, -50%); display: flex; gap: 2px; z-index: 5; pointer-events: none; }
 
-        /* タスク追加用の丸 */
         .circle-block.add-btn-circle {
             border: 1px dashed rgba(15, 23, 42, 0.2); background: rgba(255, 255, 255, 0.25); box-shadow: none;
         }
@@ -207,9 +199,6 @@
         .assign-sel { padding: 10px; border-radius: 10px; border: 2px solid #f1f5f9; font-weight: 800; font-family: inherit; color:#0f172a; outline: none; max-width: 140px;}
         .add-input { flex-grow: 1; padding: 10px 15px; border-radius: 10px; border: 2px solid #f1f5f9; font-family: inherit; font-weight: 800; outline: none; }
         .add-btn { background: var(--primary); color: #fff; border: none; padding: 0 15px; border-radius: 10px; font-weight: 900; cursor: pointer; }
-        
-        @keyframes jelly { 0% { transform: scale(1, 1); } 30% { transform: scale(1.15, 0.85); } 40% { transform: scale(0.85, 1.15); } 50% { transform: scale(1.05, 0.95); } 65% { transform: scale(0.98, 1.02); } 75% { transform: scale(1.02, 0.98); } 100% { transform: scale(1, 1); } }
-        .jelly-anim { animation: jelly 0.6s ease; }
     </style>
 </head>
 <body>
@@ -284,7 +273,18 @@
                 }, i * 200);
             }
         }
-        document.addEventListener('click', (e) => { lastClickX = e.clientX; lastClickY = e.clientY; spawnRipple(e.clientX, e.clientY); });
+        
+        document.addEventListener('click', (e) => { 
+            lastClickX = e.clientX; lastClickY = e.clientY; spawnRipple(e.clientX, e.clientY); 
+            
+            // ✨ 島の外（背景など）をクリックしたら島を閉じる処理
+            if (!isDraggingCircle && !document.querySelector('.modal-overlay.active')) {
+                if (!e.target.closest('.group-container') && window.openGroups.size > 0) {
+                    window.openGroups.clear();
+                    if (window.renderDash) window.renderDash();
+                }
+            }
+        });
 
         onAuthStateChanged(auth, async (u) => {
             if (u) {
@@ -378,7 +378,15 @@
             await save(); window.closeM('manager-m'); updateHeaderMembers(); renderDash();
         };
 
-        window.toggleG = (id) => { if(window.openGroups.has(id)) window.openGroups.delete(id); else window.openGroups.add(id); renderDash(); };
+        window.toggleG = (id) => { 
+            if(window.openGroups.has(id)) {
+                window.openGroups.delete(id); 
+            } else {
+                window.openGroups.clear(); // ✨ 他の島を開いた時は、開いていた島を閉じる（1つだけ開く）
+                window.openGroups.add(id); 
+            }
+            if (window.renderDash) window.renderDash(); 
+        };
 
         window.renderDash = () => {
             const el = document.getElementById('dashboard'); el.innerHTML = '';
@@ -432,7 +440,7 @@
 
             const addG = document.createElement('div');
             addG.className = 'add-new-island';
-            addG.innerHTML = '＋ 新しいグループを追加';
+            addG.innerHTML = '＋ 新しい島を追加';
             addG.onclick = window.addG;
             el.appendChild(addG);
 
@@ -520,7 +528,7 @@
             else curPD.groups.find(x => x.id === gId).blocks.push(newB);
             await save(); window.openTaskM(gId, id);
         };
-        window.addG = async () => { const id = Date.now().toString(); curPD.groups.push({id, title:"新しいグループ", blocks:[]}); window.openGroups.add(id); await save(); renderDash(); };
+        window.addG = async () => { const id = Date.now().toString(); curPD.groups.push({id, title:"新しい島", blocks:[]}); window.openGroups.add(id); await save(); renderDash(); };
         window.updateGN = async (id, v) => { const g = curPD.groups.find(x=>x.id==id); if(g.title!=v){ g.title=v; await save(); } };
         window.delG = async (id) => { if(curPD.groups.find(x=>x.id==id).blocks.length>0) return alert("空にしてから削除してください"); curPD.groups=curPD.groups.filter(x=>x.id!=id); await save(); renderDash(); };
 
