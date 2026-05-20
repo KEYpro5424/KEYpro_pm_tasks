@@ -70,10 +70,11 @@
         .icon-btn:hover { transform: scale(1.05); }
         .icon-btn img { width: 100%; height: 100%; object-fit: cover; }
 
+        /* ✨ 修正：丸が5個で綺麗に折り返すように、左右のpaddingを自動計算して幅を制限 */
         .dashboard { 
             display: flex; flex-wrap: wrap; justify-content: center; align-content: flex-start; 
             flex-grow: 1; overflow-y: auto; overflow-x: hidden; 
-            z-index: 20; padding: 30px 15px 120px; gap: 15px; width: 100%;
+            z-index: 20; padding: 30px max(15px, calc(50% - 345px)) 120px; gap: 15px; width: 100%;
         }
 
         .group-container {
@@ -89,15 +90,13 @@
             flex-shrink: 0; margin-top: 15px;
         }
 
+        /* ✨ 修正：ダッシュボードの幅制限に合わせて、マージン計算を削除しシンプルに幅100%へ */
         .group-container.open {
-            width: calc(100% - 30px);
-            max-width: 800px;
+            width: 100%;
             height: auto; min-height: 120px;
             border-radius: var(--radius-lg); margin-top: 10px; margin-bottom: 15px;
             background: rgba(255, 255, 255, 0.35); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
             border: 1px solid rgba(255, 255, 255, 0.6);
-            margin-left: max(15px, calc(50% - 400px));
-            margin-right: max(15px, calc(50% - 400px));
         }
 
         .group-header { 
@@ -139,9 +138,10 @@
             border: 2px solid #fff; margin-left: -6px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
 
+        /* ✨ 修正：島の中も5個で綺麗に折り返すように左右のpaddingを調整 */
         .group-content-area { 
             display: none; flex-wrap: wrap; justify-content: flex-start; align-items: flex-start; 
-            padding: 25px 25px 35px; gap: 15px; width: 100%;
+            padding: 25px 15px 35px; gap: 15px; width: 100%;
         }
         .group-container.open .group-content-area { display: flex; }
 
@@ -163,525 +163,20 @@
         }
         .circle-block.add-btn-circle span { font-size: clamp(20px, 5vw, 30px); color: var(--primary); font-weight: 900; opacity: 0.6; }
 
+        /* ✨ 修正：ダッシュボードの幅制限に合わせて、マージン計算を削除しシンプルに幅100%へ */
         .add-new-island { 
-            width: calc(100% - 30px); max-width: 800px; min-height: 50px; margin-top: 25px;
+            width: 100%; min-height: 50px; margin-top: 25px;
             border-radius: 25px; border: 2px dashed rgba(255, 255, 255, 0.6); 
             display: flex; justify-content: center; align-items: center; 
             background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);
             cursor: pointer; transition: background 0.2s;
             font-weight: 900; color: var(--primary); font-size: 1rem;
-            margin-left: max(15px, calc(50% - 400px));
-            margin-right: max(15px, calc(50% - 400px));
         }
         .add-new-island:hover { background: rgba(255, 255, 255, 0.4); }
 
-        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.15); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); display: none; align-items: flex-end; justify-content: center; z-index: 1000; }
-        .modal-overlay.active { display: flex; }
-        .modal-content { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); width: 100%; max-height: 85vh; border-radius: var(--radius-xl) var(--radius-xl) 0 0; display: flex; flex-direction: column; animation: slideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); box-shadow: 0 -10px 40px rgba(0,0,0,0.1); }
-        @media (min-width: 600px) { .modal-overlay { align-items: center; } .modal-content { width: 450px; border-radius: var(--radius-xl); animation: fadeInScale 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); box-shadow: 0 10px 40px rgba(0,0,0,0.1);} }
-        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-        @keyframes fadeInScale { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
-
-        .modal-header { padding: 20px 24px; display: flex; justify-content: space-between; align-items: center; }
-        .modal-title-input { font-family: inherit; border: none; font-size: 1.5rem; font-weight: 900; width: 100%; outline: none; color:#0f172a; background:transparent;}
-        .close-btn { background: #f1f5f9; border: none; width: 32px; height: 32px; border-radius: 50%; font-weight: 900; cursor: pointer; color:var(--text-m);}
-        .task-list { padding: 0 24px; overflow-y: auto; flex-grow: 1; }
-        .task-item { display: flex; align-items: center; padding: 12px; margin-bottom: 10px; background: rgba(248, 250, 252, 0.8); border-radius: var(--radius-lg); border: 2px solid #e2e8f0; }
-        .drag-handle { cursor: grab; padding: 5px; margin-right: 10px; color: #cbd5e1; font-size: 1.2rem; user-select: none; }
-        
-        /* ✨ 修正：チェックボックスが歪まないように min-width/height と inline-block で完全固定 */
-        .task-checkbox { appearance: none; -webkit-appearance: none; width: 22px; height: 22px; min-width: 22px; min-height: 22px; border-radius: 6px; border: 3px solid #cbd5e1; margin-right: 12px; cursor: pointer; position: relative; flex-shrink: 0; display: inline-block; box-sizing: border-box; }
-        
-        .task-checkbox:checked { background: var(--primary); border-color: var(--primary); }
-        .task-checkbox:checked::after { content: '✔'; position: absolute; inset: 0; color: #fff; font-size: 12px; display: flex; align-items: center; justify-content: center; }
-        .task-content { flex-grow: 1; display: flex; flex-direction: column; }
-        .task-text { font-family: inherit; font-weight: 700; outline: none; color:#0f172a;}
-        .task-item.completed .task-text { text-decoration: line-through; opacity: 0.5; }
-        .task-tag { font-size: 0.7rem; font-weight: 900; padding: 3px 8px 3px 4px; border-radius: 12px; color: #fff; margin-top: 4px; display: inline-flex; align-items: center; gap: 4px; width: fit-content; }
-        
-        /* ✨ 修正：完了タスク表示ボタンを小さくし、中央にコンパクトに配置 */
-        .toggle-completed-btn { appearance: none; -webkit-appearance: none; background: transparent; border: 2px dashed #cbd5e1; color: #64748b; font-weight: 800; padding: 6px 16px; border-radius: 50px; font-size: 0.75rem; cursor: pointer; margin: 10px auto 15px; display: block; width: fit-content; font-family: inherit; transition: 0.2s; }
-        .toggle-completed-btn:hover { border-color: var(--primary); color: var(--primary); background: #f0f9ff;}
-
-        .add-area { padding: 20px 24px; display: flex; gap: 8px; border-top: 2px dashed #f1f5f9; }
-        .assign-sel { padding: 10px; border-radius: 10px; border: 2px solid #f1f5f9; font-weight: 800; font-family: inherit; color:#0f172a; outline: none; max-width: 140px;}
-        .add-input { flex-grow: 1; padding: 10px 15px; border-radius: 10px; border: 2px solid #f1f5f9; font-family: inherit; font-weight: 800; outline: none; }
-        .add-btn { background: var(--primary); color: #fff; border: none; padding: 0 15px; border-radius: 10px; font-weight: 900; cursor: pointer; }
-    </style>
-</head>
-<body>
-
-    <svg id="koi-fish" viewBox="0 0 200 400" style="position:fixed; width:80px; height:160px; pointer-events:none; z-index: 5; transform-origin: center center; opacity: 0.95; filter: drop-shadow(0px 15px 20px rgba(0,0,0,0.25));">
-        <defs><radialGradient id="bodyGrad" cx="50%" cy="40%" r="60%"><stop offset="0%" stop-color="#ffffff"/><stop offset="80%" stop-color="#f1f5f9"/><stop offset="100%" stop-color="#cbd5e1"/></radialGradient></defs>
-        <path id="koi-fin-tail" d="M100,280 C130,330 140,380 100,390 C60,380 70,330 100,280 Z" fill="rgba(255,255,255,0.5)" stroke="#cbd5e1" stroke-width="1"/><path id="koi-fin-tail-2" d="M100,280 C115,320 120,360 100,380 C80,360 85,320 100,280 Z" fill="rgba(255,255,255,0.8)"/>
-        <path id="koi-fin-chest-l" d="M70,120 C20,130 10,180 50,200 C60,180 65,150 70,120 Z" fill="rgba(255,255,255,0.6)" stroke="#cbd5e1" stroke-width="1"/><path id="koi-fin-chest-r" d="M130,120 C180,130 190,180 150,200 C140,180 135,150 130,120 Z" fill="rgba(255,255,255,0.6)" stroke="#cbd5e1" stroke-width="1"/>
-        <path id="koi-fin-belly-l" d="M80,220 C50,240 50,270 75,260 Z" fill="rgba(255,255,255,0.6)"/><path id="koi-fin-belly-r" d="M120,220 C150,240 150,270 125,260 Z" fill="rgba(255,255,255,0.6)"/>
-        <path id="koi-body" d="M100,20 C140,40 150,140 125,240 C110,290 100,300 100,300 C100,300 90,290 75,240 C50,140 60,40 100,20 Z" fill="url(#bodyGrad)"/>
-        <path id="koi-mark-red-1" d="M100,20 C120,30 130,60 110,80 C90,100 70,80 80,40 C85,25 90,20 100,20 Z" fill="#ea580c"/><path id="koi-mark-red-2" d="M130,110 C145,130 140,170 115,190 C90,180 110,140 130,110 Z" fill="#ea580c"/><path id="koi-mark-red-3" d="M70,150 C90,140 100,170 85,210 C65,190 55,170 70,150 Z" fill="#ea580c"/><path id="koi-mark-red-4" d="M100,230 C120,240 115,270 100,280 C85,270 80,240 100,230 Z" fill="#ea580c"/>
-        <path id="koi-mark-black-1" d="M80,90 C95,95 90,120 75,115 C65,105 70,90 80,90 Z" fill="#1e293b"/><path id="koi-mark-black-2" d="M120,190 C135,200 125,230 110,225 C100,210 110,195 120,190 Z" fill="#1e293b"/><path id="koi-mark-black-3" d="M85,215 C95,220 90,240 80,235 C75,225 80,215 85,215 Z" fill="#1e293b"/>
-        <circle id="koi-eye-l" cx="75" cy="55" r="4" fill="#0f172a"/><circle id="koi-eye-l-iris" cx="74" cy="54" r="1.5" fill="#ffffff"/><circle id="koi-eye-r" cx="125" cy="55" r="4" fill="#0f172a"/><circle id="koi-eye-r-iris" cx="124" cy="54" r="1.5" fill="#ffffff"/>
-        <path id="koi-whisker-l" d="M85,25 Q70,10 65,15" fill="none" stroke="#e2e8f0" stroke-width="2" stroke-linecap="round"/><path id="koi-whisker-r" d="M115,25 Q130,10 135,15" fill="none" stroke="#e2e8f0" stroke-width="2" stroke-linecap="round"/>
-    </svg>
-
-    <div id="loading-screen"><div class="loader"></div><p style="margin-top:20px; font-weight:900; color:var(--primary)">Loading PM CORE...</p></div>
-
-    <div id="auth-screen" class="auth-overlay" style="display:none;">
-        <div class="auth-card" id="login-v"><h2 style="font-weight:900; font-size:2rem; color:#0f172a;">PM CORE</h2><button class="google-login" onclick="window.login()"><svg width="20" height="20" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>Googleでログイン</button></div>
-        <div class="auth-card" id="setup-v" style="display:none;"><h2 style="font-weight:900; color:#0f172a;">Profile Setup</h2><label class="profile-img-btn"><img id="setup-img" src="" alt="icon"><input type="file" accept="image/*" onchange="window.handleImageUpload(event, 'setup-img')"></label><input type="text" id="setup-n" style="width:100%; padding:12px; border-radius:10px; border:2px solid #f1f5f9; margin-bottom:20px; text-align:center; font-family:inherit; font-weight:800;" placeholder="なまえ"><button class="google-login" style="background:var(--primary); color:#fff;" onclick="window.finishSetup()">スタート！</button></div>
-    </div>
-
-    <div id="manager-m" class="modal-overlay" onclick="if(event.target==this)window.closeM('manager-m')">
-        <div class="modal-content" style="padding:30px; height:auto; text-align:center;">
-            <h2 style="margin:0 0 20px; font-weight:900;">メンバー権限</h2>
-            <div id="manager-target-name" style="font-weight:800; margin-bottom: 20px; color: var(--primary); font-size: 1.2rem;"></div>
-            <label style="display:flex; align-items:center; justify-content:center; gap:10px; font-weight:800; cursor:pointer;"><input type="checkbox" id="manager-checkbox" style="width:20px; height:20px;"> 責任者にする🎐</label>
-            <button class="add-btn" style="width:100%; padding:15px; margin-top:30px;" onclick="window.saveManager()">権限を更新</button>
-        </div>
-    </div>
-
-    <div id="profile-m" class="modal-overlay" onclick="if(event.target==this)window.closeM('profile-m')"><div class="modal-content" style="padding:30px; height:auto; text-align:center;"><h2 style="margin:0 0 20px; font-weight:900;">プロフィール編集</h2><label class="profile-img-btn"><img id="edit-img" src="" alt="icon"><input type="file" accept="image/*" onchange="window.handleImageUpload(event, 'edit-img')"></label><input type="text" id="edit-n" class="add-input" style="width:100%; box-sizing:border-box; margin-bottom:20px; text-align:center;" placeholder="表示名"><button class="add-btn" style="width:100%; padding:15px; margin-bottom:10px;" onclick="window.saveProfile()">保存</button><button style="background:transparent; border:none; color:#f43f5e; font-weight:900; cursor:pointer; padding:10px;" onclick="window.logout()">ログアウト</button></div></div>
-
-    <div class="top-bar">
-        <select id="proj-sel" class="project-select" onchange="window.switchProj()"></select>
-        <div style="display:flex; gap:8px;"><button class="add-btn" style="padding:8px 12px; font-size:0.75rem; background:#8b5cf6;" onclick="window.openM('invite-m')">招待</button><button class="add-btn" style="padding:8px 12px; font-size:0.75rem; background:#34d399;" onclick="window.openM('new-p-m')">＋ 新規PJ</button></div>
-    </div>
-
-    <header><div class="header-titles"><h1 id="header-pj-name">Workspace</h1><div id="mem-count" class="mem-list"></div></div><div style="display:flex; gap:10px;"><button class="icon-btn" onclick="window.openProfile()"><img id="header-user-icon" src="" alt="👤" style="width:100%; height:100%; object-fit:cover;"></button></div></header>
-
-    <div id="dashboard" class="dashboard"></div>
-
-    <div id="modal" class="modal-overlay" onclick="if(event.target==this)window.closeM('modal')"><div class="modal-content"><div class="modal-header"><input type="text" id="m-title" class="modal-title-input" onblur="window.saveName()"><button class="close-btn" onclick="window.closeM('modal')">✕</button></div><div style="overflow-y: auto; flex-grow: 1; min-height: 0; display: flex; flex-direction: column;"><div id="active-task-list" class="task-list" style="margin-bottom: 0; flex-grow: 0; overflow-y: visible;"></div><div id="completed-task-section" style="padding: 0 24px 10px; flex-shrink: 0;"></div></div><div class="add-area"><select id="ass-sel" class="assign-sel"></select><input type="text" id="t-input" class="add-input" placeholder="タスクを追加 (Cmd+Enter)" onkeydown="if((event.metaKey || event.ctrlKey) && event.key === 'Enter') { window.addTask(); event.preventDefault(); }"><button class="add-btn" onclick="window.addTask()">追加</button></div><button style="color:#f43f5e; border:none; background:none; padding:15px; font-weight:900; cursor:pointer;" onclick="window.delBlock()">🗑 このタスクを削除</button></div></div>
-    
-    <div id="new-p-m" class="modal-overlay" onclick="if(event.target==this)window.closeM('new-p-m')"><div class="modal-content" style="padding:30px; height:auto;"><h2>新規PJ作成</h2><input type="text" id="new-p-t" class="add-input" style="width:100%; box-sizing:border-box; margin-bottom:20px;" placeholder="PJ名"><button class="add-btn" style="width:100%; padding:15px; background:#34d399;" onclick="window.createPJ()">作成</button></div></div>
-    <div id="invite-m" class="modal-overlay" onclick="if(event.target==this)window.closeM('invite-m')"><div class="modal-content" style="padding:30px; height:auto;"><h2>招待</h2><input type="email" id="inv-e" class="add-input" style="width:100%; box-sizing:border-box; margin-bottom:20px;" placeholder="email@gmail.com"><button class="add-btn" style="width:100%; padding:15px; background:#8b5cf6;" onclick="window.sendInv()">招待を送る</button></div></div>
-
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-        import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, setPersistence, browserLocalPersistence, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-        import { getFirestore, collection, doc, setDoc, getDoc, getDocs, onSnapshot, query, where, addDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
-        const firebaseConfig = { apiKey: "AIzaSyAKBwm7j4-A__682dRZKXULXeLMX-zLPKE", authDomain: "pm-tasks-f9303.firebaseapp.com", projectId: "pm-tasks-f9303", storageBucket: "pm-tasks-f9303.firebasestorage.app", messagingSenderId: "87002903557", appId: "1:87002903557:web:e48d9ff3e807d7631a586c", measurementId: "G-S61N34YF93" };
-        const app = initializeApp(firebaseConfig); const auth = getAuth(app); const db = getFirestore(app); const provider = new GoogleAuthProvider();
-
-        setPersistence(auth, browserLocalPersistence);
-        getRedirectResult(auth).catch(e => console.error(e));
-
-        let user=null, myP=null, pjs=[], curPId=null, curPD=null, curGId=null, curBId=null, tempPhoto="", memberProfiles={};
-        let isDraggingCircle=false; let showCompletedTasks=false; let lastClickX=window.innerWidth/2, lastClickY=window.innerHeight/2;
-        window.openGroups = new Set();
-
-        function spawnRipple(x, y) {
-            const numRings = 2, baseSize = 80, baseDuration = 1.0;
-            for (let i = 0; i < numRings; i++) {
-                setTimeout(() => {
-                    const ripple = document.createElement('div'); ripple.className = 'ripple'; 
-                    ripple.style.left = x + 'px'; ripple.style.top = y + 'px';
-                    const finalSize = baseSize * (1 - i*0.1); 
-                    ripple.style.width = ripple.style.height = finalSize + 'px'; ripple.style.animationDuration = baseDuration + 's';
-                    document.body.appendChild(ripple); setTimeout(() => ripple.remove(), 1000); 
-                }, i * 200);
-            }
-        }
-        
-        document.addEventListener('click', (e) => { 
-            lastClickX = e.clientX; lastClickY = e.clientY; spawnRipple(e.clientX, e.clientY); 
-            
-            if (!isDraggingCircle && !document.querySelector('.modal-overlay.active')) {
-                if (!e.target.closest('.group-container') && window.openGroups.size > 0) {
-                    window.openGroups.clear();
-                    if (window.renderDash) window.renderDash();
-                }
-            }
-        });
-
-        onAuthStateChanged(auth, async (u) => {
-            if (u) {
-                user = u; const d = await getDoc(doc(db, "users", u.uid));
-                if (d.exists()) { myP = d.data(); myP._isDummy = false; memberProfiles[user.email] = myP; updateHeaderIcon(); loadPJs(); } else { showSetup(); }
-            } else { document.getElementById('auth-screen').style.display = 'flex'; hideLoading(); }
-        });
-
-        window.login = () => { if (window.navigator.standalone || /iPhone|iPad|Android/i.test(navigator.userAgent)) { signInWithRedirect(auth, provider); } else { signInWithPopup(auth, provider); } };
-        window.logout = () => signOut(auth);
-
-        function showSetup() { document.getElementById('auth-screen').style.display='flex'; document.getElementById('login-v').style.display='none'; document.getElementById('setup-v').style.display='block'; document.getElementById('setup-n').value=user.displayName; tempPhoto=user.photoURL||""; document.getElementById('setup-img').src=tempPhoto; hideLoading(); }
-        window.finishSetup = async () => { const n=document.getElementById('setup-n').value; if(!n) return; myP={email:user.email, name:n, color: "#38bdf8", photo:tempPhoto}; await setDoc(doc(db, "users", user.uid), myP); await addDoc(collection(db, "projects"), {title:"My Tasks", members:[user.email], managers:[user.email], standaloneBlocks:[], groups:[], koiSize:0.5}); location.reload(); };
-        window.openProfile = () => { document.getElementById('edit-n').value=myP.name; tempPhoto=myP.photo||""; document.getElementById('edit-img').src=tempPhoto; window.openM('profile-m'); };
-        window.saveProfile = async () => { const n=document.getElementById('edit-n').value; if(!n) return; myP.name=n; myP.photo=tempPhoto; await setDoc(doc(db, "users", user.uid), myP, {merge:true}); updateHeaderIcon(); window.closeM('profile-m'); renderDash(); };
-        
-        function updateHeaderIcon() { 
-            const defaultIcon = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' fill='%2338bdf8' viewBox='0 0 24 24'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/></svg>";
-            document.getElementById('header-user-icon').src = myP.photo || defaultIcon; 
+        /* スマホ時のパディング上書き（スマホでは元通りに表示） */
+        @media (max-width: 600px) {
+            .dashboard { padding: 20px 10px 60px; gap: 10px;}
         }
 
-        async function fetchMemberProfiles() {
-            if (!curPD || !curPD.members) return;
-            let upd = false;
-            for (const email of curPD.members) {
-                if (!memberProfiles[email] || memberProfiles[email]._isDummy) {
-                    const q = query(collection(db, "users"), where("email", "==", email));
-                    const qs = await getDocs(q);
-                    if (!qs.empty) { memberProfiles[email] = qs.docs[0].data(); memberProfiles[email]._isDummy = false; upd = true; } 
-                    else if (!memberProfiles[email]) { memberProfiles[email] = { name: email.split('@')[0], color: '#94a3b8', _isDummy: true }; upd = true; }
-                }
-            }
-            if (upd) { updateHeaderMembers(); renderDash(); }
-        }
-
-        function loadPJs() {
-            const q = query(collection(db, "projects"), where("members", "array-contains", user.email));
-            onSnapshot(q, (sn) => {
-                pjs = sn.docs.map(d => ({ id: d.id, data: d.data() }));
-                const saved = localStorage.getItem('last_pj');
-                if (pjs.length > 0) {
-                    curPId = (saved && pjs.find(p => p.id === saved)) ? saved : pjs[0].id;
-                    document.getElementById('proj-sel').innerHTML = pjs.map(p => `<option value="${p.id}" ${p.id==curPId?'selected':''}>${p.data.title}</option>`).join('');
-                    syncCurPJ();
-                }
-                hideLoading();
-            });
-        }
-
-        function syncCurPJ() {
-            const p = pjs.find(x => x.id == curPId); if(!p) return;
-            curPD = p.data;
-            document.getElementById('header-pj-name').innerText = curPD.title;
-            if(!curPD.standaloneBlocks) curPD.standaloneBlocks = [];
-            if(!curPD.groups) curPD.groups = [];
-            if(!curPD.managers) curPD.managers = [curPD.members[0]];
-            kSize = curPD.koiSize || 0.5;
-            updateHeaderMembers(); renderDash(); updateAssList(); fetchMemberProfiles();
-        }
-
-        function updateHeaderMembers() {
-            const html = curPD.members.map(m => {
-                const p = memberProfiles[m], name = (p && !p._isDummy) ? p.name : m.split('@')[0]+"(待機)", photo = (p && !p._isDummy && p.photo) ? p.photo : "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' fill='%2394a3b8' viewBox='0 0 24 24'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/></svg>";
-                const crown = curPD.managers.includes(m) ? '🎐' : '';
-                return `<div onclick="window.openMgrM('${m}')" style="display:inline-flex; align-items:center; gap:4px; margin-right:8px; background:rgba(255,255,255,0.6); padding:2px 8px 2px 2px; border-radius:20px; border: 1px solid #fff; cursor:pointer;"><img src="${photo}" style="width:16px;height:16px;border-radius:50%;object-fit:cover;"><span>${name}${crown}</span></div>`;
-            }).join('');
-            document.getElementById('mem-count').innerHTML = html;
-        }
-
-        window.openManagerModal = (email) => {
-            if (!curPD.managers.includes(user.email)) {
-                alert("責任者のみが権限を変更できます。"); return;
-            }
-            targetManagerEmail = email;
-            const p = memberProfiles[email];
-            document.getElementById('manager-target-name').innerText = (p && !p._isDummy) ? p.name : email;
-            document.getElementById('manager-checkbox').checked = curPD.managers.includes(email);
-            window.openM('manager-m');
-        };
-
-        window.saveManager = async () => {
-            const isChecked = document.getElementById('manager-checkbox').checked;
-            if (isChecked && !curPD.managers.includes(targetManagerEmail)) {
-                curPD.managers.push(targetManagerEmail);
-            } else if (!isChecked && curPD.managers.includes(targetManagerEmail)) {
-                if (curPD.managers.length === 1 && curPD.managers[0] === targetManagerEmail) {
-                    alert("最低1人は責任者が必要です！"); return;
-                }
-                curPD.managers = curPD.managers.filter(m => m !== targetManagerEmail);
-            }
-            await save(); window.closeM('manager-m'); updateHeaderMembers(); renderDash();
-        };
-
-        window.toggleG = (id) => { 
-            if(window.openGroups.has(id)) {
-                window.openGroups.delete(id); 
-            } else {
-                window.openGroups.clear(); 
-                window.openGroups.add(id); 
-            }
-            if (window.renderDash) window.renderDash(); 
-        };
-
-        window.renderDash = () => {
-            const el = document.getElementById('dashboard'); el.innerHTML = '';
-            const isMgr = curPD.managers.includes(user.email);
-
-            curPD.groups.forEach(g => {
-                const isOpen = window.openGroups.has(g.id);
-                const groupEl = document.createElement('div');
-                groupEl.className = `group-container ${isOpen?'open':''}`;
-                groupEl.dataset.id = g.id;
-
-                let badgeHtml = '';
-                const counts = {};
-                (g.blocks || []).forEach(b => (b.items || []).filter(i => !i.completed).forEach(i => {
-                    const p = memberProfiles[i.assEmail];
-                    const c = (p && !p._isDummy) ? p.color : "#94a3b8";
-                    if(isMgr || i.assEmail === user.email) counts[c] = (counts[c]||0)+1;
-                }));
-                Object.keys(counts).forEach(c => badgeHtml += `<div class="badge-mini" style="background:${c}">${counts[c]}</div>`);
-
-                groupEl.innerHTML = `
-                    <div class="group-header" onclick="if(event.target.tagName !== 'INPUT' && event.target.tagName !== 'BUTTON') window.toggleG('${g.id}')">
-                        <div class="badge-wrapper">${badgeHtml}</div>
-                        <div class="group-title-wrapper">
-                            <span class="toggle-icon">▶</span>
-                            <input type="text" value="${g.title}" onblur="window.updateGN('${g.id}', this.value)" onclick="event.stopPropagation()" class="group-title" ${isOpen?'':'readonly'}>
-                        </div>
-                        ${isOpen ? `<button class="del-group-btn" onclick="event.stopPropagation(); window.delG('${g.id}')">✕</button>` : ''}
-                    </div>
-                    <div class="group-content-area" id="circles-${g.id}"></div>
-                `;
-                if(isOpen) {
-                    const container = groupEl.querySelector('.group-content-area');
-                    g.blocks.forEach(b => container.appendChild(createCircleDom(b, g.id)));
-                    const addBtn = document.createElement('div');
-                    addBtn.className = 'circle-block add-btn-circle';
-                    addBtn.innerHTML = '<span>＋</span>';
-                    addBtn.onclick = () => window.addB(g.id);
-                    container.appendChild(addBtn);
-                }
-                el.appendChild(groupEl);
-            });
-
-            curPD.standaloneBlocks.forEach(b => el.appendChild(createCircleDom(b, null)));
-
-            const addT = document.createElement('div');
-            addT.className = 'circle-block add-btn-circle';
-            addT.innerHTML = '<span>＋</span>';
-            addT.onclick = () => window.addB(null);
-            el.appendChild(addT);
-
-            const addG = document.createElement('div');
-            addG.className = 'add-new-island';
-            addG.innerHTML = '＋ 新しいグループを追加';
-            addG.onclick = window.addG;
-            el.appendChild(addG);
-
-            setupSortables();
-        };
-
-        function createCircleDom(b, gId) {
-            const div = document.createElement('div');
-            div.className = 'circle-block';
-            div.dataset.id = b.id;
-            div.style.borderColor = b.color || "#fff";
-            div.onclick = () => { if(!isDraggingCircle) { div.classList.add('jelly-anim'); setTimeout(() => { div.classList.remove('jelly-anim'); window.openTaskM(gId, b.id); }, 250); }};
-            div.innerHTML = `<div class="circle-title">${b.title}</div>`;
-
-            const badgeContainer = document.createElement('div');
-            badgeContainer.className = 'task-badge-wrapper';
-            const isMgr = curPD.managers.includes(user.email);
-            const counts = {};
-            (b.items || []).filter(i => !i.completed).forEach(i => {
-                const p = memberProfiles[i.assEmail];
-                const c = (p && !p._isDummy) ? p.color : "#94a3b8";
-                if(isMgr || i.assEmail === user.email) counts[c] = (counts[c]||0)+1;
-            });
-            Object.keys(counts).forEach(c => badgeContainer.innerHTML += `<div class="badge-mini" style="background:${c}">${counts[c]}</div>`);
-            if(badgeContainer.children.length > 0) div.appendChild(badgeContainer);
-            return div;
-        }
-
-        function setupSortables() {
-            Sortable.create(document.getElementById('dashboard'), {
-                group: { name: 'dashboard', put: true, pull: true },
-                animation: 250, delay: 150, delayOnTouchOnly: true, filter: '.add-btn-circle, .add-new-island, input, button', preventOnFilter: false,
-                onEnd: async (e) => {
-                    const items = Array.from(e.to.children).filter(x => !x.classList.contains('add-btn-circle') && !x.classList.contains('add-new-island'));
-                    const newStandalone = [], newGroups = [];
-                    items.forEach(el => {
-                        if(el.classList.contains('group-container')) newGroups.push(curPD.groups.find(g => g.id === el.dataset.id));
-                        else newStandalone.push(curPD.standaloneBlocks.find(b => b.id === el.dataset.id));
-                    });
-                    curPD.standaloneBlocks = newStandalone; curPD.groups = newGroups; await save();
-                }
-            });
-
-            curPD.groups.forEach(g => {
-                const container = document.getElementById(`circles-${g.id}`);
-                if(!container) return;
-                Sortable.create(container, {
-                    group: { name: 'dashboard', put: true, pull: true }, 
-                    animation: 200, delay: 150, delayOnTouchOnly: true, filter: '.add-btn-circle',
-                    onAdd: async (e) => moveBlock(e), onEnd: async (e) => { if (e.from === e.to && e.oldIndex !== e.newIndex) moveBlock(e); }
-                });
-            });
-        }
-
-        async function moveBlock(e) {
-            const blockId = e.item.dataset.id;
-            if(!blockId) return; 
-            const fromGId = e.from.id === 'dashboard' ? null : e.from.id.replace('circles-', '');
-            const toGId = e.to.id === 'dashboard' ? null : e.to.id.replace('circles-', '');
-            
-            let blockData;
-            if(!fromGId) {
-                blockData = curPD.standaloneBlocks.find(b => b.id === blockId);
-                curPD.standaloneBlocks = curPD.standaloneBlocks.filter(b => b.id !== blockId);
-            } else {
-                const g = curPD.groups.find(x => x.id === fromGId);
-                blockData = g.blocks.find(b => b.id === blockId);
-                g.blocks = g.blocks.filter(b => b.id !== blockId);
-            }
-
-            if(!blockData) return;
-
-            if(!toGId) {
-                curPD.standaloneBlocks.splice(e.newIndex, 0, blockData);
-            } else {
-                const g = curPD.groups.find(x => x.id === toGId);
-                g.blocks.splice(e.newIndex, 0, blockData);
-            }
-            await save(); renderDash();
-        }
-
-        window.addB = async (gId) => {
-            const id = Date.now().toString(), newB = {id, title: "新規カテゴリ", items:[], color: myP.color};
-            if(!gId) curPD.standaloneBlocks.push(newB);
-            else curPD.groups.find(x => x.id === gId).blocks.push(newB);
-            await save(); window.openTaskM(gId, id);
-        };
-        window.addG = async () => { const id = Date.now().toString(); curPD.groups.push({id, title:"新しいグループ", blocks:[]}); window.openGroups.add(id); await save(); renderDash(); };
-        window.updateGN = async (id, v) => { const g = curPD.groups.find(x=>x.id==id); if(g.title!=v){ g.title=v; await save(); } };
-        window.delG = async (id) => { if(curPD.groups.find(x=>x.id==id).blocks.length>0) return alert("空にしてから削除してください"); curPD.groups=curPD.groups.filter(x=>x.id!=id); await save(); renderDash(); };
-
-        window.openTaskM = (gId, bId) => {
-            curGId = gId; curBId = bId;
-            const b = gId ? curPD.groups.find(x=>x.id==gId).blocks.find(x=>x.id==bId) : curPD.standaloneBlocks.find(x=>x.id==bId);
-            document.getElementById('m-title').value = b.title; document.getElementById('m-title').style.color = b.color;
-            showCompletedTasks = false; renderTasks(); window.openM('modal');
-        };
-        function renderTasks() {
-            const b = curGId ? curPD.groups.find(x=>x.id==curGId).blocks.find(x=>x.id==curBId) : curPD.standaloneBlocks.find(x=>x.id==curBId);
-            const activeCont = document.getElementById('active-task-list'), compSect = document.getElementById('completed-task-section');
-            activeCont.innerHTML = ''; compSect.innerHTML = '';
-            const isMgr = curPD.managers.includes(user.email);
-            const visible = isMgr ? b.items : b.items.filter(i => i.assEmail === user.email);
-            visible.filter(i => !i.completed).forEach(i => activeCont.appendChild(createTaskDom(i)));
-            const comps = visible.filter(i => i.completed);
-            if(comps.length > 0) {
-                const btn = document.createElement('button'); btn.className='toggle-completed-btn'; btn.innerText=showCompletedTasks?'隠す':'表示';
-                btn.onclick = () => { showCompletedTasks = !showCompletedTasks; renderTasks(); };
-                compSect.appendChild(btn);
-                if(showCompletedTasks) comps.forEach(i => compSect.appendChild(createTaskDom(i)));
-            }
-        }
-        function createTaskDom(item) {
-            const div = document.createElement('div'); div.className = `task-item ${item.completed?'completed':''}`;
-            const p = memberProfiles[item.assEmail], name = (p && !p._isDummy)?p.name:item.assName, color = (p && !p._isDummy)?p.color:item.assColor, photo = (p && !p._isDummy && p.photo)?p.photo:"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' fill='%23fff' viewBox='0 0 24 24'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/></svg>";
-            div.innerHTML = `<div class="drag-handle">≡</div><input type="checkbox" class="task-checkbox" ${item.completed?'checked':''} onchange="window.toggleT('${item.id}','${color}')"><div class="task-content"><div class="task-text" contenteditable="true" onblur="window.editT('${item.id}',this.innerText)">${item.text}</div><span class="task-tag" style="background:${color}"><img src="${photo}" style="width:14px;height:14px;border-radius:50%;object-fit:cover;"> ${name}</span></div><button style="border:none;background:none;color:#cbd5e1" onclick="window.delT('${item.id}')">✕</button>`;
-            return div;
-        }
-
-        window.addTask = async () => {
-            const input = document.getElementById('t-input'), text = input.value.trim(); if(!text) return;
-            const assE = document.getElementById('ass-sel').value, prof = memberProfiles[assE] || {name:assE.split('@')[0], color:'#94a3b8'};
-            const b = curGId ? curPD.groups.find(x=>x.id==curGId).blocks.find(x=>x.id==curBId) : curPD.standaloneBlocks.find(x=>x.id==curBId);
-            b.items.unshift({id:Date.now().toString(), text, completed:false, assName:prof.name, assEmail:assE, assColor:prof.color});
-            input.value = ''; await save(); renderTasks(); renderDash();
-        };
-        window.toggleT = async (tid, color) => {
-            const b = curGId ? curPD.groups.find(x=>x.id==curGId).blocks.find(x=>x.id==curBId) : curPD.standaloneBlocks.find(x=>x.id==curBId);
-            const i = b.items.find(x=>x.id==tid); i.completed = !i.completed;
-            if(i.completed) { spawnFood(lastClickX, lastClickY, color); b.items.push(b.items.splice(b.items.indexOf(i), 1)[0]); }
-            else { b.items.unshift(b.items.splice(b.items.indexOf(i), 1)[0]); }
-            await save(); renderTasks(); renderDash();
-        };
-        window.editT = async (tid, txt) => {
-            const b = curGId ? curPD.groups.find(x=>x.id==curGId).blocks.find(x=>x.id==curBId) : curPD.standaloneBlocks.find(x=>x.id==curBId);
-            const i = b.items.find(x=>x.id==tid); if(i.text != txt){ i.text=txt; await save(); }
-        };
-        window.delT = async (tid) => {
-            const b = curGId ? curPD.groups.find(x=>x.id==curGId).blocks.find(x=>x.id==curBId) : curPD.standaloneBlocks.find(x=>x.id==curBId);
-            b.items = b.items.filter(x=>x.id!=tid); await save(); renderTasks(); renderDash();
-        };
-        window.saveName = async () => {
-            const b = curGId ? curPD.groups.find(x=>x.id==curGId).blocks.find(x=>x.id==curBId) : curPD.standaloneBlocks.find(x=>x.id==curBId);
-            const v = document.getElementById('m-title').value; if(b.title != v){ b.title=v; await save(); renderDash(); }
-        };
-        window.delBlock = async () => {
-            if(!confirm("削除しますか？")) return;
-            if(curGId) { const g = curPD.groups.find(x=>x.id==curGId); g.blocks = g.blocks.filter(x=>x.id != curBId); }
-            else { curPD.standaloneBlocks = curPD.standaloneBlocks.filter(x=>x.id != curBId); }
-            await save(); window.closeM('modal'); renderDash();
-        };
-
-        window.openMgrM = (e) => { if(!curPD.managers.includes(user.email)) return alert("権限がありません"); window.targetMgrE = e; const p = memberProfiles[e]; document.getElementById('manager-target-name').innerText = (p && !p._isDummy) ? p.name : e; document.getElementById('manager-checkbox').checked = curPD.managers.includes(e); window.openM('manager-m'); };
-        window.saveManager = async () => { const isChecked = document.getElementById('manager-checkbox').checked; if (isChecked && !curPD.managers.includes(window.targetMgrE)) curPD.managers.push(window.targetMgrE); else if (!isChecked) curPD.managers = curPD.managers.filter(m => m !== window.targetMgrE); await save(); window.closeM('manager-m'); updateHeaderMembers(); renderDash(); };
-        window.createPJ = async () => { const t = document.getElementById('new-p-t').value; if(!t) return; await addDoc(collection(db, "projects"), { title: t, members: [user.email], managers: [user.email], groups: [], standaloneBlocks: [], koiSize: 0.5 }); window.closeM('new-p-m'); };
-        window.sendInv = async () => { const e = document.getElementById('inv-e').value; if(!e) return; if(!curPD.members.includes(e)) { curPD.members.push(e); await save(); alert("招待しました"); } window.closeM('invite-m'); };
-        window.switchProj = () => { curPId = document.getElementById('proj-sel').value; localStorage.setItem('last_pj', curPId); syncCurPJ(); };
-        async function save() { await setDoc(doc(db, "projects", curPId), curPD); }
-        window.openM = (id) => document.getElementById(id).classList.add('active');
-        window.closeM = (id) => { document.getElementById(id).classList.remove('active'); if(id=='modal'){ curGId=null; curBId=null; } };
-        function hideLoading() { document.getElementById('loading-screen').style.opacity = '0'; setTimeout(() => document.getElementById('loading-screen').style.display='none', 500); }
-        window.updateAssList = () => { const sel = document.getElementById('ass-sel'); sel.innerHTML = curPD.members.map(m => { const p = memberProfiles[m]; return `<option value="${m}">${(p && !p._isDummy)?p.name : m.split('@')[0] + "(待機)"}</option>`; }).join(''); sel.value = user.email; };
-        window.handleImageUpload = (event, imgId) => { const file = event.target.files[0]; if(!file) return; const reader = new FileReader(); reader.onload = (e) => { const img = new Image(); img.onload = () => { const canvas = document.createElement('canvas'); const size = 150; canvas.width = size; canvas.height = size; const ctx = canvas.getContext('2d'); const min = Math.min(img.width, img.height); ctx.drawImage(img, (img.width-min)/2, (img.height-min)/2, min, min, 0, 0, size, size); tempPhoto = canvas.toDataURL('image/jpeg', 0.8); document.getElementById(imgId).src = tempPhoto; }; img.src = e.target.result; }; reader.readAsDataURL(file); };
-
-        const KOI_BASE_SPEED = 0.6, KOI_CHASE_SPEED = 3.0, KOI_TURN_SOFTNESS = 0.02, SWAY_AMP = 0.1, SWAY_FREQ = 0.004;
-        let koiEl = document.getElementById('koi-fish'), kX = window.innerWidth / 2, kY = window.innerHeight / 2, kAngle = 0, kSize = 0.5, currentTarget = null, foods = [];
-        
-        function getScreenScale() { if (window.innerWidth < 500) return 0.7; if (window.innerWidth < 800) return 0.85; return 1.0; }
-
-        function spawnFood(x, y, color) { const food = document.createElement('div'); food.className = 'fish-food'; food.style.left = x + 'px'; food.style.top = y + 'px'; food.style.backgroundColor = color || '#ffcc00'; document.body.appendChild(food); foods.push({ el: food, x, y }); }
-        
-        function updateKoi() {
-            if (!koiEl) return;
-            let mf = Math.sqrt(0.5 / Math.max(0.5, kSize)), tx, ty, speed;
-            let currentBaseSpeed = KOI_BASE_SPEED * mf;
-            let currentChaseSpeed = KOI_CHASE_SPEED * mf;
-            let currentTurnSoftness = KOI_TURN_SOFTNESS * mf;
-            let currentSwayFreq = SWAY_FREQ * mf;
-
-            if (foods.length === 0 && currentTarget) {
-                let dx = currentTarget.x - kX, dy = currentTarget.y - kY;
-                if (Math.sqrt(dx*dx + dy*dy) < 30) currentTarget = null;
-            }
-
-            if (foods.length > 0) { 
-                tx = foods[0].x; ty = foods[0].y; speed = currentChaseSpeed; 
-                currentTurnSoftness *= 3.0;
-            } else { 
-                if (!currentTarget || Math.random() < 0.003) currentTarget = { x: Math.random() * window.innerWidth, y: Math.random() * window.innerHeight }; 
-                tx = currentTarget.x; ty = currentTarget.y; speed = currentBaseSpeed; 
-            }
-
-            let dx = tx - kX, dy = ty - kY, dist = Math.sqrt(dx*dx + dy*dy);
-            let currentScreenScale = getScreenScale();
-            let hitRadius = Math.max(40, 40 * kSize * currentScreenScale);
-
-            if (foods.length > 0 && dist < hitRadius) { 
-                foods.shift().el.remove(); kSize += 0.05; 
-                if (curPD) { curPD.koiSize = kSize; save(); } 
-                spawnRipple(kX, kY); 
-            }
-
-            if (dist > speed) { 
-                if (dist > 5) {
-                    let ta = Math.atan2(dy, dx), da = ta - kAngle; 
-                    while (da > Math.PI) da -= Math.PI * 2; while (da < -Math.PI) da += Math.PI * 2; 
-                    kAngle += da * currentTurnSoftness; 
-                }
-                kX += Math.cos(kAngle) * speed; kY += Math.sin(kAngle) * speed; 
-            }
-
-            let speedRatio = speed / currentBaseSpeed;
-            let swayAmp = Math.min(speedRatio, 1.5); 
-            let swayFreq = currentSwayFreq * Math.min(speedRatio, 2.5); 
-
-            let baseDisplayAngle = kAngle + (Math.PI / 2);
-            let bodySway = 0; 
-            let finalAngle = baseDisplayAngle + bodySway;
-
-            let finSway = Math.sin(Date.now() * swayFreq * 1.5) * 15 * swayAmp; 
-            let tailSway = Math.sin(Date.now() * swayFreq - 1.0) * 25 * swayAmp;
-
-            document.getElementById('koi-fin-chest-l').setAttribute('transform', `rotate(${finSway}, 70, 120)`);
-            document.getElementById('koi-fin-chest-r').setAttribute('transform', `rotate(${-finSway}, 130, 120)`);
-            document.getElementById('koi-fin-tail').setAttribute('transform', `rotate(${tailSway}, 100, 280)`);
-            document.getElementById('koi-fin-tail-2').setAttribute('transform', `rotate(${tailSway}, 100, 280)`);
-
-            koiEl.style.left = kX + 'px'; koiEl.style.top = kY + 'px';
-            koiEl.style.transform = `translate(-50%, -50%) scale(${kSize * currentScreenScale}) rotate(${finalAngle}rad)`;
-            
-            requestAnimationFrame(updateKoi);
-        }
-        updateKoi();
-    </script>
-</body>
-</html>
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.15); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); display: none; align-items: flex-end; justify-content: center; z-index:
